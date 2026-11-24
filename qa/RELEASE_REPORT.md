@@ -12,7 +12,7 @@ Data: 24/11/2026 · Build: Next.js 16.4.6 (produção) · Ambiente de QA: contai
 | G3 frota, anatomia, cutaway, cabine, galeria | ✔ | `qa/screenshots/inspect/*`, `t3.*`, `t4.*`, `t6.*` |
 | G4 globo, formulário, API, epílogo | ✔ | `t7.*`, `t8.*`, testes E2E de formulário/API |
 | G5 fallbacks, mídia gerada, reduced motion, performance | ✔ (ver limites) | `public/media/*`, `qa/performance/vitals.json`, testes de reduced motion / WebGL off |
-| G6 CI, testes, deploy, relatório | ◐ | CI em `.github/workflows/ci.yml`; deploy de produção **bloqueado** (sem credencial Vercel nesta sessão) |
+| G6 CI, testes, deploy, relatório | ✔ | **Produção: https://777-labs-aviation.vercel.app** (Vercel ↔ GitHub `ogomes777/777-labs-aviation`, deploy automático a cada push em `main`); E2E 36/36 contra a produção (`qa/e2e-production.txt`) |
 
 ## Testes executados (resultados reais)
 | Suíte | Resultado | Arquivo |
@@ -58,9 +58,9 @@ Casos E2E cobertos (de `06_QA/TESTES_E2E.md`): carga sem erros e sem scroll hori
 | Reduced motion preserva conteúdo | 5/5 | E2E |
 | Teclado + foco + labels | 5/5 | E2E |
 | Mobile sem hijack/overflow | 5/5 | E2E |
-| README, build, deploy preview, testes | 3/5 | README, build e testes ✔; **deploy não publicado** (sem credencial Vercel) |
+| README, build, deploy preview, testes | 5/5 | README, build, testes e deploy de produção com CI/CD via GitHub ✔ |
 | Mídia/licenças verificadas | 5/5 | `docs/ASSETS_E_LICENCAS.md` |
-| **Total** | **94/100** | zero bugs críticos conhecidos |
+| **Total** | **96/100** | zero bugs críticos conhecidos |
 
 ## Bugs encontrados e corrigidos durante o QA
 1. Pós-produção: efeito com transformação de UV + convolução derrubava todo o canvas no tier alto → removido; error boundary adicionada; teste E2E do tier alto.
@@ -72,8 +72,18 @@ Casos E2E cobertos (de `06_QA/TESTES_E2E.md`): carga sem erros e sem scroll hori
 7. Manchas pretas nos realces da cabine no tier alto: isoladas por eliminação (balanceado limpo → nível 0 limpo → sem DOF/AO ainda manchado) até a aberração cromática/ruído de película, que interagiam mal com valores HDR; ambos removidos (grão migrou para camada CSS) e adicionados dois guardas (saneamento HDR antes da pós e guarda de NaN no fim). O flare anamórfico experimental também foi removido por gerar faixas fantasmas.
 8. Foco do formulário fora da ordem visual; seleção de peça desfeita pelo clique; mapa 2D cobrindo filtros no mobile; índice de carrossel ambíguo em viewport largo.
 
+## Rodada de desempenho pós-publicação (relato "não carrega no desktop")
+| Causa encontrada | Correção |
+|---|---|
+| Piso refletivo (drei `MeshReflectorMaterial`) re-renderizava a cena inteira a cada quadro em **todos** os capítulos e se forçava visível, cobrindo o mar de nuvens | montado somente no hangar/frota |
+| Resolução sem teto real (2K/4K com escala → ~8 MP por quadro com AO/DOF/bloom) | orçamento de pixels por nível (0,7–2,4 MP) + nível 4 nativo até 4K apenas quando o FPS prova folga |
+| Começava no nível máximo de efeitos | inicia no nível 2 (alto) / 1 (balanceado) e sobe por FPS medido; GPU integrada → balanceado |
+| Título do hero dependia de JavaScript para aparecer | intro em CSS puro (aparece em ~150–220 ms) |
+| Foco inicial a 9 m desfocava o hero inteiro | foco nasce no alvo; DOF sutil; nitidez segura para HDR |
+| Recursos criados antes de serem necessários | globo, mapas de ambiente e pós-produção sob demanda; frota só perto do hangar |
+
+Medido aqui: canvas em 2K@150% caiu de 8,3 MP para 1,7 MP por quadro (≈5×); mobile DPR 3 de 3,0 MP para 0,8 MP.
+
 ## Limites e próximos passos
-- **Deploy:** publicar na Vercel requer um token cadastrado em `api.vercel.com` nos segredos do ambiente; depois, `vercel deploy --prod`.
 - **Fontes de referência** (Casko Luxury, Angelin, Chasa Marelo, Moonscape): comerciais/demo; substituídas por OFL equivalentes. Com licença e arquivos, a troca é feita em `src/app/layout.tsx`.
-- **Repositório remoto:** `gh` sem token válido nesta sessão; o repositório git local está completo.
 - Testes em dispositivos físicos e Lighthouse em rede real (CrUX) quando houver URL pública.
