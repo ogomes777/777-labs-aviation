@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
+.env
+qa/tmp
+test-results
+playwright-report
+.vercel
+qa/tmp
+qa/e2e-results.json
+scripts/_*.mjs

@@ -1,0 +1,47 @@
+/* 777 LABS AVIATION — Design tokens ("Altitudes of Perception") */
+:root {
+  --ink: #101725;
+  --void: #080e16;
+  --pearl: #f7f5f0;
+  --silk: #e6e5e0;
+  --cloud: #b7d2e6;
+  --aurora: #f2c6bd;
+  --champagne: #c8af89;
+  --champagne-deep: #8a6d43; /* texto champagne com contraste AA sobre marfim */
+  --steel: #5f7280;          /* microcopy técnico (AA sobre pearl) */
+  --positive: #396b54;
+  --danger: #a3392f;
+  --ivory-cabin: #efe7da;
+  --hangar: #06080b;
+
+  --font-serif: var(--font-bodoni), 'Bodoni Moda', Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-manrope), Manrope, 'Helvetica Neue', Arial, sans-serif;
+  --font-text: var(--font-cormorant), 'Cormorant Garamond', Garamond, Georgia, serif;
+  --font-script: var(--font-pinyon), 'Pinyon Script', 'Snell Roundhand', cursive;
+
+  --h1: clamp(3rem, 7.4vw, 9.4rem);
+  --h2: clamp(2.5rem, 5.4vw, 6.2rem);
+  --h3: clamp(1.4rem, 2vw, 2rem);
+  --body: clamp(0.98rem, 0.9rem + 0.3vw, 1.12rem);
+  --overline: 0.72rem;
+
+  --gutter: max(16px, 5vw);
+  --radius: 10px;
+  --ease-ui: cubic-bezier(0.22, 0.61, 0.36, 1);      /* power2.out */
+  --ease-scene: cubic-bezier(0.65, 0, 0.35, 1);      /* power3.inOut */
+  --t-micro: 180ms;
+  --t-medium: 480ms;
+  --t-grand: 1200ms;
+
+  /* cena ativa (alterada por data-scene no <html>) */
+  --fg: var(--ink);
+  --fg-soft: rgba(16, 23, 37, 0.72);
+  --line: rgba(16, 23, 37, 0.18);
+  --header-bg: rgba(247, 245, 240, 0);
+}
+
+html[data-scene='dark'] {
+  --fg: #f4f1ea;
+  --fg-soft: rgba(244, 241, 234, 0.74);
+  --line: rgba(244, 241, 234, 0.2);
+}

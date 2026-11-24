@@ -1,0 +1,31 @@
+// QA da inspeção da frota: desmontar, planta, poltrona (cliques reais). Uso: node scripts/qa-inspect.mjs <outDir>
+import { chromium } from 'playwright';
+import { mkdirSync } from 'node:fs';
+import { gotoT, waitReady } from './qa-lib.mjs';
+const out = process.argv[2] ?? 'qa/screenshots/inspect';
+mkdirSync(out, { recursive: true });
+const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
+await p.goto('http://localhost:3777/?qa=1&perf=lock&quality=' + (process.argv[3] ?? 'balanced'), { waitUntil: 'networkidle' });
+await waitReady(p);
+await p.waitForTimeout(2500);
+await p.screenshot({ path: `${out}/00-hero.png` });
+await gotoT(p, 3.12, { settle: 9000 }); // espera a fila carregar em idle
+await p.evaluate(() => { window.__777.frame.freezeClock = false; });
+const shot = async (name, wait) => { await p.waitForTimeout(wait); await p.screenshot({ path: `${out}/${name}.png` }); console.log(name); };
+await p.evaluate(() => document.querySelector('.fcard[data-active="true"] .fcard__cta').click());
+await shot('01-meridian-desmontado', 5200);
+await p.evaluate(() => [...document.querySelectorAll('.inspect__parts button')].find((b) => b.textContent === 'Fan')?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })));
+await shot('02-foco-fan', 1200);
+await p.evaluate(() => [...document.querySelectorAll('[role=tab]')].find((b) => b.textContent === 'Planta').click());
+await shot('03-planta', 11000);
+await p.evaluate(() => document.querySelectorAll('.seat-pin')[1].click());
+await shot('04-poltrona', 13000);
+await p.evaluate(() => document.querySelector('.inspect__close').click());
+await p.waitForTimeout(1500);
+await gotoT(p, 3.8, { settle: 3000 });
+await p.evaluate(() => document.querySelector('.fcard[data-active="true"] .fcard__cta').click());
+await shot('05-heli-desmontado', 5200);
+console.log('errors', errs);
+await b.close();
