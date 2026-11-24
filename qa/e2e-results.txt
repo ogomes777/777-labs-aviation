@@ -42,4 +42,4 @@ Running 40 tests using 1 worker
 [39/40] [mobile] › tests/e2e/home.spec.ts:247:7 › resiliência › WebGL indisponível: imagem estática e CTA utilizável
 [40/40] [mobile] › tests/e2e/home.spec.ts:257:7 › resiliência › preferência de movimento persiste e troca o modo
   4 skipped
-  36 passed (2.9m)
+  36 passed (2.6m)

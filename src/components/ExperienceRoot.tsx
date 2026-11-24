@@ -44,21 +44,12 @@ export default function ExperienceRoot() {
   const cinematic = mounted && motion === 'cinematic' && webgl && quality !== 'lite';
   useEffect(() => { nav.cinematic = cinematic; nav.veil = navVeilRef.current; domRefs.veil = veilRef.current; domRefs.route = document.getElementById('route-path') as SVGPathElement | null; }, [cinematic]);
 
-  // intro de página: título sobe palavra a palavra, CTAs e header entram em seguida
+  // intro de página: CSS puro (global.css) — a classe sai depois para liberar as revelações de scroll
   useEffect(() => {
     const html = document.documentElement;
     if (!mounted) return;
-    if (!cinematic) { html.classList.remove('intro'); return; }
-    let killed = false;
-    import('gsap').then(({ gsap }) => {
-      if (killed) return;
-      const tl = gsap.timeline({ defaults: { ease: 'power4.out' }, onComplete: () => html.classList.remove('intro') });
-      tl.fromTo('[data-intro] .wi', { y: 0, yPercent: 115, rotationX: -80, '--c': 1, transformOrigin: '50% 100%' }, { y: 0, yPercent: 0, rotationX: 0, '--c': 0, duration: 1.5, stagger: 0.07 }, 0.15)
-        .fromTo('[data-intro-fade]', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1, stagger: 0.12 }, 0.7)
-        .fromTo('.site-header', { autoAlpha: 0, y: -16 }, { autoAlpha: 1, y: 0, duration: 1 }, 0.5);
-      html.classList.add('intro-running');
-    });
-    return () => { killed = true; };
+    const t = window.setTimeout(() => html.classList.remove('intro'), cinematic ? 2400 : 0);
+    return () => window.clearTimeout(t);
   }, [mounted, cinematic]);
 
   // ponteiro (parallax sutil)

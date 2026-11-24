@@ -1,7 +1,7 @@
 'use client';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { MeshReflectorMaterial } from '@react-three/drei';
-import { Component, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { damp, frame, pulse, ramp, ui, clamp, fleetDwell } from '@/experience/director';
@@ -11,7 +11,7 @@ import { buildJet, type JetBuild } from './jet/buildJet';
 import { CUT } from './jet/materials';
 import { groundY, SPECS, type AircraftId } from './jet/spec';
 import { createCloudPuffs, createCloudSea, createSkyDome, lerpPalette, SKY_PALETTES } from './env/sky';
-import { buildEnvMaps } from './env/envmaps';
+import { createEnvMaps, type EnvKey } from './env/envmaps';
 import { createBlueprintGrid, createHangar } from './env/hangar';
 import { createGlobe, facing } from './globe/globe';
 import { createContrails } from './env/contrails';
@@ -39,9 +39,13 @@ const HIGHLIGHT = C('#2f63ff');
 
 function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const { gl, scene, camera, size } = useThree();
-  const setDpr = useThree((st) => st.setDpr);
   const perf = ui.useStore((st) => st.perf);
   const dofOn = ui.useStore((st) => st.dof);
+  const floorOn = ui.useStore((st) => st.floor);
+  const canvasReady = ui.useStore((st) => st.canvasReady);
+  const [fxOn, setFxOn] = useState(false);
+  // a cena aparece primeiro; bloom/DOF/AO entram logo depois (não bloqueiam o primeiro quadro)
+  useEffect(() => { if (!canvasReady) return; const id = window.setTimeout(() => setFxOn(true), 500); return () => window.clearTimeout(id); }, [canvasReady]);
   const cam = camera as THREE.PerspectiveCamera;
   const variant = ui.useStore((s) => s.variant);
   const detail = quality === 'high' ? 1 : 0.7;
@@ -49,27 +53,26 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   // ---------- construção (memoizada) ----------
   const env = useMemo(() => {
     const sky = createSkyDome(SKY_PALETTES.dawn);
-    const sea = createCloudSea(SKY_PALETTES.dawn, quality === 'high' ? 6 : 4);
+    const sea = createCloudSea(SKY_PALETTES.dawn, quality === 'high' ? 5 : 4);
     sea.mesh.position.y = -70;
-    const puffs = createCloudPuffs(SKY_PALETTES.dawn, quality === 'high' ? 150 : 70);
+    const puffs = createCloudPuffs(SKY_PALETTES.dawn, quality === 'high' ? 90 : 40);
     const skyGroup = new THREE.Group();
     skyGroup.add(sky.mesh, sea.mesh, puffs.mesh);
     const gy = groundY(SPECS.XR);
     const hangar = createHangar(gy);
     const grid = createBlueprintGrid(gy);
-    const globe = createGlobe(quality);
-    globe.root.position.copy(GLOBE_CENTER);
-    const maps = buildEnvMaps(gl, sky.mesh);
-    return { sky, sea, puffs, skyGroup, hangar, grid, globe, maps, gy };
+    const maps = createEnvMaps(gl, sky.mesh);
+    maps.get('sky');
+    return { sky, sea, puffs, skyGroup, hangar, grid, maps, gy };
   }, [gl, quality]);
 
-  const jet = useMemo<JetBuild>(() => buildJet(variant, { textureSize: quality === 'high' ? 4096 : 2048, detail }), [variant, quality, detail]);
+  const jet = useMemo<JetBuild>(() => buildJet(variant, { textureSize: quality === 'high' ? 2048 : 1024, detail }), [variant, quality, detail]);
   useEffect(() => () => jet.dispose(), [jet]);
   useEffect(() => () => {
     env.sea.mesh.geometry.dispose(); (env.sea.mesh.material as THREE.Material).dispose();
     env.sky.mesh.geometry.dispose(); (env.sky.mesh.material as THREE.Material).dispose();
-    env.puffs.dispose(); env.hangar.dispose(); env.grid.dispose(); env.globe.dispose();
-    Object.values(env.maps).forEach((t) => t.dispose());
+    env.puffs.dispose(); env.hangar.dispose(); env.grid.dispose();
+    env.maps.dispose();
   }, [env]);
 
   const contrails = useMemo(() => createContrails(), []);
@@ -90,17 +93,20 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const todo = FLEET.filter((f) => f.id !== 'XR');
     // prioridade adaptativa: ociosidade enquanto o visitante está no céu; urgente ao se aproximar do hangar/frota
     const ric = (window as unknown as { requestIdleCallback?: (c: () => void, o?: object) => number }).requestIdleCallback;
-    const idle = (cb: () => void) => { if (frame.t > 1.4 || !ric) window.setTimeout(cb, frame.t > 1.4 ? 16 : 200); else ric(cb, { timeout: 5000 }); };
+    const idle = (cb: () => void) => {
+      const wait = () => { if (cancelled) return; if (frame.t > 1.1) window.setTimeout(cb, 60); else if (ric) ric(() => window.setTimeout(wait, 400)); else window.setTimeout(wait, 500); };
+      wait();
+    };
     const next = () => {
       if (cancelled) return;
       const item = todo.shift(); if (!item) return;
       let c: Craft;
       if (item.id === 'H') {
-        const h = buildHeli({ textureSize: quality === 'high' ? 2048 : 1024 });
+        const h = buildHeli({ textureSize: 1024 });
         h.group.position.set(item.x, groundY(SPECS.XR) + 1.81, 0);
         c = { id: 'H', group: h.group, fans: h.fans, entries: heliEntries(h.group), x: item.x, size: h.length, seats: [], floorY: 0, dispose: h.dispose };
       } else {
-        const b = buildJet(item.id as AircraftId, { textureSize: quality === 'high' ? 2048 : 1024, detail: 0.62 });
+        const b = buildJet(item.id as AircraftId, { textureSize: 1024, detail: 0.55 });
         b.group.position.set(item.x, groundY(SPECS.XR) - groundY(b.spec), 0);
         c = { id: item.id, group: b.group, fans: b.fans.map((o) => ({ obj: o, axis: 'x' as const })), entries: jetEntries(b.group, b.spec.kind === 'turboprop'), x: item.x, size: b.spec.L, seats: b.cabin.seats, floorY: b.cabin.floorY, dispose: b.dispose };
       }
@@ -117,13 +123,18 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const inspectP = useRef(0);
   const lastRegion = useRef<string | null>(null);
 
+  // globo: construído só quando o visitante se aproxima de Destinos
+  const globeHolder = useMemo(() => new THREE.Group(), []);
+  const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
+  useEffect(() => () => { globeRef.current?.dispose(); globeRef.current = null; }, [quality]);
+
   const tracks = useRef<Track[]>([]);
   useEffect(() => { tracks.current = buildTracks(jet, size.width / size.height); }, [jet, size.width, size.height]);
 
   // ---------- luzes ----------
   const lights = useMemo(() => {
     RectAreaLightUniformsLib.init();
-    const sun = new THREE.DirectionalLight('#ffe2c8', 3.2); sun.position.set(-78, 20, 60);
+    const sun = new THREE.DirectionalLight('#fff4e6', 3.0); sun.position.set(-72, 34, 60);
     const hemi = new THREE.HemisphereLight('#cfe0f2', '#f3dcd4', 0.8);
     const key = new THREE.RectAreaLight('#fff0dc', 0, 9, 2.2); key.position.set(-7, 6.5, -9); key.lookAt(-2, 0.6, 0);
     const rim = new THREE.DirectionalLight('#c9d3de', 0); rim.position.set(14, 9, 34);
@@ -143,21 +154,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   }, [jet, lights]);
 
   const floorRef = useRef<THREE.Mesh>(null);
-  const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 3 : 1, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
-  useEffect(() => { if (quality !== 'high' && ui.get().perf > 1) ui.set({ perf: 1 }); }, [quality]);
-  useEffect(() => { const d = [1, 1.15, 1.4, Math.min(1.75, window.devicePixelRatio || 1)][perf]; setDpr(Math.min(window.devicePixelRatio || 1, d)); }, [perf, setDpr]);
-  const tmp = useMemo(() => ({ fgFocus: new THREE.Vector3(), focusGoal: new THREE.Vector3(), dir: new THREE.Vector3(), vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, lastPart: null as PartId | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
-
-  // ---------- compilação assíncrona antes do primeiro desenho ----------
-  const setFrameloop = useThree((st) => st.setFrameloop);
-  useEffect(() => {
-    let alive = true;
-    setFrameloop('never');
-    const go = () => { if (alive) setFrameloop('always'); };
-    const t = window.setTimeout(go, 4000); // nunca prende a experiência
-    (gl.compileAsync ? gl.compileAsync(scene, camera) : Promise.resolve()).then(go, go);
-    return () => { alive = false; window.clearTimeout(t); };
-  }, [gl, scene, camera, setFrameloop, jet]);
+  const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
+  // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
+  useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
+  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, lastPart: null as PartId | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
 
   // ---------- configuração do renderer ----------
   useEffect(() => {
@@ -267,10 +267,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       cam.rotateZ((Math.sin(time * 9.1) * 0.6 + Math.sin(time * 14.3 + 1.3) * 0.4) * 0.00045 * buf);
     }
     // foquista: o ponto de foco tem inércia própria (rack focus); no início do hero o foco parte das nuvens próximas
-    tmp.fgFocus.copy(cam.position).addScaledVector(cam.getWorldDirection(tmp.dir), 9);
-    tmp.focusGoal.copy(tmp.fgFocus).lerp(tmp.target, ramp(t, 0.015, 0.16) * (frame.freezeClock ? 1 : 1));
-    if (t > 0.2 || frame.freezeClock) tmp.focusGoal.copy(tmp.target);
-    focus.lerp(tmp.focusGoal, frame.freezeClock ? 1 : 1 - Math.exp(-2.4 * dt));
+    // foco nasce no alvo e corre entre planos (com inércia) quando o alvo muda
+    if (tmp.firstFrame) focus.copy(tmp.target);
+    focus.lerp(tmp.target, frame.freezeClock ? 1 : 1 - Math.exp(-2.4 * dt));
     // roll de operador: inclina levemente na direção do movimento lateral (grua/drone)
     tmp.vel.copy(cam.position).sub(tmp.prevEye).divideScalar(Math.max(dt, 1e-3));
     tmp.prevEye.copy(cam.position);
@@ -322,6 +321,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     env.hangar.bars.visible = !(inFleet && st.inspect && st.inspectMode !== 'parts');
     env.grid.mesh.visible = studioW > 0.001;
     env.grid.uniforms.uOpacity.value = studioW;
+    // monta/desmonta o piso (com folga) — fora do hangar ele não existe e não custa nada
+    const wantFloor = t > 1.6 && t < 3.3;
+    if (wantFloor !== st.floor) ui.set({ floor: wantFloor });
     if (floorRef.current) {
       floorRef.current.visible = hangarW > 0.02;
       const fm = floorRef.current.material as THREE.MeshStandardMaterial & { mixStrength?: number };
@@ -330,11 +332,15 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
 
     // globo
-    env.globe.root.visible = globeW > 0.001;
-    if (env.globe.root.visible) {
-      env.globe.setOpacity(1);
+    if (!globeRef.current && t > 5.6) {
+      const g = createGlobe(quality); g.root.position.copy(GLOBE_CENTER); globeHolder.add(g.root); globeRef.current = g;
+    }
+    const globe = globeRef.current;
+    if (globe) globe.root.visible = globeW > 0.001;
+    if (globe && globe.root.visible) {
+      globe.setOpacity(1);
       const dest = st.destination ? DESTINATIONS.find((d) => d.id === st.destination) : null;
-      if (st.destination !== tmp.lastDest) { env.globe.setArc(st.destination); tmp.lastDest = st.destination; }
+      if (st.destination !== tmp.lastDest) { globe.setArc(st.destination); tmp.lastDest = st.destination; }
       const reduce = st.motion === 'reduced';
       let ty: number, tp: number;
       if (dest) { const f = facing(dest.lat * 0.6 + -23.55 * 0.4, dest.lon * 0.6 + -46.63 * 0.4); ty = f.yaw; tp = f.pitch * 0.8; }
@@ -342,10 +348,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       ty += frame.globeYaw; tp = clamp(tp + frame.globePitch, -0.9, 0.9);
       tmp.globeYaw = damp(tmp.globeYaw, ty, 2.4, dt);
       tmp.globePitch = damp(tmp.globePitch, tp, 2.4, dt);
-      env.globe.spin.rotation.y = tmp.globeYaw;
-      env.globe.root.rotation.x = tmp.globePitch;
+      globe.spin.rotation.y = tmp.globeYaw;
+      globe.root.rotation.x = tmp.globePitch;
       const visible = new Set(DESTINATIONS.filter((d) => st.region === 'todos' || d.region === st.region).map((d) => d.id));
-      env.globe.update(dt, st.destination, visible, time);
+      globe.update(dt, st.destination, visible, time);
     }
 
     // ----- jato -----
@@ -405,7 +411,11 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const insidePortal = t > 1.32 && t < 1.76;
     const inCabin = t > 4.66 && t < 6.31;
     const envKey = insidePortal || inCabin ? 'cabin' : skyW > 0.5 && t < 1.76 ? 'sky' : epi > 0 ? 'sky' : hangarW > 0.5 ? 'hangar' : 'studio';
-    const envTex = env.maps[envKey];
+    const want = (k: EnvKey) => { if (!env.maps.has(k)) env.maps.get(k); };
+    if (t > 0.85) { want('cabin'); }
+    if (t > 1.45) { want('hangar'); }
+    if (raw > 3.5) { want('studio'); }
+    const envTex = env.maps.get(envKey as EnvKey);
     if (scene.environment !== envTex) scene.environment = envTex;
     const inside = insidePortal || inCabin;
     const wantDof = true; // DOF/AO validados dentro da cabine após remover CA e ruído (causa real dos artefatos)
@@ -443,7 +453,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     airflow.uniforms.uTime.value = time;
     airflow.uniforms.uOpacity.value = Math.max(skyA * (1 - ramp(t, 0.85, 1.02)), epi * 0.6);
     airflow.mesh.visible = airflow.uniforms.uOpacity.value > 0.01;
-    if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = 0.0042 * skyA * (1 - ramp(t, 0.75, 1.0)) + 0.0025 * epi;
+    if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = 0.0018 * skyA * (1 - ramp(t, 0.75, 1.0)) + 0.0012 * epi;
 
     // ----- rastros de condensação -----
     contrails.uniforms.uTime.value = time;
@@ -453,13 +463,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- lente e grade por cena (exposição de câmera, não filtro) -----
     const W = { sky: Math.max(skyA, epi), hangar: hangarW, studio: studioW, cabin: insidePortal || inCabin ? 1 : 0, globe: globeW };
     if (fx.dof) {
-      const bokeh = 3.2 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 2.2 * W.hangar + 1.6 * W.cabin * (t > 4.85 ? 1 : 0.3);
+      const bokeh = 0.9 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 1.4 * W.hangar + 1.0 * W.cabin * (t > 4.85 ? 1 : 0.3);
       fx.dof.bokehScale = damp(fx.dof.bokehScale, bokeh, 3, dt);
     }
     if (fx.grade) {
       const u = fx.grade.uniforms;
-      const warm = 0.35 * W.sky + 0.12 * W.hangar - 0.05 * W.studio + 0.65 * W.cabin - 0.25 * W.globe;
-      const contrast = 0.16 * W.sky + 0.3 * W.hangar + 0.08 * W.studio + 0.22 * W.cabin + 0.2 * W.globe;
+      const warm = 0.05 * W.sky + 0.12 * W.hangar - 0.05 * W.studio + 0.65 * W.cabin - 0.25 * W.globe;
+      const contrast = 0.24 * W.sky + 0.3 * W.hangar + 0.08 * W.studio + 0.22 * W.cabin + 0.2 * W.globe;
       const sat = 1.1 * W.sky + 1.0 * W.hangar + 0.92 * W.studio + 1.06 * W.cabin + 1.0 * W.globe;
       u.get('uWarm')!.value = damp(u.get('uWarm')!.value, warm, 3, dt);
       u.get('uContrast')!.value = damp(u.get('uContrast')!.value, contrast, 3, dt);
@@ -503,11 +513,11 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (traffic.group.visible) traffic.update(time, frame.px, frame.py);
 
     // ----- rede de rotas no globo + traço conectando a janela ao globo -----
-    if (env.globe.root.visible && lastRegion.current !== st.region) {
+    if (globe?.root.visible && lastRegion.current !== st.region) {
       lastRegion.current = st.region;
-      env.globe.setNetwork(DESTINATIONS.filter((d) => st.region === 'todos' || d.region === st.region).map((d) => d.id));
+      globe.setNetwork(DESTINATIONS.filter((d) => st.region === 'todos' || d.region === st.region).map((d) => d.id));
     }
-    if (!env.globe.root.visible) lastRegion.current = null;
+    if (!globe?.root.visible) lastRegion.current = null;
     const route = domRefs.route;
     if (route) {
       const on = t > 5.96 && t < 6.75;
@@ -515,7 +525,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       if (on) {
         const sx = size.width * 0.5, sy = size.height * 0.46;
         let ex = size.width * 0.36, ey = size.height * 1.05;
-        if (t > 6.3) { env.globe.origin().getWorldPosition(tmp.proj); tmp.proj.project(cam); ex = (tmp.proj.x * 0.5 + 0.5) * size.width; ey = (-tmp.proj.y * 0.5 + 0.5) * size.height; }
+        if (t > 6.3 && globe) { globe.origin().getWorldPosition(tmp.proj); tmp.proj.project(cam); ex = (tmp.proj.x * 0.5 + 0.5) * size.width; ey = (-tmp.proj.y * 0.5 + 0.5) * size.height; }
         const draw = ramp(t, 5.98, 6.5);
         route.setAttribute('d', `M${sx.toFixed(1)},${sy.toFixed(1)} C${(sx + size.width * 0.2).toFixed(1)},${(sy + size.height * 0.3).toFixed(1)} ${(ex - size.width * 0.15).toFixed(1)},${(ey - size.height * 0.35).toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`);
         route.style.strokeDashoffset = String(1 - draw);
@@ -551,7 +561,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       }
     }
 
-    if (tmp.firstFrame) { tmp.firstFrame = false; }
+    if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown }).__777env = { ...env, gl }; }
     // custo de CPU do loop de direção (sem o desenho da GPU), média móvel — exposto para QA
     const cpu = performance.now() - cpu0;
     frame.cpuMs = frame.cpuMs * 0.95 + cpu * 0.05; frame.cpuMax = Math.max(frame.cpuMax, cpu);
@@ -564,19 +574,19 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={env.skyGroup} />
       <primitive object={env.hangar.group} />
       <primitive object={env.grid.mesh} />
-      <primitive object={env.globe.root} />
+      <primitive object={globeHolder} />
       <primitive object={jet.group} />
       <primitive object={lineup} />
       <primitive object={traffic.group} />
-      {frame.freezeClock && quality === 'high' && false ? null : <FXBoundary><PostFX quality={quality} level={perf} focus={focus} dof={dofOn} /></FXBoundary>}
-      <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-80, env.gy, 0]} visible={false}>
+      {fxOn ? <FXBoundary><PostFX quality={quality} level={perf} focus={focus} dof={dofOn} /></FXBoundary> : null}
+      {floorOn && <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-80, env.gy, 0]} visible={false}>
         <planeGeometry args={[520, 220]} />
         {quality === 'high' && perf >= 3 ? (
           <MeshReflectorMaterial blur={[400, 120]} resolution={768} mixBlur={1} mixStrength={3.2} roughness={0.75} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#0a0d11" metalness={0.5} mirror={0.6} />
         ) : (
           <meshStandardMaterial color="#0a0d11" roughness={0.4} metalness={0.4} />
         )}
-      </mesh>
+      </mesh>}
     </>
   );
 }
@@ -596,12 +606,31 @@ function viewPose(jet: JetBuild, view: ViewId, eye: THREE.Vector3, target: THREE
   eye.set(p.x + 5.2 * s.engine, p.y + 0.6, p.z - 3.6); target.set(p.x + 0.3, p.y, p.z);
 }
 
+/** Orçamento de pixels por nível: a resolução segue o tamanho da tela (2K/4K não explodem a GPU). */
+function useBudgetDpr() {
+  const perf = ui.useStore((s) => s.perf);
+  const [dpr, setDpr] = useState(1);
+  useEffect(() => {
+    const calc = () => {
+      // nível 4: resolução nativa até 4K (só em aparelhos que provaram folga de FPS)
+      const budget = [0.7e6, 1.1e6, 1.7e6, 2.4e6, 8.4e6][perf] ?? 1.1e6;
+      const css = Math.max(1, window.innerWidth * window.innerHeight);
+      setDpr(Math.round(Math.max(0.6, Math.min(window.devicePixelRatio || 1, Math.sqrt(budget / css), 2)) * 100) / 100);
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, [perf]);
+  return dpr;
+}
+
 export default function Experience({ quality, onReady }: { quality: Q; onReady: () => void }) {
+  const dpr = useBudgetDpr();
   return (
     <Canvas
       className="scene-canvas"
       aria-hidden="true"
-      dpr={quality === 'high' ? [1, 1.6] : [1, 1.25]}
+      dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, stencil: false }}
       camera={{ fov: 30, near: 0.02, far: 7000, position: [27, 4.2, 58] }}
       frameloop="always"

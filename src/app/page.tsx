@@ -41,7 +41,7 @@ export default function Page() {
             <LiteHeroVideo />
             <div className="hero__copy">
               <h1 id="hero-title" className="reveal" data-out="0.34" data-intro data-focus-target>
-                <Words>O mundo muda quando você escolhe</Words> <em><Words>a altura.</Words></em>
+                <Words>O mundo muda quando você escolhe</Words> <em><Words offset={6}>a altura.</Words></em>
               </h1>
               <p className="lede reveal" data-out="0.32" data-intro-fade>Tempo, espaço e liberdade, vistos de cima.</p>
               <HeroActions />

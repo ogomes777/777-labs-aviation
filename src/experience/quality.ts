@@ -20,6 +20,7 @@ export function detectCapabilities(): Capabilities {
   const q = new URLSearchParams(location.search);
   let webgl = false;
   let software = false;
+  let integrated = false;
   try {
     const c = document.createElement('canvas');
     const gl = c.getContext('webgl2');
@@ -28,6 +29,8 @@ export function detectCapabilities(): Capabilities {
       const ext = gl.getExtension('WEBGL_debug_renderer_info');
       const r = String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
       software = /swiftshader|llvmpipe|softpipe|software/i.test(r);
+      // GPU integrada/móvel (exceto Apple Silicon, que aguenta o tier alto)
+      integrated = !/apple m\d/i.test(r) && /intel|uhd|iris|mali|adreno|powervr|radeon\(tm\) graphics|radeon graphics|vega \d+ graphics/i.test(r);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     }
   } catch { webgl = false; }
@@ -44,6 +47,7 @@ export function detectCapabilities(): Capabilities {
   let quality: Quality = 'high';
   if (coarse || small) { quality = 'balanced'; reasons.push('tela pequena/toque'); }
   if (lowCpu && lowMem) { quality = 'balanced'; reasons.push('CPU/memória modestas'); }
+  if (integrated) { quality = 'balanced'; reasons.push('GPU integrada'); }
   if (software) { quality = 'lite'; reasons.push('renderizador por software'); }
   if (saveData) { quality = 'lite'; reasons.push('economia de dados'); }
   if (!webgl) quality = 'lite';

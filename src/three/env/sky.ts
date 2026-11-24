@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export const SKY_PALETTES = {
-  dawn: { zenith: '#4f7fb3', horizon: '#efbfae', glow: '#ffc79c', below: '#d9c0c4', lit: '#fbe6d8', shade: '#8a8fb4', deep: '#5c6590', haze: '#e6bfb6' },
+  dawn: { zenith: '#1f5cab', horizon: '#cfe1f2', glow: '#fff3e2', below: '#b9cfe4', lit: '#ffffff', shade: '#93a9c6', deep: '#0b3560', haze: '#bcd3ea' },
   dusk: { zenith: '#5d6f8e', horizon: '#e8b98f', glow: '#ffc58e', below: '#d7b49a', lit: '#ffe2c2', shade: '#8c7f93', deep: '#5d5a72', haze: '#e3b996' },
 };
 export type SkyPalette = typeof SKY_PALETTES.dawn;
@@ -21,7 +21,7 @@ export function createSkyDome(palette: SkyPalette) {
     uHorizon: { value: new THREE.Color(palette.horizon) },
     uGlow: { value: new THREE.Color(palette.glow) },
     uBelow: { value: new THREE.Color(palette.below) },
-    uSun: { value: new THREE.Vector3(-0.78, 0.2, 0.6).normalize() },
+    uSun: { value: new THREE.Vector3(-0.72, 0.34, 0.6).normalize() },
     uOpacity: { value: 1 },
   };
   const mat = new THREE.ShaderMaterial({
@@ -31,7 +31,7 @@ export function createSkyDome(palette: SkyPalette) {
       varying vec3 vDir; uniform vec3 uZenith, uHorizon, uGlow, uBelow, uSun; uniform float uOpacity;
       void main(){
         vec3 d = normalize(vDir); float h = d.y;
-        float t = pow(clamp(1.0 - max(h, 0.0) * 1.6, 0.0, 1.0), 3.2);
+        float t = pow(clamp(1.0 - max(h, 0.0) * 2.8, 0.0, 1.0), 2.6);
         vec3 col = mix(uZenith, uHorizon, t);
         float s = max(dot(d, uSun), 0.0);
         col += uGlow * (pow(s, 6.0) * 0.28 + pow(s, 48.0) * 0.45 + pow(s, 1200.0) * 3.0);
@@ -51,7 +51,7 @@ export function createSkyDome(palette: SkyPalette) {
 export function createCloudSea(palette: SkyPalette, octaves: number) {
   const uniforms = {
     uTime: { value: 0 },
-    uSun: { value: new THREE.Vector3(-0.78, 0.2, 0.6).normalize() },
+    uSun: { value: new THREE.Vector3(-0.72, 0.34, 0.6).normalize() },
     uLit: { value: new THREE.Color(palette.lit) },
     uShade: { value: new THREE.Color(palette.shade) },
     uDeep: { value: new THREE.Color(palette.deep) },
@@ -76,18 +76,30 @@ export function createCloudSea(palette: SkyPalette, octaves: number) {
       void main(){
         vec2 p = vW.xz * uScale + vec2(uFlow, uTime * 0.003);
         float d = dens(p);
-        float cov = smoothstep(0.44, 0.6, d);
+        float cov = smoothstep(0.5, 0.64, d);
         vec2 sd = normalize(uSun.xz) * 0.03;
         float ds = dens(p + sd);
         float lit = clamp(0.5 + (d - ds) * 9.0, 0.0, 1.0);
-        float ao = smoothstep(0.38, 0.82, d);
+        float ao = smoothstep(0.4, 0.84, d);
         vec3 col = mix(uShade, uLit, lit);
-        col *= mix(0.7, 1.07, ao);
-        float edge = 1.0 - smoothstep(0.44, 0.53, d);
-        col += uLit * edge * lit * 0.28;
-        col = mix(uDeep, col, cov);
+        col *= mix(0.74, 1.08, ao);
+        float edge = 1.0 - smoothstep(0.5, 0.58, d);
+        col += uLit * edge * lit * 0.32;
+        // oceano muito abaixo das nuvens: ondulação, fresnel, brilho do sol e sombra das nuvens
+        vec3 V = normalize(vW - uCam);
+        vec2 op = vW.xz * 0.018 + V.xz * 5.0 + vec2(uFlow * 4.0, uTime * 0.01);
+        float w1 = noise(op * 3.1), w2 = noise(op * 7.3 + 3.1), w3 = noise(op * 17.0 + 1.7);
+        vec3 nrm = normalize(vec3((w1 - 0.5) * 0.28 + (w3 - 0.5) * 0.12, 1.0, (w2 - 0.5) * 0.28));
+        vec3 R = reflect(V, nrm);
+        float sdot = max(dot(R, normalize(uSun)), 0.0);
+        float glint = pow(sdot, 260.0) * 7.0 + pow(sdot, 24.0) * 0.22;
+        float fres = pow(1.0 - max(dot(-V, nrm), 0.0), 4.0);
+        vec3 ocean = uDeep * (0.85 + 0.35 * w1) + glint * vec3(1.0, 0.97, 0.9) + fres * uHaze * 0.35;
+        ocean *= 1.0 - 0.45 * smoothstep(0.5, 0.64, ds);
+        ocean = mix(ocean, uHaze, 0.14);
+        col = mix(ocean, col, cov);
         float dist = length(vW.xz - uCam.xz);
-        float fog = 1.0 - exp(-dist / 2600.0);
+        float fog = 1.0 - exp(-dist / 4200.0);
         col = mix(col, uHaze, clamp(fog * 1.08, 0.0, 1.0));
         gl_FragColor = vec4(col, uOpacity);
         #include <tonemapping_fragment>

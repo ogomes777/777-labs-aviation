@@ -1,13 +1,21 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
-/** Mapas de ambiente procedurais (PMREM). Substituem HDRIs licenciados. */
-export function buildEnvMaps(gl: THREE.WebGLRenderer, skyDome: THREE.Mesh) {
+export type EnvKey = 'sky' | 'hangar' | 'studio' | 'cabin';
+
+/** Mapas de ambiente procedurais (PMREM), gerados SOB DEMANDA — só o do céu existe no início. */
+export function createEnvMaps(gl: THREE.WebGLRenderer, skyDome: THREE.Mesh) {
+  const cache: Partial<Record<EnvKey, THREE.Texture>> = {};
+  const get = (k: EnvKey) => (cache[k] ??= buildOne(gl, skyDome, k));
+  return { get, has: (k: EnvKey) => !!cache[k], dispose: () => Object.values(cache).forEach((t) => t?.dispose()) };
+}
+
+function buildOne(gl: THREE.WebGLRenderer, skyDome: THREE.Mesh, key: EnvKey): THREE.Texture {
   const pmrem = new THREE.PMREMGenerator(gl);
-  const out: Record<'sky' | 'hangar' | 'studio' | 'cabin', THREE.Texture> = {} as never;
+  const out: Partial<Record<EnvKey, THREE.Texture>> = {};
 
   // céu: cúpula + nuvens claras abaixo
-  {
+  if (key === 'sky') {
     const sc = new THREE.Scene();
     const dome = skyDome.clone();
     (dome.material as THREE.ShaderMaterial) = (skyDome.material as THREE.ShaderMaterial).clone();
@@ -21,7 +29,7 @@ export function buildEnvMaps(gl: THREE.WebGLRenderer, skyDome: THREE.Mesh) {
     below.geometry.dispose(); (below.material as THREE.Material).dispose(); (dome.material as THREE.Material).dispose();
   }
   // hangar: escuro, com barras de luz no teto e softbox lateral
-  {
+  if (key === 'hangar') {
     const sc = new THREE.Scene();
     sc.background = new THREE.Color('#050709');
     const strip = new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 4.6, 4.2) });
@@ -38,13 +46,13 @@ export function buildEnvMaps(gl: THREE.WebGLRenderer, skyDome: THREE.Mesh) {
     strip.dispose(); soft.dispose(); cool.dispose();
   }
   // estúdio marfim
-  {
+  if (key === 'studio') {
     const room = new RoomEnvironment();
     out.studio = pmrem.fromScene(room, 0.04).texture;
     room.traverse((o) => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).geometry.dispose(); });
   }
   // cabine: sala quente
-  {
+  if (key === 'cabin') {
     const sc = new THREE.Scene();
     sc.background = new THREE.Color('#2a1f17');
     const warm = new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 2.4, 1.6) });
@@ -58,5 +66,5 @@ export function buildEnvMaps(gl: THREE.WebGLRenderer, skyDome: THREE.Mesh) {
     warm.dispose(); wall.dispose(); win.dispose();
   }
   pmrem.dispose();
-  return out;
+  return out[key]!;
 }

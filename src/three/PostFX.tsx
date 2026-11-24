@@ -49,6 +49,23 @@ class SanitizeEffect extends Effect {
   }
 }
 
+/** Nitidez relativa (segura para HDR): realça microcontraste de luminância sem estourar realces. */
+class SharpenEffect extends Effect {
+  constructor(amount = 0.55) {
+    super('SharpenEffect', /* glsl */ `
+      uniform float uAmount;
+      void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor){
+        vec2 px = 1.0 / resolution;
+        vec3 c = inputColor.rgb;
+        vec3 n = (texture2D(inputBuffer, uv + vec2(px.x, 0.0)).rgb + texture2D(inputBuffer, uv - vec2(px.x, 0.0)).rgb
+                + texture2D(inputBuffer, uv + vec2(0.0, px.y)).rgb + texture2D(inputBuffer, uv - vec2(0.0, px.y)).rgb) * 0.25;
+        float lc = dot(c, vec3(0.2126, 0.7152, 0.0722)), ln = dot(n, vec3(0.2126, 0.7152, 0.0722));
+        float k = clamp((lc - ln) / (ln + 0.25), -0.5, 0.5);
+        outputColor = vec4(max(c * (1.0 + k * uAmount), 0.0), inputColor.a);
+      }`, { attributes: EffectAttribute.CONVOLUTION, uniforms: new Map<string, THREE.Uniform>([['uAmount', new THREE.Uniform(amount)]]) });
+  }
+}
+
 /** Guarda final: qualquer NaN que algum estágio produza vira o branco quente do realce (nunca mancha preta). */
 class FinalGuardEffect extends Effect {
   constructor() {
@@ -91,6 +108,11 @@ const Sanitize = forwardRef<SanitizeEffect>(function Sanitize(_, ref) {
   return <primitive ref={ref} object={effect} dispose={null} />;
 });
 
+const Sharpen = forwardRef<SharpenEffect, { amount?: number }>(function Sharpen({ amount = 0.55 }, ref) {
+  const effect = useMemo(() => new SharpenEffect(amount), [amount]);
+  return <primitive ref={ref} object={effect} dispose={null} />;
+});
+
 const FinalGuard = forwardRef<FinalGuardEffect>(function FinalGuard(_, ref) {
   const effect = useMemo(() => new FinalGuardEffect(), []);
   return <primitive ref={ref} object={effect} dispose={null} />;
@@ -110,8 +132,9 @@ export default function PostFX({ quality, level, focus, dof = true }: { quality:
       <EffectComposer multisampling={0} enableNormalPass={false} frameBufferType={THREE.HalfFloatType}>
         <Sanitize />
         {level >= 3 && dof ? <N8AO ref={(e: unknown) => { fx.ao = e as FXHandles['ao']; }} aoRadius={1.1} distanceFalloff={0.6} intensity={2.2} quality="medium" halfRes screenSpaceRadius={false} /> : <></>}
-        {dof ? <DepthOfField ref={(e: DepthOfFieldEffect | null) => { fx.dof = e; }} target={focus} focalLength={0.03} bokehScale={2.4} height={540} /> : <></>}
-        <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.92} luminanceSmoothing={0.2} intensity={0.55} radius={0.72} />
+        {dof ? <DepthOfField ref={(e: DepthOfFieldEffect | null) => { fx.dof = e; }} target={focus} focalLength={0.02} bokehScale={1.2} height={720} /> : <></>}
+        <Sharpen amount={0.6} />
+        <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.95} luminanceSmoothing={0.2} intensity={0.42} radius={0.6} />
         <SpeedBlur />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         <Grade />
@@ -132,7 +155,8 @@ export default function PostFX({ quality, level, focus, dof = true }: { quality:
   return (
     <EffectComposer multisampling={0} enableNormalPass={false} frameBufferType={THREE.HalfFloatType}>
       <Sanitize />
-      <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.95} intensity={0.45} radius={0.6} levels={5} />
+      <Sharpen amount={0.5} />
+      <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.95} intensity={0.4} radius={0.6} levels={5} />
       <SpeedBlur />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Grade />

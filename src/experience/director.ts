@@ -70,6 +70,8 @@ export interface UIState {
   perf: number;
   /** profundidade de campo ativa (desligada dentro da cabine) */
   dof: boolean;
+  /** piso refletivo montado só no hangar/frota (ele re-renderiza a cena a cada quadro) */
+  floor: boolean;
 }
 
 export const ui = createStore<UIState>({
@@ -92,8 +94,9 @@ export const ui = createStore<UIState>({
   inspectPart: null,
   inspectMode: 'parts',
   seat: null,
-  perf: 3,
+  perf: 2,
   dof: true,
+  floor: false,
 });
 
 /** Destino escolhido no globo e enviado ao formulário (prefill). */

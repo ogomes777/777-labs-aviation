@@ -115,12 +115,12 @@ h1 em, h2 em, .hero__ascent em, .portal__line em, .menu__nav em {
 }
 .w { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.04em 0.02em 0.16em; margin: -0.04em -0.02em -0.16em; }
 .wi { display: inline-block; will-change: transform; transform-origin: 0 100%; }
-html.intro [data-intro] .wi { transform: translateY(115%); }
-html.intro [data-intro-fade], html.intro .site-header { opacity: 0; }
-html.intro:not(.intro-running) [data-intro] .wi { animation: introFallback 0.01s 2.6s forwards; }
-html.intro:not(.intro-running) [data-intro-fade], html.intro:not(.intro-running) .site-header { animation: introFadeFallback 0.01s 2.6s forwards; }
-@keyframes introFallback { to { transform: none; } }
-@keyframes introFadeFallback { to { opacity: 1; } }
+/* intro do hero em CSS puro: roda no primeiro paint, independente do JavaScript e do 3D */
+html.intro [data-intro] .wi { animation: wordRise 1.4s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(0.12s + var(--i, 0) * 0.07s); transform-origin: 50% 100%; }
+html.intro [data-intro-fade] { animation: introFade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both; }
+html.intro .site-header { animation: introFade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both; }
+@keyframes wordRise { from { transform: translateY(115%) rotateX(-80deg); color: var(--champagne); } to { transform: none; } }
+@keyframes introFade { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 .lede { max-width: 46ch; color: var(--fg-soft); margin: 0; }
 .reveal { will-change: opacity, transform; }
 .mask-line { display: block; overflow: hidden; padding-bottom: 0.06em; }
