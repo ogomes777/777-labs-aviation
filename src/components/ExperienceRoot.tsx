@@ -53,7 +53,7 @@ export default function ExperienceRoot() {
     import('gsap').then(({ gsap }) => {
       if (killed) return;
       const tl = gsap.timeline({ defaults: { ease: 'power4.out' }, onComplete: () => html.classList.remove('intro') });
-      tl.fromTo('[data-intro] .wi', { y: 0, yPercent: 115, rotate: 3 }, { y: 0, yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.06 }, 0.15)
+      tl.fromTo('[data-intro] .wi', { y: 0, yPercent: 115, rotationX: -80, '--c': 1, transformOrigin: '50% 100%' }, { y: 0, yPercent: 0, rotationX: 0, '--c': 0, duration: 1.5, stagger: 0.07 }, 0.15)
         .fromTo('[data-intro-fade]', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1, stagger: 0.12 }, 0.7)
         .fromTo('.site-header', { autoAlpha: 0, y: -16 }, { autoAlpha: 1, y: 0, duration: 1 }, 0.5);
       html.classList.add('intro-running');
@@ -127,12 +127,12 @@ export default function ExperienceRoot() {
             const words = it.querySelectorAll('[data-split] .wi, .wi');
             const split = !it.hasAttribute('data-intro') && (it.hasAttribute('data-split') || it.querySelector('[data-split]'));
             if (a > 0) {
-              tl.fromTo(it, { autoAlpha: 0, y: dy }, { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' }, a);
-              if (split && words.length) tl.fromTo(words, { y: 0, yPercent: 118, rotate: 4 }, { y: 0, yPercent: 0, rotate: 0, duration: 0.06, stagger: 0.006, ease: 'power3.out' }, a + 0.005);
+              tl.fromTo(it, { autoAlpha: 0, y: dy, rotationX: 14, rotationY: -6, transformPerspective: 1100, transformOrigin: '50% 100%' }, { autoAlpha: 1, y: 0, rotationX: 0, rotationY: 0, duration: 0.08, ease: 'power2.out' }, a);
+              if (split && words.length) tl.fromTo(words, { y: 0, yPercent: 118, rotationX: -78, '--c': 1, transformOrigin: '50% 100%' }, { y: 0, yPercent: 0, rotationX: 0, '--c': 0, duration: 0.07, stagger: 0.006, ease: 'power3.out' }, a + 0.005);
             } else gsap.set(it, { autoAlpha: 1, y: 0 });
             if (b <= 1) {
-              if (split && words.length) tl.to(words, { yPercent: -118, duration: 0.05, stagger: 0.004, ease: 'power2.in' }, b - 0.01);
-              tl.to(it, { autoAlpha: 0, y: -dy * 0.7, duration: 0.07, ease: 'power2.in' }, b);
+              if (split && words.length) tl.to(words, { yPercent: -118, rotationX: 70, '--c': 1, duration: 0.05, stagger: 0.004, ease: 'power2.in' }, b - 0.01);
+              tl.to(it, { autoAlpha: 0, y: -dy * 0.7, rotationX: -10, transformPerspective: 1100, duration: 0.07, ease: 'power2.in' }, b);
             }
           });
           tl.set({}, {}, 1);
@@ -155,7 +155,7 @@ export default function ExperienceRoot() {
         }
         // contato: revelação por entrada (sem scrub)
         document.querySelectorAll<HTMLElement>('.reveal-soft').forEach((el) => {
-          gsap.fromTo(el.querySelectorAll('.wi'), { yPercent: 118 }, { yPercent: 0, duration: 1.1, stagger: 0.05, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 75%', toggleActions: 'play none none reverse' } });
+          gsap.fromTo(el.querySelectorAll('.wi'), { yPercent: 118, rotationX: -78, '--c': 1, transformOrigin: '50% 100%' }, { yPercent: 0, rotationX: 0, '--c': 0, duration: 1.1, stagger: 0.05, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 75%', toggleActions: 'play none none reverse' } });
         });
         const galCh = document.querySelector<HTMLElement>('[data-chapter="6"]');
         if (gal && vp && galCh && !frame.gallerySwipe) {

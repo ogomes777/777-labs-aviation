@@ -11,13 +11,22 @@ export function navigate(hash: string, opts: { focus?: boolean } = {}) {
   const id = hash.replace('#', '');
   const el = document.getElementById(id);
   if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY;
+  // capítulos com revelação por scroll: entra 14% adiante, quando o conteúdo já está visível
+  const isChapter = el.classList.contains('chapter') && document.documentElement.dataset.motion === 'cinematic';
+  const range = el.offsetHeight - window.innerHeight;
+  const top = el.getBoundingClientRect().top + window.scrollY + (isChapter && el.id !== 'top' ? Math.max(0, range * 0.14) : 0);
   const done = () => {
     history.replaceState(null, '', `#${id}`);
     if (opts.focus !== false) {
       const target = (el.querySelector('[data-focus-target]') as HTMLElement | null) ?? el;
-      target.setAttribute('tabindex', '-1');
-      target.focus({ preventScroll: true });
+      const focusIt = (tries = 0) => {
+        const visible = (target as HTMLElement & { checkVisibility?: (o?: object) => boolean }).checkVisibility?.({ visibilityProperty: true, opacityProperty: false }) ?? true;
+        if (!visible && tries < 12) { window.setTimeout(() => focusIt(tries + 1), 120); return; }
+        const t = visible ? target : el;
+        t.setAttribute('tabindex', '-1');
+        t.focus({ preventScroll: true });
+      };
+      focusIt();
     }
   };
   if (!nav.cinematic) {

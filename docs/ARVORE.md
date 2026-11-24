@@ -1,0 +1,93 @@
+# Árvore real do repositório
+
+```text
+  .env.example
+  .github/workflows/ci.yml
+  .gitignore
+  CLAUDE.md
+  README.md
+  docs/ARVORE.md
+  docs/ASSETS_E_LICENCAS.md
+  docs/G0_INVENTARIO.md
+  next.config.ts
+  package-lock.json
+  package.json
+  playwright.config.ts
+  public/favicon.svg
+  qa/RELEASE_REPORT.md
+  qa/e2e-results.txt
+  qa/performance/cpu-per-frame.json
+  qa/performance/vitals.json
+  qa/sheet-desktop.png
+  qa/sheet-inspect.png
+  qa/sheet-mobile.png
+  scripts/build-globe-dots.mjs
+  scripts/copy-fonts.mjs
+  scripts/qa-cpu.mjs
+  scripts/qa-frame.mjs
+  scripts/qa-inspect.mjs
+  scripts/qa-lib.mjs
+  scripts/qa-shots.mjs
+  scripts/qa-vitals.mjs
+  scripts/render-media.mjs
+  src/app/api/inquiries/route.ts
+  src/app/layout.tsx
+  src/app/page.tsx
+  src/components/AircraftControls.tsx
+  src/components/AnatomyPanel.tsx
+  src/components/CabinGallery.tsx
+  src/components/CharterInquiry.tsx
+  src/components/ConsentBar.tsx
+  src/components/Cursor.tsx
+  src/components/DestinationsPanel.tsx
+  src/components/Epilogue.tsx
+  src/components/ExperienceRoot.tsx
+  src/components/FleetShowroom.tsx
+  src/components/HeroActions.tsx
+  src/components/LiteHeroVideo.tsx
+  src/components/SceneProgress.tsx
+  src/components/SiteHeader.tsx
+  src/components/TextReact.tsx
+  src/components/Words.tsx
+  src/components/navigation.ts
+  src/content/anatomy-anchors.json
+  src/content/destinations.ts
+  src/content/fleet.ts
+  src/content/globe-dots.json
+  src/content/site.ts
+  src/experience/cameraPath.ts
+  src/experience/director.ts
+  src/experience/domRefs.ts
+  src/experience/quality.ts
+  src/experience/store.ts
+  src/lib/analytics.ts
+  src/lib/validation.ts
+  src/styles/global.css
+  src/styles/tokens.css
+  src/three/Experience.tsx
+  src/three/PostFX.tsx
+  src/three/env/airflow.ts
+  src/three/env/contrails.ts
+  src/three/env/envmaps.ts
+  src/three/env/hangar.ts
+  src/three/env/sky.ts
+  src/three/env/traffic.ts
+  src/three/globe/globe.ts
+  src/three/inspector.ts
+  src/three/jet/buildJet.ts
+  src/three/jet/cabin.ts
+  src/three/jet/fuselage.ts
+  src/three/jet/heli.ts
+  src/three/jet/livery.ts
+  src/three/jet/loft.ts
+  src/three/jet/materials.ts
+  src/three/jet/spec.ts
+  tests/e2e/home.spec.ts
+  tests/unit/core.test.ts
+  tsconfig.json
+  vitest.config.ts
+  public/media/        (poster, stills, cards, og, vídeos — gerados por scripts/render-media.mjs)
+  src/app/fonts/       (7 fontes OFL auto-hospedadas)
+  qa/screenshots/      (evidências 1440×900, 390×844 e inspeção)
+  .claude/agents, .claude/skills  (do Master Pack)
+```

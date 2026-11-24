@@ -19,6 +19,14 @@ const cormorant = localFont({
   ],
   variable: '--font-cormorant', display: 'swap', fallback: ['Garamond', 'Georgia', 'serif'],
 });
+const gloock = localFont({ src: './fonts/Gloock-Regular.woff2', variable: '--font-gloock', display: 'swap', weight: '400', fallback: ['Didot', 'Georgia', 'serif'] });
+const instrument = localFont({
+  src: [
+    { path: './fonts/InstrumentSerif-Regular.woff2', style: 'normal', weight: '400' },
+    { path: './fonts/InstrumentSerif-Italic.woff2', style: 'italic', weight: '400' },
+  ],
+  variable: '--font-instrument', display: 'swap', fallback: ['Georgia', 'serif'],
+});
 const manrope = localFont({ src: './fonts/Manrope-Variable.woff2', variable: '--font-manrope', display: 'swap', weight: '200 800', fallback: ['Helvetica Neue', 'Arial', 'sans-serif'] });
 
 export const metadata: Metadata = {
@@ -36,7 +44,7 @@ const boot = `(function(){try{var d=document.documentElement,q=new URLSearchPara
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${bodoni.variable} ${manrope.variable} ${script.variable} ${cormorant.variable}`} data-motion="cinematic" data-scene="light" suppressHydrationWarning>
+    <html lang="pt-BR" className={`${bodoni.variable} ${manrope.variable} ${script.variable} ${cormorant.variable} ${gloock.variable} ${instrument.variable}`} data-motion="cinematic" data-scene="light" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: boot }} />
       </head>

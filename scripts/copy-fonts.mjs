@@ -8,6 +8,9 @@ const files = [
   ['@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2', 'Manrope-Variable.woff2'],
   ['@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2', 'Cormorant-Variable.woff2'],
   ['@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-italic.woff2', 'Cormorant-Variable-Italic.woff2'],
+  ['@fontsource/gloock/files/gloock-latin-400-normal.woff2', 'Gloock-Regular.woff2'],
+  ['@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2', 'InstrumentSerif-Regular.woff2'],
+  ['@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2', 'InstrumentSerif-Italic.woff2'],
   ['@fontsource/pinyon-script/files/pinyon-script-latin-400-normal.woff2', 'PinyonScript-Regular.woff2'],
 ];
 for (const [src, dst] of files) {

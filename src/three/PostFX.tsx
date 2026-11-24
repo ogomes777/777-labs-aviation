@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef, useMemo } from 'react';
-import { EffectComposer, Bloom, DepthOfField, ChromaticAberration, Vignette, Noise, ToneMapping, N8AO, SMAA } from '@react-three/postprocessing';
+import { EffectComposer, Bloom, DepthOfField, Vignette, ToneMapping, N8AO } from '@react-three/postprocessing';
 import { BlendFunction, Effect, EffectAttribute, ToneMappingMode, type DepthOfFieldEffect, type BloomEffect } from 'postprocessing';
 import * as THREE from 'three';
 
@@ -33,24 +33,31 @@ class GradeEffect extends Effect {
   }
 }
 
-class LensEffect extends Effect {
+/** Saneamento HDR: zera NaN e limita valores infinitos antes de bloom/DOF (evita manchas pretas em qualquer GPU). */
+class SanitizeEffect extends Effect {
   constructor() {
-    super('LensEffect', /* glsl */ `
-      uniform float uDistort; uniform float uStreak; uniform vec3 uTint;
+    super('SanitizeEffect', /* glsl */ `
       void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor){
-        vec3 acc = vec3(0.0);
-        for (int i = -7; i <= 7; i++) {
-          if (i == 0) continue;
-          float fi = float(i);
-          vec3 sm = texture2D(inputBuffer, uv + vec2(fi * 0.011, 0.0)).rgb;
-          float l = max(dot(sm, vec3(0.2126, 0.7152, 0.0722)) - 1.1, 0.0);
-          acc += l * (1.0 - abs(fi) / 8.0);
+        vec3 c = inputColor.rgb;
+        if (any(isnan(c)) || any(isinf(c))) {
+          vec2 px = 1.0 / resolution;
+          vec3 n = texture2D(inputBuffer, uv + vec2(px.x, 0.0)).rgb + texture2D(inputBuffer, uv - vec2(px.x, 0.0)).rgb;
+          c = any(isnan(n)) || any(isinf(n)) ? vec3(0.5) : n * 0.5;
         }
-        outputColor = vec4(inputColor.rgb + uTint * acc * uStreak, inputColor.a);
-      }`, {
-      attributes: EffectAttribute.CONVOLUTION,
-      uniforms: new Map<string, THREE.Uniform>([['uDistort', new THREE.Uniform(0.035)], ['uStreak', new THREE.Uniform(0.12)], ['uTint', new THREE.Uniform(new THREE.Color(0.75, 0.82, 1.0))]]),
-    });
+        outputColor = vec4(clamp(c, 0.0, 8.0), inputColor.a);
+      }`, { attributes: EffectAttribute.CONVOLUTION });
+  }
+}
+
+/** Guarda final: qualquer NaN que algum estágio produza vira o branco quente do realce (nunca mancha preta). */
+class FinalGuardEffect extends Effect {
+  constructor() {
+    super('FinalGuardEffect', /* glsl */ `
+      void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor){
+        vec3 c = inputColor.rgb;
+        bool bad = any(isnan(c)) || any(isinf(c));
+        outputColor = vec4(bad ? vec3(1.0, 0.95, 0.86) : clamp(c, 0.0, 1.0), 1.0);
+      }`);
   }
 }
 
@@ -70,8 +77,8 @@ class SpeedBlurEffect extends Effect {
   }
 }
 
-export interface FXHandles { dof: DepthOfFieldEffect | null; bloom: BloomEffect | null; grade: GradeEffect; speed: SpeedBlurEffect | null; lens: LensEffect | null; ao: { configuration: { intensity: number; aoRadius: number } } | null }
-export const fx: FXHandles = { dof: null, bloom: null, grade: null as unknown as GradeEffect, speed: null, lens: null, ao: null };
+export interface FXHandles { dof: DepthOfFieldEffect | null; bloom: BloomEffect | null; grade: GradeEffect; speed: SpeedBlurEffect | null; ao: { configuration: { intensity: number; aoRadius: number } } | null }
+export const fx: FXHandles = { dof: null, bloom: null, grade: null as unknown as GradeEffect, speed: null, ao: null };
 
 const Grade = forwardRef<GradeEffect>(function Grade(_, ref) {
   const effect = useMemo(() => new GradeEffect(), []);
@@ -79,9 +86,13 @@ const Grade = forwardRef<GradeEffect>(function Grade(_, ref) {
   return <primitive ref={ref} object={effect} dispose={null} />;
 });
 
-const Lens = forwardRef<LensEffect>(function Lens(_, ref) {
-  const effect = useMemo(() => new LensEffect(), []);
-  fx.lens = effect;
+const Sanitize = forwardRef<SanitizeEffect>(function Sanitize(_, ref) {
+  const effect = useMemo(() => new SanitizeEffect(), []);
+  return <primitive ref={ref} object={effect} dispose={null} />;
+});
+
+const FinalGuard = forwardRef<FinalGuardEffect>(function FinalGuard(_, ref) {
+  const effect = useMemo(() => new FinalGuardEffect(), []);
   return <primitive ref={ref} object={effect} dispose={null} />;
 });
 
@@ -91,26 +102,25 @@ const SpeedBlur = forwardRef<SpeedBlurEffect>(function SpeedBlur(_, ref) {
   return <primitive ref={ref} object={effect} dispose={null} />;
 });
 
-export default function PostFX({ quality, level, focus }: { quality: 'high' | 'balanced'; level: number; focus: THREE.Vector3 }) {
+export default function PostFX({ quality, level, focus, dof = true }: { quality: 'high' | 'balanced'; level: number; focus: THREE.Vector3; dof?: boolean }) {
   if (quality === 'high' && level >= 2) {
-    if (level < 3) fx.ao = null;
+    if (level < 3 || !dof) fx.ao = null;
+    if (!dof) fx.dof = null;
     return (
       <EffectComposer multisampling={0} enableNormalPass={false} frameBufferType={THREE.HalfFloatType}>
-        {level >= 3 ? <N8AO ref={(e: unknown) => { fx.ao = e as FXHandles['ao']; }} aoRadius={1.1} distanceFalloff={0.6} intensity={2.2} quality="medium" halfRes screenSpaceRadius={false} /> : <></>}
-        <DepthOfField ref={(e: DepthOfFieldEffect | null) => { fx.dof = e; }} target={focus} focalLength={0.03} bokehScale={2.4} height={540} />
+        <Sanitize />
+        {level >= 3 && dof ? <N8AO ref={(e: unknown) => { fx.ao = e as FXHandles['ao']; }} aoRadius={1.1} distanceFalloff={0.6} intensity={2.2} quality="medium" halfRes screenSpaceRadius={false} /> : <></>}
+        {dof ? <DepthOfField ref={(e: DepthOfFieldEffect | null) => { fx.dof = e; }} target={focus} focalLength={0.03} bokehScale={2.4} height={540} /> : <></>}
         <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.92} luminanceSmoothing={0.2} intensity={0.55} radius={0.72} />
-        <Lens />
         <SpeedBlur />
-        <ChromaticAberration offset={new THREE.Vector2(0.0005, 0.0003)} radialModulation modulationOffset={0.45} />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         <Grade />
         <Vignette offset={0.32} darkness={0.5} />
-        <SMAA />
-        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.14} />
+        <FinalGuard />
       </EffectComposer>
     );
   }
-  fx.dof = null; fx.ao = null; fx.lens = null;
+  fx.dof = null; fx.ao = null;
   if (level <= 0) {
     return (
       <EffectComposer multisampling={0} enableNormalPass={false} frameBufferType={THREE.HalfFloatType}>
@@ -121,11 +131,13 @@ export default function PostFX({ quality, level, focus }: { quality: 'high' | 'b
   }
   return (
     <EffectComposer multisampling={0} enableNormalPass={false} frameBufferType={THREE.HalfFloatType}>
+      <Sanitize />
       <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.95} intensity={0.45} radius={0.6} levels={5} />
       <SpeedBlur />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Grade />
       <Vignette offset={0.3} darkness={0.45} />
+      <FinalGuard />
     </EffectComposer>
   );
 }

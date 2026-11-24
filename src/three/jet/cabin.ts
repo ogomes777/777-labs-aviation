@@ -88,12 +88,12 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
   grain.repeat.set(3, 3);
   carpetNoise.repeat.set(8, 2);
 
-  const lining = clip(withWindows(new THREE.MeshStandardMaterial({ color: '#d9cfbf', roughness: 0.8, metalness: 0, side: THREE.BackSide }), windowUniforms(s, Ri), `lining-${s.id}`));
+  const lining = clip(withWindows(new THREE.MeshStandardMaterial({ color: '#d9cfbf', roughness: 0.8, metalness: 0, side: THREE.BackSide }), windowUniforms(s, Ri), 'lining'));
   const bezel = clip(new THREE.MeshStandardMaterial({ color: '#eee7dc', roughness: 0.4, metalness: 0, side: THREE.DoubleSide }));
   const leather = clip(new THREE.MeshPhysicalMaterial({ color: '#d6c7b0', roughness: 0.5, metalness: 0, bumpMap: grain, bumpScale: 0.35, sheen: 0.6, sheenColor: new THREE.Color('#fff2df'), sheenRoughness: 0.6 }));
   const leatherDark = clip(new THREE.MeshPhysicalMaterial({ color: '#4c3d33', roughness: 0.55, metalness: 0, sheen: 0.3, sheenColor: new THREE.Color('#9b7d66') }));
   const walnut = clip(new THREE.MeshPhysicalMaterial({ color: '#ffffff', map: wood, roughness: 0.32, metalness: 0, clearcoat: 0.7, clearcoatRoughness: 0.12 }));
-  const trim = clip(new THREE.MeshStandardMaterial({ color: '#c9ad82', roughness: 0.22, metalness: 1 }));
+  const trim = clip(new THREE.MeshStandardMaterial({ color: '#d8c09a', roughness: 0.38, metalness: 0.72, envMapIntensity: 2.2, emissive: new THREE.Color('#3a2c1a'), emissiveIntensity: 0.35 }));
   const carpet = clip(new THREE.MeshStandardMaterial({ color: '#4f4741', roughness: 1, metalness: 0, bumpMap: carpetNoise, bumpScale: 0.6 }));
   const stone = clip(new THREE.MeshPhysicalMaterial({ color: '#e4ddd2', roughness: 0.18, metalness: 0, clearcoat: 0.5 }));
   const fabric = clip(new THREE.MeshPhysicalMaterial({ color: '#f5f1ea', roughness: 0.92, sheen: 0.6, sheenColor: new THREE.Color('#ffffff') }));
@@ -249,7 +249,8 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
       add(new THREE.CylinderGeometry(0.11, 0.1, 0.012, 28), stone, X(dc) + px, yf + 0.76, pz);
       add(new THREE.CylinderGeometry(0.028, 0.02, 0.14, 16), bezel, X(dc) + px * 0.55, yf + 0.82, pz * 0.62);
     }
-    add(new THREE.SphereGeometry(0.09, 20, 14), throwMat, X(dc), yf + 0.82, 0);
+    add(new THREE.CylinderGeometry(0.05, 0.075, 0.2, 24), stone, X(dc), yf + 0.85, 0);
+    add(new THREE.CylinderGeometry(0.004, 0.004, 0.18, 6), trim, X(dc), yf + 1.03, 0);
     ledge(zones.dining[0] + 0.1, zones.dining[1] - 0.1, 1);
     ledge(zones.dining[0] + 0.1, zones.dining[1] - 0.1, -1);
   }

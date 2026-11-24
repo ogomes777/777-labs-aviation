@@ -16,6 +16,7 @@ export default function CabinGallery() {
   const vp = useRef<HTMLDivElement>(null);
   const n = GALLERY.length;
   const swipe = useRef(false);
+  const programmatic = useRef(0);
 
   useEffect(() => {
     const decide = () => {
@@ -33,15 +34,12 @@ export default function CabinGallery() {
     if (!el) return;
     let raf = 0;
     const onScroll = () => {
-      if (!swipe.current) return;
+      if (!swipe.current || performance.now() < programmatic.current) return;
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        const cards = Array.from(el.querySelectorAll<HTMLElement>('.card'));
-        const center = el.scrollLeft + el.clientWidth / 2;
-        let best = 0, bestD = Infinity, cont = 0;
-        cards.forEach((c, i) => { const cc = c.offsetLeft + c.offsetWidth / 2; const d = Math.abs(cc - center); if (d < bestD) { bestD = d; best = i; } });
-        const first = cards[0], last = cards[cards.length - 1];
-        if (first && last) { const a = first.offsetLeft + first.offsetWidth / 2, b = last.offsetLeft + last.offsetWidth / 2; cont = Math.max(0, Math.min(1, (center - a) / (b - a))) * (n - 1); }
+        const max = el.scrollWidth - el.clientWidth;
+        const cont = max > 0 ? Math.max(0, Math.min(1, el.scrollLeft / max)) * (n - 1) : 0;
+        const best = Math.round(cont);
         frame.gallery = cont;
         (window as unknown as { __777recompute?: () => void }).__777recompute?.();
         if (best !== ui.get().galleryIndex) { ui.set({ galleryIndex: best }); track('gallery_card_view', { index: best }); }
@@ -55,8 +53,9 @@ export default function CabinGallery() {
     const target = Math.max(0, Math.min(n - 1, i));
     if (swipe.current) {
       const el = vp.current;
-      const card = el?.querySelectorAll<HTMLElement>('.card')[target];
-      if (el && card) el.scrollTo({ left: card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2, behavior: motion === 'reduced' ? 'auto' : 'smooth' });
+      programmatic.current = performance.now() + 900;
+      if (el) el.scrollTo({ left: ((el.scrollWidth - el.clientWidth) * target) / (n - 1), behavior: motion === 'reduced' ? 'auto' : 'smooth' });
+      frame.gallery = target;
       ui.set({ galleryIndex: target });
       return;
     }

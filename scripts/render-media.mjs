@@ -13,10 +13,10 @@ const TMP = 'qa/tmp/render';
 mkdirSync(OUT, { recursive: true }); mkdirSync(TMP, { recursive: true });
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 
-async function open(w, h) {
+async function open(w, h, base = BASE) {
   const page = await browser.newPage({ viewport: { width: w, height: h } });
   page.setDefaultTimeout(120000);
-  await page.goto(BASE, { waitUntil: 'networkidle' });
+  await page.goto(base, { waitUntil: 'networkidle' });
   await waitReady(page);
   await page.addStyleTag({ content: 'main,header,.rail,.consent-bar,.cursor,.scene-index,.route-layer{visibility:hidden!important}' });
   await page.evaluate(() => { window.__777.frame.freezeClock = true; window.__777.frame.clock = 0; });
@@ -79,15 +79,15 @@ if (mode === 'stills' || mode === 'all') {
 
 if (mode === 'video' || mode === 'all') {
   // loop de 6 s a 24 fps; 1 s extra é misturado sobre o início para costura invisível
-  const FPS = 24, LEN = 6, EXTRA = 1;
+  const FPS = 24, LEN = 5, EXTRA = 1;
   for (const [w, h, name] of [[1280, 720, 'hero-desktop'], [720, 1280, 'hero-mobile']]) {
     const dir = `${TMP}/${name}`; rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
-    const page = await open(w, h);
+    const page = await open(w, h, BASE.replace('quality=high', 'quality=balanced'));
     await gotoT(page, 0, { settle: 2000 });
     const total = (LEN + EXTRA) * FPS;
     for (let i = 0; i < total; i++) {
       await page.evaluate((c) => { window.__777.frame.clock = c; }, i / FPS);
-      await page.waitForTimeout(120);
+      await page.waitForTimeout(60);
       await page.screenshot({ path: `${dir}/f${String(i).padStart(4, '0')}.jpg`, type: 'jpeg', quality: 92 });
     }
     await page.close();

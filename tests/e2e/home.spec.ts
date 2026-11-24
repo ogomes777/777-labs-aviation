@@ -48,8 +48,10 @@ test.describe('navegação', () => {
     await page.getByRole('link', { name: 'Explorar', exact: true }).click();
     await expect(page).toHaveURL(/#aeronave/);
     await expect(page.locator('#aeronave-title')).toBeFocused();
+    // entra no capítulo com o conteúdo já revelado (14% adiante do início)
     const top = await page.evaluate(() => document.getElementById('aeronave')!.getBoundingClientRect().top);
-    expect(Math.abs(top)).toBeLessThan(5);
+    expect(top).toBeLessThanOrEqual(1);
+    await expect(page.locator('#aeronave-title')).toBeVisible();
   });
 
   test('Explorar a aeronave leva à seção (movimento reduzido)', async ({ page }) => {
@@ -256,8 +258,7 @@ test.describe('resiliência', () => {
     test.skip(isMobile, 'controle compacto testado no desktop');
     await page.goto('/?qa=1&quality=balanced');
     await page.getByRole('button', { name: /Movimento/ }).click();
-    await page.getByRole('radio', { name: /Movimento reduzido/ }).check();
-    await page.waitForLoadState('domcontentloaded');
+    await Promise.all([page.waitForEvent('load'), page.getByRole('radio', { name: /Movimento reduzido/ }).click({ noWaitAfter: true })]);
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
     await page.evaluate(() => localStorage.removeItem('777:motion'));
   });

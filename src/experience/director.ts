@@ -34,6 +34,9 @@ export const frame = {
   veilColor: '#f3efe8',
   /** canvas pronto (primeiro frame desenhado) */
   ready: false,
+  /** custo de CPU por quadro do loop de direção (ms) */
+  cpuMs: 0,
+  cpuMax: 0,
   /** galeria em modo swipe nativo (mobile) */
   gallerySwipe: false,
   /** canvas totalmente coberto (pausa de render) */
@@ -65,6 +68,8 @@ export interface UIState {
   seat: number | null;
   /** nível de qualidade adaptativo 0..3 (regulado pelo FPS real do dispositivo) */
   perf: number;
+  /** profundidade de campo ativa (desligada dentro da cabine) */
+  dof: boolean;
 }
 
 export const ui = createStore<UIState>({
@@ -88,6 +93,7 @@ export const ui = createStore<UIState>({
   inspectMode: 'parts',
   seat: null,
   perf: 3,
+  dof: true,
 });
 
 /** Destino escolhido no globo e enviado ao formulário (prefill). */

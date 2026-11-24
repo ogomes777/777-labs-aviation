@@ -7,7 +7,7 @@ const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-un
 const mobile = Number(w) < 600;
 const p = await b.newPage({ viewport: { width: Number(w), height: Number(h) }, ...(mobile ? { isMobile: true, hasTouch: true } : {}) });
 p.on('pageerror', (e) => console.log('[pageerror]', String(e).slice(0, 300)));
-await p.goto(`http://localhost:3777/?qa=1&perf=lock&quality=high${extra}`, { waitUntil: 'networkidle' });
+await p.goto(`http://localhost:3777/?qa=1&perf=lock&quality=${process.env.QUALITY ?? 'high'}${extra}`, { waitUntil: 'networkidle' });
 await waitReady(p);
 if (ui === '0') await p.addStyleTag({ content: 'main,header,.rail,.stage__grain,.stage__vignette{visibility:hidden!important}' });
 for (const t of tsArg.split(',').map(Number)) {

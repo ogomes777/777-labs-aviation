@@ -34,8 +34,8 @@ export default function CharterInquiry() {
 
   const focusFirstError = (errs: Record<string, string>) => {
     requestAnimationFrame(() => {
-      const first = Object.keys(errs)[0];
-      const el = formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`);
+      const fields = Array.from(formRef.current?.querySelectorAll<HTMLElement>('[name]') ?? []);
+      const el = fields.find((f) => errs[f.getAttribute('name') ?? '']);
       el?.focus();
     });
   };

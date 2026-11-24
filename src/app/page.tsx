@@ -13,6 +13,7 @@ import LiteHeroVideo from '@/components/LiteHeroVideo';
 import FleetShowroom from '@/components/FleetShowroom';
 import Cursor from '@/components/Cursor';
 import Words from '@/components/Words';
+import TextReact from '@/components/TextReact';
 
 function Still({ id, alt = '', scrim }: { id: string; alt?: string; scrim?: string }) {
   return (
@@ -32,6 +33,7 @@ export default function Page() {
       <SiteHeader />
       <SceneProgress />
       <Cursor />
+      <TextReact />
       <main id="main">
         <section id="top" className="chapter hero" data-chapter="0" style={L(260)} aria-labelledby="hero-title">
           <div className="chapter__sticky">

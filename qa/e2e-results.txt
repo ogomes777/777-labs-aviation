@@ -1,0 +1,45 @@
+
+Running 40 tests using 1 worker
+
+[1/40] [desktop] › tests/e2e/home.spec.ts:12:7 › carga e estrutura › carrega sem erros de console e sem scroll horizontal (cinemático)
+[2/40] [desktop] › tests/e2e/home.spec.ts:21:7 › carga e estrutura › tier alto (todos os efeitos) renderiza sem erros
+[3/40] [desktop] › tests/e2e/home.spec.ts:30:7 › carga e estrutura › H1 e CTA aparecem antes do WebGL ficar pronto
+[4/40] [desktop] › tests/e2e/home.spec.ts:36:7 › carga e estrutura › estrutura semântica: landmarks, h1 único, skip link
+[5/40] [desktop] › tests/e2e/home.spec.ts:46:7 › navegação › Explorar a aeronave leva à seção (cinemático)
+[6/40] [desktop] › tests/e2e/home.spec.ts:57:7 › navegação › Explorar a aeronave leva à seção (movimento reduzido)
+[7/40] [desktop] › tests/e2e/home.spec.ts:65:7 › navegação › menu abre/fecha com mouse, Enter e Escape e devolve o foco
+[8/40] [desktop] › tests/e2e/home.spec.ts:82:7 › navegação › scroll reverso rápido não congela e o tempo do filme volta
+[9/40] [desktop] › tests/e2e/home.spec.ts:97:7 › interações reais › galeria: botões e teclado percorrem 1→4 e voltam
+[10/40] [desktop] › tests/e2e/home.spec.ts:113:7 › interações reais › galeria mobile: swipe nativo sem sequestrar o scroll vertical
+[11/40] [desktop] › tests/e2e/home.spec.ts:124:7 › interações reais › perspectivas e proporções da aeronave reagem ao input
+[12/40] [desktop] › tests/e2e/home.spec.ts:134:7 › interações reais › anatomia: seleção de sistema e vista explodida
+[13/40] [desktop] › tests/e2e/home.spec.ts:144:7 › interações reais › destinos: filtro, seleção, distância e envio ao formulário
+[14/40] [desktop] › tests/e2e/home.spec.ts:158:7 › frota › carrossel da frota e inspeção: desmontar, planta e poltrona
+[15/40] [desktop] › tests/e2e/home.spec.ts:178:7 › formulário › rejeita origem=destino, data passada, passageiros inválidos e falta de consentimento
+[16/40] [desktop] › tests/e2e/home.spec.ts:203:7 › formulário › modo demo: valida no servidor e nunca promete envio
+[17/40] [desktop] › tests/e2e/home.spec.ts:223:7 › formulário › API: 422 para payload inválido, demo para válido
+[18/40] [desktop] › tests/e2e/home.spec.ts:235:7 › resiliência › prefers-reduced-motion: sem canvas, sem pin, conteúdo e CTA íntegros
+[19/40] [desktop] › tests/e2e/home.spec.ts:247:7 › resiliência › WebGL indisponível: imagem estática e CTA utilizável
+[20/40] [desktop] › tests/e2e/home.spec.ts:257:7 › resiliência › preferência de movimento persiste e troca o modo
+[21/40] [mobile] › tests/e2e/home.spec.ts:12:7 › carga e estrutura › carrega sem erros de console e sem scroll horizontal (cinemático)
+[22/40] [mobile] › tests/e2e/home.spec.ts:21:7 › carga e estrutura › tier alto (todos os efeitos) renderiza sem erros
+[23/40] [mobile] › tests/e2e/home.spec.ts:30:7 › carga e estrutura › H1 e CTA aparecem antes do WebGL ficar pronto
+[24/40] [mobile] › tests/e2e/home.spec.ts:36:7 › carga e estrutura › estrutura semântica: landmarks, h1 único, skip link
+[25/40] [mobile] › tests/e2e/home.spec.ts:46:7 › navegação › Explorar a aeronave leva à seção (cinemático)
+[26/40] [mobile] › tests/e2e/home.spec.ts:57:7 › navegação › Explorar a aeronave leva à seção (movimento reduzido)
+[27/40] [mobile] › tests/e2e/home.spec.ts:65:7 › navegação › menu abre/fecha com mouse, Enter e Escape e devolve o foco
+[28/40] [mobile] › tests/e2e/home.spec.ts:82:7 › navegação › scroll reverso rápido não congela e o tempo do filme volta
+[29/40] [mobile] › tests/e2e/home.spec.ts:97:7 › interações reais › galeria: botões e teclado percorrem 1→4 e voltam
+[30/40] [mobile] › tests/e2e/home.spec.ts:113:7 › interações reais › galeria mobile: swipe nativo sem sequestrar o scroll vertical
+[31/40] [mobile] › tests/e2e/home.spec.ts:124:7 › interações reais › perspectivas e proporções da aeronave reagem ao input
+[32/40] [mobile] › tests/e2e/home.spec.ts:134:7 › interações reais › anatomia: seleção de sistema e vista explodida
+[33/40] [mobile] › tests/e2e/home.spec.ts:144:7 › interações reais › destinos: filtro, seleção, distância e envio ao formulário
+[34/40] [mobile] › tests/e2e/home.spec.ts:158:7 › frota › carrossel da frota e inspeção: desmontar, planta e poltrona
+[35/40] [mobile] › tests/e2e/home.spec.ts:178:7 › formulário › rejeita origem=destino, data passada, passageiros inválidos e falta de consentimento
+[36/40] [mobile] › tests/e2e/home.spec.ts:203:7 › formulário › modo demo: valida no servidor e nunca promete envio
+[37/40] [mobile] › tests/e2e/home.spec.ts:223:7 › formulário › API: 422 para payload inválido, demo para válido
+[38/40] [mobile] › tests/e2e/home.spec.ts:235:7 › resiliência › prefers-reduced-motion: sem canvas, sem pin, conteúdo e CTA íntegros
+[39/40] [mobile] › tests/e2e/home.spec.ts:247:7 › resiliência › WebGL indisponível: imagem estática e CTA utilizável
+[40/40] [mobile] › tests/e2e/home.spec.ts:257:7 › resiliência › preferência de movimento persiste e troca o modo
+  4 skipped
+  36 passed (2.9m)

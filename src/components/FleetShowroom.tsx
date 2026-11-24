@@ -22,6 +22,7 @@ export default function FleetShowroom() {
   const motion = ui.useStore((s) => s.motion);
   const vp = useRef<HTMLDivElement>(null);
   const swipe = useRef(false);
+  const programmatic = useRef(0);
   const timer = useRef<number | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -36,13 +37,12 @@ export default function FleetShowroom() {
     const el = vp.current; if (!el) return;
     let raf = 0;
     const onScroll = () => {
-      if (!swipe.current) return;
+      if (!swipe.current || performance.now() < programmatic.current) return;
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        const cards = Array.from(el.querySelectorAll<HTMLElement>('.fcard'));
-        const c = el.scrollLeft + el.clientWidth / 2;
-        const a = cards[0].offsetLeft + cards[0].offsetWidth / 2, b = cards[cards.length - 1].offsetLeft + cards[cards.length - 1].offsetWidth / 2;
-        const cont = Math.max(0, Math.min(1, (c - a) / (b - a))) * (cards.length - 1);
+        const n = el.querySelectorAll('.fcard').length;
+        const max = el.scrollWidth - el.clientWidth;
+        const cont = max > 0 ? Math.max(0, Math.min(1, el.scrollLeft / max)) * (n - 1) : 0;
         frame.fleet = cont;
         (window as unknown as { __777recompute?: () => void }).__777recompute?.();
         const r = Math.round(cont);
@@ -77,8 +77,10 @@ export default function FleetShowroom() {
   const goTo = (i: number) => {
     const t = Math.max(0, Math.min(FLEET.length - 1, i));
     if (swipe.current) {
-      const el = vp.current; const card = el?.querySelectorAll<HTMLElement>('.fcard')[t];
-      if (el && card) el.scrollTo({ left: card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2, behavior: motion === 'reduced' ? 'auto' : 'smooth' });
+      const el = vp.current;
+      programmatic.current = performance.now() + 900;
+      if (el) el.scrollTo({ left: ((el.scrollWidth - el.clientWidth) * t) / (FLEET.length - 1), behavior: motion === 'reduced' ? 'auto' : 'smooth' });
+      frame.fleet = t;
       ui.set({ fleetIndex: t });
       return;
     }
@@ -132,7 +134,7 @@ export default function FleetShowroom() {
             <ul className="inspect__parts">
               {parts.map((p) => (
                 <li key={p.id}>
-                  <button type="button" aria-pressed={part === p.id} onMouseEnter={() => ui.set({ inspectPart: p.id })} onFocus={() => ui.set({ inspectPart: p.id })} onClick={() => ui.set({ inspectPart: part === p.id ? null : p.id })}>{p.label}</button>
+                  <button type="button" aria-pressed={part === p.id} onMouseEnter={() => ui.set({ inspectPart: p.id })} onFocus={() => ui.set({ inspectPart: p.id })} onClick={() => ui.set({ inspectPart: p.id })}>{p.label}</button>
                 </li>
               ))}
             </ul>

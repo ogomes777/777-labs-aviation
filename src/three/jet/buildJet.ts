@@ -58,7 +58,7 @@ export function buildJet(variant: AircraftId | VariantId, opts: BuildOptions): J
 
   // ---------- Fuselagem ----------
   const livery = track(fuselageLivery(s, opts.textureSize));
-  const paint = mk(withWindows(paintMaterial(livery), windowUniforms(s, s.R), `shell-${variant}`));
+  const paint = mk(withWindows(paintMaterial(livery), windowUniforms(s, s.R), 'shell'));
   paint.side = THREE.DoubleSide;
   paint.clippingPlanes = CUT_PLANES;
   addMesh('fuselagem', fuselageGeometry(f, { nu: Math.round(200 * detail), nv: Math.round(72 * detail) }), paint, 'shell');

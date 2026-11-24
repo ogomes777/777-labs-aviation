@@ -41,6 +41,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const { gl, scene, camera, size } = useThree();
   const setDpr = useThree((st) => st.setDpr);
   const perf = ui.useStore((st) => st.perf);
+  const dofOn = ui.useStore((st) => st.dof);
   const cam = camera as THREE.PerspectiveCamera;
   const variant = ui.useStore((s) => s.variant);
   const detail = quality === 'high' ? 1 : 0.7;
@@ -87,7 +88,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   useEffect(() => {
     let cancelled = false;
     const todo = FLEET.filter((f) => f.id !== 'XR');
-    const idle = (cb: () => void) => ((window as unknown as { requestIdleCallback?: (c: () => void, o?: object) => number }).requestIdleCallback ?? ((c: () => void) => window.setTimeout(c, 120)))(cb, { timeout: 1500 });
+    // prioridade adaptativa: ociosidade enquanto o visitante está no céu; urgente ao se aproximar do hangar/frota
+    const ric = (window as unknown as { requestIdleCallback?: (c: () => void, o?: object) => number }).requestIdleCallback;
+    const idle = (cb: () => void) => { if (frame.t > 1.4 || !ric) window.setTimeout(cb, frame.t > 1.4 ? 16 : 200); else ric(cb, { timeout: 5000 }); };
     const next = () => {
       if (cancelled) return;
       const item = todo.shift(); if (!item) return;
@@ -102,12 +105,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         c = { id: item.id, group: b.group, fans: b.fans.map((o) => ({ obj: o, axis: 'x' as const })), entries: jetEntries(b.group, b.spec.kind === 'turboprop'), x: item.x, size: b.spec.L, seats: b.cabin.seats, floorY: b.cabin.floorY, dispose: b.dispose };
       }
       lineup.add(c.group);
-      crafts.current.push(c);
-      idle(next);
+      // compila os shaders desta aeronave fora da thread principal antes de ela aparecer
+      const done = () => { crafts.current.push(c); idle(next); };
+      (gl.compileAsync ? gl.compileAsync(c.group, camera, scene) : Promise.resolve()).then(done, done);
     };
     const start = window.setTimeout(() => idle(next), 1800);
     return () => { cancelled = true; window.clearTimeout(start); crafts.current.forEach((c) => { lineup.remove(c.group); c.dispose(); }); crafts.current = []; };
-  }, [lineup, quality]);
+  }, [lineup, quality, gl, camera, scene]);
   const traffic = useMemo(() => createTraffic(), []);
   useEffect(() => () => traffic.dispose(), [traffic]);
   const inspectP = useRef(0);
@@ -144,6 +148,17 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   useEffect(() => { const d = [1, 1.15, 1.4, Math.min(1.75, window.devicePixelRatio || 1)][perf]; setDpr(Math.min(window.devicePixelRatio || 1, d)); }, [perf, setDpr]);
   const tmp = useMemo(() => ({ fgFocus: new THREE.Vector3(), focusGoal: new THREE.Vector3(), dir: new THREE.Vector3(), vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, lastPart: null as PartId | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
 
+  // ---------- compilação assíncrona antes do primeiro desenho ----------
+  const setFrameloop = useThree((st) => st.setFrameloop);
+  useEffect(() => {
+    let alive = true;
+    setFrameloop('never');
+    const go = () => { if (alive) setFrameloop('always'); };
+    const t = window.setTimeout(go, 4000); // nunca prende a experiência
+    (gl.compileAsync ? gl.compileAsync(scene, camera) : Promise.resolve()).then(go, go);
+    return () => { alive = false; window.clearTimeout(t); };
+  }, [gl, scene, camera, setFrameloop, jet]);
+
   // ---------- configuração do renderer ----------
   useEffect(() => {
     gl.localClippingEnabled = true;
@@ -155,6 +170,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
   // ---------- loop de direção ----------
   useFrame((state, rawDt) => {
+    const cpu0 = performance.now();
     const dt = Math.min(rawDt, 1 / 20);
     // ----- regulador de desempenho: mede o FPS real e ajusta o nível (com histerese) -----
     const pm = perfMon.current;
@@ -392,6 +408,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const envTex = env.maps[envKey];
     if (scene.environment !== envTex) scene.environment = envTex;
     const inside = insidePortal || inCabin;
+    const wantDof = true; // DOF/AO validados dentro da cabine após remover CA e ruído (causa real dos artefatos)
+    if (wantDof !== st.dof) ui.set({ dof: wantDof });
     scene.environmentIntensity = inside ? 0.26 : envKey === 'hangar' ? 0.2 : envKey === 'studio' ? 0.7 : 0.5;
     lights.sun.intensity = inside ? 0 : 2.6 * Math.max(skyA, epi) + 0.5 * studioW;
     lights.hemi.intensity = inside ? 0.05 : 0.32 * Math.max(skyA, epi) + 1.1 * studioW + 0.02 * hangarW;
@@ -405,7 +423,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const day = inside ? (inCabin ? 1 : 0.8) : 0;
     lights.winL.intensity = lights.winR.intensity = 1.8 * day;
     if (fx.ao) {
-      const ao = 2.6 * (inside ? 1 : 0) + 2.0 * hangarW + 1.4 * studioW + 0.6 * Math.max(skyA, epi);
+      // na travessia da janela a câmera fica a centímetros da geometria: AO desligada (evita artefatos de profundidade)
+      const ao = 2.6 * (inCabin ? 1 : 0) + 2.0 * hangarW + 1.4 * studioW + 0.6 * Math.max(skyA, epi) * (t < 1.0 ? 1 : 0);
       fx.ao.configuration.intensity = damp(fx.ao.configuration.intensity, ao, 3, dt);
       fx.ao.configuration.aoRadius = inside ? 0.6 : 1.6;
     }
@@ -434,7 +453,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- lente e grade por cena (exposição de câmera, não filtro) -----
     const W = { sky: Math.max(skyA, epi), hangar: hangarW, studio: studioW, cabin: insidePortal || inCabin ? 1 : 0, globe: globeW };
     if (fx.dof) {
-      const bokeh = 3.2 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 2.2 * W.hangar + 1.7 * W.cabin * (t > 4.85 ? 1 : 0.3);
+      const bokeh = 3.2 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 2.2 * W.hangar + 1.6 * W.cabin * (t > 4.85 ? 1 : 0.3);
       fx.dof.bokehScale = damp(fx.dof.bokehScale, bokeh, 3, dt);
     }
     if (fx.grade) {
@@ -449,9 +468,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const expo = 0.94 * W.sky + 1.1 * W.hangar + 0.98 * W.studio + 1.2 * W.cabin + 1.02 * W.globe;
       u.get('uExposure')!.value = frame.freezeClock ? Math.max(0.9, expo) : damp(u.get('uExposure')!.value, Math.max(0.9, expo), 0.9, dt);
     }
-    if (fx.lens) {
-      fx.lens.uniforms.get('uStreak')!.value = 0.16 * W.sky + 0.22 * W.hangar + 0.0 * W.studio + 0.2 * W.cabin + 0.08 * W.globe;
-      fx.lens.uniforms.get('uDistort')!.value = W.studio > 0.5 ? 0.0 : 0.035;
+    {
     }
 
     // ----- frota: visibilidade, rotores ociosos, desmontagem -----
@@ -535,6 +552,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
 
     if (tmp.firstFrame) { tmp.firstFrame = false; }
+    // custo de CPU do loop de direção (sem o desenho da GPU), média móvel — exposto para QA
+    const cpu = performance.now() - cpu0;
+    frame.cpuMs = frame.cpuMs * 0.95 + cpu * 0.05; frame.cpuMax = Math.max(frame.cpuMax, cpu);
     if (!frame.ready) { frame.ready = true; requestAnimationFrame(() => onReady()); }
   });
 
@@ -548,7 +568,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={jet.group} />
       <primitive object={lineup} />
       <primitive object={traffic.group} />
-      {frame.freezeClock && quality === 'high' && false ? null : <FXBoundary><PostFX quality={quality} level={perf} focus={focus} /></FXBoundary>}
+      {frame.freezeClock && quality === 'high' && false ? null : <FXBoundary><PostFX quality={quality} level={perf} focus={focus} dof={dofOn} /></FXBoundary>}
       <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-80, env.gy, 0]} visible={false}>
         <planeGeometry args={[520, 220]} />
         {quality === 'high' && perf >= 3 ? (

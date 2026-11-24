@@ -16,6 +16,8 @@
 
   --font-serif: var(--font-bodoni), 'Bodoni Moda', Georgia, 'Times New Roman', serif;
   --font-sans: var(--font-manrope), Manrope, 'Helvetica Neue', Arial, sans-serif;
+  --font-brand: var(--font-gloock), 'Gloock', Didot, Georgia, serif;
+  --font-condensed: var(--font-instrument), 'Instrument Serif', Georgia, serif;
   --font-text: var(--font-cormorant), 'Cormorant Garamond', Garamond, Georgia, serif;
   --font-script: var(--font-pinyon), 'Pinyon Script', 'Snell Roundhand', cursive;
 

@@ -1,0 +1,42 @@
+{
+  "measuredAt": "2026-11-24T13:28:39.677Z",
+  "environment": "Chromium headless + SwiftShader (software GL), localhost next start",
+  "results": {
+    "desktop-cinematic": {
+      "lcp_ms": 132,
+      "cls": 0.0001,
+      "inp_approx_ms": 5152,
+      "long_tasks": 34,
+      "long_task_max_ms": 19344,
+      "ttfb_ms": 8,
+      "wall_ms": 103487
+    },
+    "desktop-lite": {
+      "lcp_ms": 204,
+      "cls": 0,
+      "inp_approx_ms": 112,
+      "long_tasks": 0,
+      "long_task_max_ms": 0,
+      "ttfb_ms": 13,
+      "wall_ms": 5215
+    },
+    "mobile-cinematic": {
+      "lcp_ms": 108,
+      "cls": 0,
+      "inp_approx_ms": 248,
+      "long_tasks": 50,
+      "long_task_max_ms": 6866,
+      "ttfb_ms": 8,
+      "wall_ms": 16215
+    },
+    "mobile-reduced": {
+      "lcp_ms": 148,
+      "cls": 0,
+      "inp_approx_ms": 128,
+      "long_tasks": 0,
+      "long_task_max_ms": 0,
+      "ttfb_ms": 7,
+      "wall_ms": 5157
+    }
+  }
+}
