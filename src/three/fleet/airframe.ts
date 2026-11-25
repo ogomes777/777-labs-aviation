@@ -42,6 +42,8 @@ export interface FleetCraftBuild {
   /** IDs de peça com malha real nesta aeronave */
   partIds: Set<string>;
   isolate: (s: SystemId | null) => void;
+  /** destaque no hangar: 1 = vívida; < 1 = mais clara e translúcida (aeronaves não selecionadas) */
+  setFade: (k: number) => void;
   dispose: () => void;
 }
 
@@ -202,6 +204,14 @@ function liveryTexture(s: FleetSpec, f: Fuselage, L: number, W: number) {
       g.strokeStyle = 'rgba(120,130,140,0.55)'; g.lineWidth = Math.max(1, W / 2048); g.stroke();
     }
   }
+  // Matrix: faixa escura sob o para-brisa envolvente (sem frestas entre vidro e pele) + montante central claro
+  if (s.nose === 'prop') {
+    for (const side of [1, -1]) {
+      const pts: [number, number][] = [[s.Ln * 0.8, Math.PI / 2 - 0.035], [s.Ln * 1.07, Math.PI / 2 - 0.035], [s.Ln * 1.07, Math.PI / 2 - 1.18], [s.Ln * 0.86, Math.PI / 2 - 1.12]];
+      g.beginPath(); pts.forEach(([d, t], i) => { const tt = side === 1 ? t : Math.PI - t; const y = Y(tt); if (i === 0) g.moveTo(X(d), y); else g.lineTo(X(d), y); }); g.closePath();
+      g.fillStyle = '#0d141c'; g.fill();
+    }
+  }
   // janelas laterais do cockpit (atrás do para-brisa)
   {
     const prop2 = s.nose === 'prop';
@@ -297,7 +307,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   // para-brisa (painéis no nariz)
   {
     const panes: [number, number, number, number][] = prop
-      ? [[s.Ln * 0.78, s.Ln * 1.04, 0.05, 0.78], [s.Ln * 0.84, s.Ln * 1.08, 0.82, 1.12]]
+      ? [[s.Ln * 0.8, s.Ln * 1.07, 0.035, 1.18]]
       : [[s.Ln * 0.56, s.Ln * 0.84, 0.05, 0.58], [s.Ln * 0.64, s.Ln * 0.9, 0.66, 1.06]];
     const geos: THREE.BufferGeometry[] = [];
     for (const side of [1, -1]) for (const [a0, a1, t0, t1] of panes) {
@@ -746,11 +756,26 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     const r = b.isEmpty() ? null : (() => { const sp = b.getBoundingSphere(new THREE.Sphere()); return { center: sp.center.clone(), radius: Math.max(0.35, sp.radius) }; })();
     partCache.set(part, r); return r;
   };
+  const fadeMats = new Map<THREE.Material, { op: number; tr: boolean }>();
+  group.traverse((o) => { const m = o as THREE.Mesh; if (!m.isMesh) return; for (const mt of ([] as THREE.Material[]).concat(m.material)) if (!(mt instanceof THREE.ShaderMaterial) && !fadeMats.has(mt)) fadeMats.set(mt, { op: mt.opacity, tr: mt.transparent }); });
+  let fadeK = 1;
+  const setFade = (k: number) => {
+    const kk = Math.round(Math.min(1, Math.max(0, k)) * 100) / 100;
+    if (kk === fadeK) return;
+    const was = fadeK < 1; fadeK = kk; const now = kk < 1;
+    fadeMats.forEach((b, m) => {
+      m.opacity = b.op * kk;
+      const t = b.tr || now;
+      if (m.transparent !== t) { m.transparent = t; m.needsUpdate = true; }
+      if (m instanceof THREE.MeshStandardMaterial && !b.tr) m.depthWrite = !now || kk > 0.6;
+    });
+    void was;
+  };
   const isolate = (sid: SystemId | null) => { for (const k2 of SYSTEMS) systems[k2].visible = !sid || k2 === sid; };
 
   return {
     id, spec: s, group, systems, anchors, anchorRefs, bounds, entries, seats, floorY, cutY: s.R * 0.26, size: s.envelope.length, axisH: s.axisH,
-    setXray, isolate, focusPart, partBounds, partIds,
+    setXray, isolate, setFade, focusPart, partBounds, partIds,
     dispose: () => { disposables.forEach((d) => d.dispose()); },
   };
 }

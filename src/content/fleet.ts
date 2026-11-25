@@ -42,21 +42,21 @@ export const FLEET: FleetItem[] = [
   },
   {
     id: 'praetor-500', make: 'Embraer', name: 'Praetor 500', year: 2019, category: 'Jato executivo médio', type: 'EMB-545',
-    condition: 'Seminovo · nacionalizado', status: 'Anunciado para venda', pax: 9, x: -32,
+    condition: 'Seminovo · nacionalizado', status: 'Anunciado para venda', pax: 9, x: -24,
     facts: ['3.340 nm de alcance anunciado', '466 kt de cruzeiro anunciado', '9 passageiros anunciados'],
     more: ['Redução ativa de turbulência', 'Programas ativos, segundo o anúncio', 'Evolução da família Legacy 450', 'Alcance do fabricante com 4 passageiros e reservas NBAA IFR'],
     engine: '2 × Honeywell HTF7500E', engineType: 'turbofan',
   },
   {
     id: 'praetor-600', make: 'Embraer', name: 'Praetor 600', year: 2024, category: 'Jato executivo supermédio', type: 'EMB-550',
-    condition: 'Anunciado como novo · nacionalizado', status: 'Oportunidade exclusiva (anúncio)', pax: 12, x: -64, exclusive: true,
+    condition: 'Anunciado como novo · nacionalizado', status: 'Oportunidade exclusiva (anúncio)', pax: 12, x: -48, exclusive: true,
     facts: ['4.018 nm de alcance anunciado', '466 kt de cruzeiro anunciado', '12 passageiros anunciados'],
     more: ['Cabine executiva de piso plano', 'Versão 2024 — não é o Praetor 600E de 2026', '“Novo” é status do anúncio, não garantia atual'],
     engine: '2 × Honeywell HTF7500E', engineType: 'turbofan',
   },
   {
     id: 'matrix', make: 'Piper', name: 'Matrix', year: 2011, category: 'Monomotor a pistão turboalimentado', type: 'PA-46R-350T',
-    condition: 'Seminovo', status: 'Anunciado para venda', pax: 6, x: -92,
+    condition: 'Seminovo', status: 'Anunciado para venda', pax: 6, x: -70,
     facts: ['Operacional, segundo o anúncio', 'Documentação completa, segundo o anúncio', 'Seis lugares no tipo, incluindo piloto'],
     more: ['Cabine não pressurizada', 'Motor a pistão com turbocompressor e hélice', 'Histórico de manutenção informado pelo vendedor'],
     engine: '1 × Lycoming TIO-540-AE2A, 350 hp', engineType: 'piston',
@@ -64,7 +64,7 @@ export const FLEET: FleetItem[] = [
   },
   {
     id: 'citation-cj2-plus', make: 'Cessna', name: 'Citation CJ2+', year: 2007, category: 'Jato executivo leve', type: '525A',
-    condition: 'Seminovo', status: 'Anunciado para venda', pax: 6, x: -114,
+    condition: 'Seminovo', status: 'Anunciado para venda', pax: 6, x: -88,
     facts: ['1.613 nm de alcance anunciado', '6 passageiros anunciados', 'Perfil regional, eficiente e ágil'],
     more: ['Alcance depende de carga e condições', 'Não confundir com CJ2, CJ3 ou CJ4'],
     engine: '2 × Williams FJ44-3A-24', engineType: 'turbofan',

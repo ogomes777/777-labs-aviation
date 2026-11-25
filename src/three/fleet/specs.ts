@@ -40,9 +40,9 @@ const club = (d0: number, rows: number, pitch: number) => {
 
 export const FLEET_SPECS: Record<FleetId, FleetSpec> = {
   'legacy-450': {
-    id: 'legacy-450', envelope: { length: 19.68, span: 20.25, height: 6.43 }, envelopeStatus: 'conflict',
-    envelopeNote: 'Envergadura em revisão: EASA IM.A.526 informa 19,25 m; fontes secundárias (AOPA 2016) 20,25 m. O 3D usa 20,25 m até confirmação.',
-    sources: ['EASA TCDS IM.A.526 iss.12 (comprimento 19,68 m, altura 6,43 m)', 'AOPA Pilot 2016 (envergadura 66 ft 5 in)'],
+    id: 'legacy-450', envelope: { length: 19.68, span: 20.25, height: 6.43 }, envelopeStatus: 'verified',
+    envelopeNote: 'Envergadura 20,25 m (66 ft 5 in) por convergência: ficha AOPA 2016 (dados Embraer), Airport-Technology e tabela Legacy 450/500; coerente com o Praetor 500 (winglets redesenhados levam a 21,50 m). O valor 19,25 m do TCDS EASA destoa e é tratado como erro de digitação.',
+    sources: ['EASA TCDS IM.A.526 iss.12 (comprimento 19,68 m, altura 6,43 m)', 'AOPA Pilot 2016 — ficha técnica (envergadura 66 ft 5 in)', 'Airport-Technology — Legacy 450 (20,25 m)'],
     // geometria EMB-545 medida na vista superior/lateral cotada da brochura Embraer Praetor 500 (mesma fuselagem; winglet menor)
     R: 1.14, Ln: 4.0, Lt: 5.3, fusL: 17.85, noseTip: -0.5, axisH: 2.05, nose: 'jet',
     wing: { root: 4.4, tip: 1.0, sweep: 32, dihedral: 3.5, d: 6.45, y: -0.82, winglet: 'legacy', kink: 0.3 },

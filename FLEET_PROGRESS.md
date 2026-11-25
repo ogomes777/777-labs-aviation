@@ -49,6 +49,14 @@ Pacote V6: `simfly-fleet-pack/` (docs, data, starter, scripts, referências). Ag
 - Comparativos lado a lado gerados por `scripts/render-views.mjs` (vistas lateral/superior/frontal/3-4 do laboratório `/lab/preview`, só em dev).
 - Limite honesto: igualdade "de exemplar" (cada detalhe, matrícula, interior real) exige fotos/documentos dos aviões anunciados; as fotos da landing não servem como prova geométrica.
 
+
+## Rodada "pátio de preparação" (pedido do usuário, 25/11/2026 noite)
+- Envergadura do Legacy 450 fechada em **20,25 m (66 ft 5 in)**: AOPA 2016 (ficha do fabricante), Airport-Technology e tabela Legacy 450/500; coerente com o Praetor 500 (+~0,63 m por winglet → 21,50 m). O 19,25 m do TCDS EASA é tratado como erro de digitação (nota no atlas).
+- Para-brisa do Matrix refeito como peça envolvente contínua com montante central e fundo escuro pintado (sem frestas).
+- Cenário trocado de hangar para **pátio de preparação de aviação executiva ao entardecer**: concreto com brilho de umidade (refletor por tier), terminal/hangar FBO ao fundo com três portões abertos e interior aquecido, bloco de vidro com janelas quentes, torres de holofote com halo, linhas de táxi/entrada/parada, luzes azuis de táxi, cones nas posições, céu dourado, serra e sol baixo, pista distante com luzes. Luz de sol quente por trás (rim), hemisférica de exterior, mapa de ambiente "sky".
+- Coreografia: as cinco aeronaves estacionadas lado a lado (fila em z=34) sempre no quadro; a escolhida pelo scroll/toque **taxia para frente** (z=−14), centraliza e gira para 3/4; as demais **recuam, se afastam lateralmente e ficam translúcidas** (opacidade 0,3; 0,16 durante o atlas). Interpolação contínua com o índice da galeria; movimento em tempo real (independe do FPS); variantes de shader pré-compiladas.
+- "A frota.": varredura azul + brilho que respira (mesma linguagem das copys acima). Jato SimFly em PNG (asset aprovado) entra da esquerda, freia e flutua pulsante atrás da copy, menor/minimalista; some no atlas; estático com reduced motion.
+
 ## Atlas de peças (V6)
 - Toda malha tem ID de peça ligado ao catálogo; cobertura verificada no navegador: 100% dos itens listados no atlas têm malha real em cada aeronave (Matrix sem winglet/turbina; CJ2+ sem winglet; lavatório só no Legacy, conforme anúncio).
 - Novas micropeças: radome/capô, luzes de navegação, pitots/antenas, freios, cockpit (painel + assentos de tripulação), compressor/câmara/turbina/eixo/caixa de acessórios, cárter/cilindros/turbo/intercooler, tanques de combustível.

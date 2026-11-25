@@ -36,6 +36,8 @@ class FXBoundary extends Component<{ children: ReactNode }, { failed: boolean }>
   render() { return this.state.failed ? null : this.props.children; }
 }
 const C = (hex: string) => new THREE.Color(hex);
+/** V6: fila de estacionamento no pátio (z) e posição de destaque da aeronave escolhida (mais perto da câmera) */
+const ROW_Z = 34, FRONT_Z = -14;
 const BG = { hangar: C('#06080b'), studio: C('#f1eee7'), cabin: C('#20170f'), globe: C('#070b12') };
 
 
@@ -89,18 +91,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   // ---------- frota SimFly: cinco aeronaves anunciadas (ilustração paramétrica calibrada), construídas em idle ----------
   type Craft = FleetCraftBuild & { x: number };
   const lineup = useMemo(() => { const g = new THREE.Group(); g.name = 'lineup'; return g; }, []);
-  // marcas de estacionamento discretas no piso do hangar (linha de eixo + barra de parada por aeronave)
-  useEffect(() => {
-    const mat = new THREE.MeshBasicMaterial({ color: '#9aa0a8', transparent: true, opacity: 0.22, depthWrite: false });
-    const geos: THREE.BufferGeometry[] = [];
-    for (const f of FLEET) {
-      const L = FLEET_SPECS[f.id].envelope.length;
-      const c = new THREE.PlaneGeometry(L * 1.25, 0.12); c.rotateX(-Math.PI / 2); c.translate(f.x, env.gy + 0.006, 0); geos.push(c);
-      const bar = new THREE.PlaneGeometry(0.16, 3.2); bar.rotateX(-Math.PI / 2); bar.translate(f.x + L * 0.52 + 0.8, env.gy + 0.006, 0); geos.push(bar);
-    }
-    const meshes = geos.map((geo) => { const m = new THREE.Mesh(geo, mat); m.renderOrder = -2; m.name = 'parking-mark'; lineup.add(m); return m; });
-    return () => { meshes.forEach((m) => { lineup.remove(m); m.geometry.dispose(); }); mat.dispose(); };
-  }, [lineup, env.gy]);
   const crafts = useRef<Craft[]>([]);
   useEffect(() => {
     let cancelled = false;
@@ -117,7 +107,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       let b: FleetCraftBuild;
       try { b = buildFleetCraft(item.id, { textureSize: quality === 'high' ? 2048 : 1024, detail: quality === 'high' ? 0.85 : 0.6 }); }
       catch (err) { console.error('[simfly] falha ao construir', item.id, err); idle(next); return; }
-      b.group.position.set(item.x, env.gy + b.axisH, 0);
+      b.group.position.set(item.x, env.gy + b.axisH, ROW_Z);
       const c: Craft = Object.assign(b, { x: item.x });
       lineup.add(c.group);
       // compila os shaders desta aeronave fora da thread principal antes de ela aparecer
@@ -127,7 +117,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777fleet: unknown }).__777fleet = crafts.current;
         idle(next);
       };
-      (gl.compileAsync ? gl.compileAsync(c.group, camera, scene) : Promise.resolve()).then(done, done);
+      // pré-compila as duas variantes (vívida e translúcida) para o destaque não travar ao rolar
+      const compile = (): Promise<unknown> => (gl.compileAsync ? gl.compileAsync(c.group, camera, scene) : Promise.resolve());
+      c.setFade(0.5);
+      compile().then(() => { c.setFade(1); return compile(); }).then(done, done);
     };
     const start = window.setTimeout(() => idle(next), 1800);
     return () => { cancelled = true; window.clearTimeout(start); crafts.current.forEach((c) => { lineup.remove(c.group); c.dispose(); }); crafts.current = []; };
@@ -171,7 +164,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
-  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
+  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, fleetCamX: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
 
   // ---------- configuração do renderer ----------
   useEffect(() => {
@@ -252,23 +245,21 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       tmp.fleetIdx = idx;
       const i0 = Math.floor(Math.min(idx, FLEET.length - 1)), f0 = idx - i0;
       const i1 = Math.min(FLEET.length - 1, i0 + 1);
-      const sz = (k: number) => FLEET_SPECS[FLEET[k].id].envelope.length;
-      const size = THREE.MathUtils.lerp(sz(i0), sz(i1), f0);
-      const x = THREE.MathUtils.lerp(FLEET[i0].x, FLEET[i1].x, f0);
       const portrait = window.innerWidth < window.innerHeight;
       const gy = env.gy;
-      const axis = THREE.MathUtils.lerp(FLEET_SPECS[FLEET[i0].id].axisH, FLEET_SPECS[FLEET[i1].id].axisH, f0);
-      // composição: aeronave no terço superior, acima dos cards de vidro (alvo abaixo do eixo, proporcional à distância).
-      // retrato: vista 3/4 frontal (comprimento aparente menor) e mais distante, entre o título e o card.
-      // retrato: o comprimento inteiro precisa caber na largura estreita → câmera mais distante, perfil lateral
-      const aspect = window.innerWidth / window.innerHeight;
-      const dist = portrait ? Math.max(24, (size * 0.56) / (Math.tan(THREE.MathUtils.degToRad(15)) * aspect)) : Math.max(17, size * 1.75);
-      tmp.fogK = Math.min(1, 34 / dist);
-      tmp.vEye.set(x + 2 + size * (portrait ? 0.2 : 0.14), gy + 2.6 + size * (portrait ? 0.3 : 0.12), -dist);
-      tmp.vTarget.set(x + size * 0.04, gy + axis * 0.6 - dist * (portrait ? 0.1 : 0.085), 0);
+      // pátio: a câmera enxerga a fila inteira; acompanha a escolhida só parcialmente (as cinco ficam no quadro)
+      const selX = THREE.MathUtils.lerp(FLEET[i0].x, FLEET[i1].x, f0);
+      const mid = (FLEET[0].x + FLEET[FLEET.length - 1].x) / 2;
+      const camX = mid + (selX - mid) * (portrait ? 0.9 : 0.3);
+      tmp.fleetCamX = camX;
+      tmp.fogK = 1;
+      // plano baixo de cinema: escolhida grande no primeiro plano (acima dos cards), fila inteira ao fundo
+      const back = portrait ? 70 : 33;
+      tmp.vEye.set(camX + 6, gy + (portrait ? 6.5 : 4.6), FRONT_Z - back);
+      tmp.vTarget.set(camX, gy - (portrait ? 19 : 9.5), 22);
       const into = ramp(p, 0.0, 0.1);
       tmp.eye.lerp(tmp.vEye, into); tmp.target.lerp(tmp.vTarget, into);
-      fov = THREE.MathUtils.lerp(fov, 30, into);
+      fov = THREE.MathUtils.lerp(fov, portrait ? 34 : 40, into);
       // inspeção: atlas da aeronave (órbita 360°, sistema isolado, planta, vista sentado)
       const ins = st.inspect ? all.find((c) => c.id === st.inspect) : null;
       tmp.viewW = damp(tmp.viewW, ins ? 1 : 0, 2.6, dt);
@@ -290,7 +281,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         } else {
           const b = (st.inspectSystem && st.inspectPart ? ins.partBounds(st.inspectPart) : null) ?? (st.inspectSystem ? ins.bounds[st.inspectSystem] : null);
           const c = tmp.oc.set(gp.x, gp.y - ins.axisH * 0.12, gp.z);
-          if (b) c.set(gp.x + b.center.x, gp.y + b.center.y, gp.z + b.center.z);
+          if (b) ins.group.localToWorld(c.copy(b.center));
           const rad = b ? b.radius : ins.size * 0.55;
           const d = (b ? rad * 2.5 + 1.4 : rad * 2.2) * (portrait ? 1.65 : 1);
           const yaw = -1.04 + st.fleetYaw, pitch = clamp(0.2 + st.fleetPitch, 0.02, 1.35);
@@ -381,8 +372,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
     // névoa atmosférica
     const fog = scene.fog as THREE.FogExp2;
-    fog.color.copy(skyW > 0.5 ? tmp.pal.haze ?? C('#efd3cc') : tmp.bg);
-    fog.density = skyA > 0.5 ? 0.0019 : epi > 0 ? 0.0018 : hangarW > 0.5 ? 0.012 * (inFleet ? tmp.fogK : 1) : 0.0;
+    fog.color.copy(skyW > 0.5 ? tmp.pal.haze ?? C('#efd3cc') : inFleet ? C('#8f7560') : tmp.bg);
+    fog.density = skyA > 0.5 ? 0.0019 : epi > 0 ? 0.0018 : hangarW > 0.5 ? (inFleet ? 0.0035 * tmp.fogK : 0.012) : 0.0;
 
     // hangar / estúdio
     env.hangar.group.visible = hangarW > 0.001 || (t > 1.75 && t < 3.25);
@@ -396,8 +387,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (floorRef.current) {
       floorRef.current.visible = hangarW > 0.02;
       const fm = floorRef.current.material as THREE.MeshStandardMaterial & { mixStrength?: number };
-      fm.color.set('#07090c').lerp(BG.studio, 1 - hangarW);
-      if (fm.mixStrength !== undefined) fm.mixStrength = 3.2 * hangarW;
+      fm.color.set('#3c3d3f').lerp(BG.studio, 1 - hangarW);
+      if (fm.mixStrength !== undefined) fm.mixStrength = 1.7 * hangarW; // concreto do pátio com leve brilho de umidade
     }
 
     // globo
@@ -476,7 +467,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- mapas de ambiente e luzes -----
     const insidePortal = t > 1.32 && t < 1.76;
     const inCabin = t > 4.66 && t < 6.31;
-    const envKey = insidePortal || inCabin ? 'cabin' : skyW > 0.5 && t < 1.76 ? 'sky' : epi > 0 ? 'sky' : hangarW > 0.5 ? 'hangar' : 'studio';
+    const envKey = insidePortal || inCabin ? 'cabin' : skyW > 0.5 && t < 1.76 ? 'sky' : epi > 0 ? 'sky' : inFleet ? 'sky' : hangarW > 0.5 ? 'hangar' : 'studio';
     const want = (k: EnvKey) => { if (!env.maps.has(k)) env.maps.get(k); };
     if (t > 0.85) { want('cabin'); }
     if (t > 1.45) { want('hangar'); }
@@ -488,12 +479,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (wantDof !== st.dof) ui.set({ dof: wantDof });
     scene.environmentIntensity = inside ? 0.37 : envKey === 'hangar' ? 0.2 : envKey === 'studio' ? 0.7 : 0.5;
     lights.sun.intensity = inside ? 0 : 2.6 * Math.max(skyA, epi) + 0.5 * studioW;
-    lights.hemi.intensity = inside ? 0.05 : 0.32 * Math.max(skyA, epi) + 1.1 * studioW + 0.02 * hangarW;
+    lights.hemi.intensity = inside ? 0.05 : 0.32 * Math.max(skyA, epi) + 1.1 * studioW + (inFleet ? 0.55 : 0.02) * hangarW;
     lights.key.intensity = 30 * hangarW;
     // a luz-chave e o contraluz acompanham a câmera ao longo da fila da frota
     const kx = inFleet ? tmp.target.x : 0;
     if (Math.abs(lights.key.position.x - (kx - 7)) > 0.01) { lights.key.position.set(kx - 7, 6.5, -9); lights.key.lookAt(kx - 2, 0.6, 0); lights.rim.position.set(kx + 14, 9, 34); lights.rim.target.position.set(kx, 0, 0); lights.rim.target.updateMatrixWorld(); }
-    lights.rim.intensity = 2.4 * hangarW;
+    lights.rim.intensity = (inFleet ? 3.4 : 2.4) * hangarW;
+    if (inFleet) lights.rim.color.set('#ffd6a6'); else lights.rim.color.set('#c9d3de');
     const cabinLight = inside ? 1 : hangarW > 0.5 ? 0.9 : 0.3;
     lights.cab.forEach((l) => { l.intensity = (inside ? 0.74 : 1.1) * cabinLight; });
     const day = inside ? (inCabin ? 1 : 0.8) : 0;
@@ -558,6 +550,20 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       crafts.current.forEach((c) => {
         if (c.id === st.inspect || (prevP > 0 && c.id === tmp.lastIns)) applyInspect(c.entries, inspectP.current, st.fleetPreview, time);
         c.setXray(c.id === st.inspect ? tmp.xray : 0);
+        // destaque: a escolhida taxia para perto da câmera e gira em 3/4; as demais recuam, se afastam e ficam translúcidas
+        const k = FLEET.findIndex((f) => f.id === c.id);
+        const near = st.inspect ? (c.id === st.inspect ? 1 : 0) : Math.max(0, 1 - Math.abs(tmp.fleetIdx - k));
+        const w = near * near * (3 - 2 * near);
+        const side = Math.sign(k - tmp.fleetIdx);
+        const tx = THREE.MathUtils.lerp(FLEET[k].x + side * 5.5, THREE.MathUtils.lerp(FLEET[k].x, tmp.fleetCamX, 0.82), w);
+        const tz = THREE.MathUtils.lerp(ROW_Z + (st.inspect ? 14 : 4), FRONT_Z, w);
+        const tyaw = st.inspect ? 0 : 0.52 * w;
+        const lam = st.motion === 'reduced' ? 40 : 3.2;
+        const rdt = Math.min(rawDt, 0.25); // tempo real: a coreografia não desacelera em aparelhos lentos
+        c.group.position.x = damp(c.group.position.x, tx, lam, rdt);
+        c.group.position.z = damp(c.group.position.z, tz, lam, rdt);
+        c.group.rotation.y = damp(c.group.rotation.y, tyaw, lam, rdt);
+        c.setFade(st.inspect ? (c.id === st.inspect ? 1 : 0.16) : 0.3 + 0.7 * w);
         c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
         c.focusPart(c.id === st.inspect && st.inspectMode === 'parts' && st.inspectSystem ? st.inspectPart : null);
       });
@@ -686,12 +692,12 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={lineup} />
       <primitive object={traffic.group} />
       {fxOn ? <FXBoundary><PostFX quality={quality} level={perf} focus={focus} dof={dofOn} /></FXBoundary> : null}
-      {floorOn && <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-80, env.gy, 0]} visible={false}>
-        <planeGeometry args={[520, 220]} />
+      {floorOn && <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-50, env.gy, 0]} visible={false}>
+        <planeGeometry args={[380, 208]} />
         {quality === 'high' && perf >= 3 ? (
-          <MeshReflectorMaterial blur={[400, 120]} resolution={768} mixBlur={1} mixStrength={3.2} roughness={0.75} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#0a0d11" metalness={0.5} mirror={0.6} />
+          <MeshReflectorMaterial blur={[400, 120]} resolution={768} mixBlur={1} mixStrength={3.2} roughness={0.75} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#3c3d3f" metalness={0.25} mirror={0.4} />
         ) : (
-          <meshStandardMaterial color="#0a0d11" roughness={0.4} metalness={0.4} />
+          <meshStandardMaterial color="#3c3d3f" roughness={0.55} metalness={0.15} />
         )}
       </mesh>}
     </>

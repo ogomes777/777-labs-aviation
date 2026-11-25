@@ -67,8 +67,8 @@ describe('envelopes dimensionais (fontes EASA/Embraer)', () => {
       expect([e.envelope.length, e.envelope.span, e.envelope.height]).toEqual([l, s, h]);
       expect(e.sources.length).toBeGreaterThan(0);
     }
-    expect(FLEET_SPECS['legacy-450'].envelopeStatus).toBe('conflict');
-    expect(FLEET_SPECS['legacy-450'].envelopeNote).toContain('19,25');
+    expect(FLEET_SPECS['legacy-450'].envelopeStatus).toBe('verified');
+    expect(FLEET_SPECS['legacy-450'].envelopeNote).toContain('66 ft 5 in');
   });
   it('Matrix: hélice de 3 pás e 80 pol; cauda convencional; jatos com cauda em T', () => {
     expect(FLEET_SPECS.matrix.engine.blades).toBe(3);

@@ -11,6 +11,7 @@ import ConsentBar from '@/components/ConsentBar';
 import SimFlyHero from '@/components/SimFlyHero';
 import { SimFlyAviationSection, SimFlyRoutesGlobe } from '@/components/SimFlyJourney';
 import FleetShowroom from '@/components/FleetShowroom';
+import FleetTitlePlane from '@/components/FleetTitlePlane';
 import Cursor from '@/components/Cursor';
 import Words from '@/components/Words';
 import TextReact from '@/components/TextReact';
@@ -83,6 +84,7 @@ export default function Page() {
         <section id="frota" className="chapter fleet" data-chapter="3" style={L(520)} aria-labelledby="frota-title">
           <div className="chapter__sticky">
             <Still id="frota" alt="Fila de aeronaves conceituais no hangar" scrim="linear-gradient(180deg, rgba(6,8,11,0.6), transparent 40%)" />
+            <FleetTitlePlane />
             <h2 id="frota-title" className="fleet__title reveal" data-in="0.02" data-split data-focus-target><Words>A</Words> <em><Words>frota.</Words></em></h2>
             <FleetShowroom />
           </div>
