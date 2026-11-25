@@ -43,15 +43,34 @@ export function createTraffic() {
     group.add(a.g);
     return { ...a, z, y, dir, speed, phase, span: 2600 };
   });
+  const wp = new THREE.Vector3(), wr = new THREE.Vector3(), wu = new THREE.Vector3(), wf = new THREE.Vector3();
+  let windowEpoch = -1, windowLast = -1;
   return {
     group,
     update: (time: number, px: number, py: number) => {
       for (const a of actors) {
+        a.g.visible = true;
         const u = ((time * a.speed) / a.span + a.phase) % 1;
         a.g.position.set(a.dir * (u * a.span - a.span / 2) + px * (a.z < 0 ? 18 : -18), a.y + py * 6 + Math.sin(time * 0.3 + a.phase * 9) * 2, a.z);
         a.g.rotation.z = Math.sin(time * 0.4 + a.phase * 5) * 0.03;
         a.rotors.forEach((r) => { r.rotation.y = time * 22; });
       }
+    },
+    windowPass(cam: THREE.Camera, p: number, time: number) {
+      cam.updateMatrixWorld(true); cam.getWorldDirection(wf); wr.setFromMatrixColumn(cam.matrixWorld,0); wu.setFromMatrixColumn(cam.matrixWorld,1);
+      // Two existing distant actors, no new geometry; motion follows the same scroll.
+      actors.forEach((a,i)=>{ a.g.visible = i===2; if(!a.g.visible)return;
+        if (windowEpoch < 0 || time < windowLast || time-windowLast > .65) windowEpoch = time;
+        windowLast = time;
+        const z=240+40*p;
+        const halfWidth=cam instanceof THREE.PerspectiveCamera ? z*Math.tan(THREE.MathUtils.degToRad(cam.fov*.5))*cam.aspect : z*.75;
+        const elapsed=Math.max(0,time-windowEpoch);
+        // Wrap only outside the visible camera frustum, never reverse or stop on screen.
+        const phase=((.19+elapsed*.068+p*.16)%1+1)%1;
+        const x=(1.34-2.68*phase)*halfWidth;
+        wp.copy(cam.position).addScaledVector(wf,z).addScaledVector(wr,x).addScaledVector(wu,(-.16+Math.sin(time*.42)*.012)*z);
+        a.g.position.copy(wp); a.g.rotation.set(0,Math.atan2(-wr.z,wr.x)+Math.PI,Math.sin(time*.5)*.025);
+      });
     },
     dispose: () => D.forEach((d) => d.dispose()),
   };

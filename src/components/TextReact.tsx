@@ -26,7 +26,7 @@ export default function TextReact() {
         const k = Math.max(0, 1 - Math.hypot(dx, dy * 1.4) / 150);
         if (k > 0.01) {
           el.style.transform = `translate3d(${(-dx * 0.02 * k).toFixed(2)}px, ${(-k * 7).toFixed(2)}px, 0) rotateX(${(k * 14).toFixed(1)}deg)`;
-          el.style.color = k > 0.35 ? 'var(--champagne)' : '';
+          el.style.color = k > 0.35 ? (el.closest('#engenharia') ? '#f3faff' : el.closest('#interior,#experiencia') ? '#74bfff' : 'var(--champagne)') : '';
           el.setAttribute('data-near', '');
           active.add(el);
         } else if (active.has(el)) {
@@ -42,7 +42,7 @@ export default function TextReact() {
       if (!host) return;
       host.querySelectorAll<HTMLElement>('.w').forEach((el, i) => {
         el.animate(
-          [{ transform: 'translateY(0) rotateX(0)', color: '' }, { transform: 'translateY(-9px) rotateX(22deg)', color: 'var(--champagne)', offset: 0.4 }, { transform: 'translateY(0) rotateX(0)', color: '' }],
+          [{ transform: 'translateY(0) rotateX(0)', color: '' }, { transform: 'translateY(-9px) rotateX(22deg)', color: el.closest('#engenharia') ? '#f3faff' : el.closest('#interior,#experiencia') ? '#74bfff' : 'var(--champagne)', offset: 0.4 }, { transform: 'translateY(0) rotateX(0)', color: '' }],
           { duration: 820, delay: i * 55, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
         );
       });

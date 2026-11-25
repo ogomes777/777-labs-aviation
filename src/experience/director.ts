@@ -55,6 +55,12 @@ export interface UIState {
   view: ViewId | null;
   part: PartId | null;
   explodeManual: number | null;
+  anatomyExploded: boolean;
+  anatomyDetail: string | null;
+  anatomyAngle: number;
+  anatomyPitch: number;
+  anatomySubExplode: boolean;
+  anatomyManualAt: number;
   galleryIndex: number;
   region: RegionId;
   destination: string | null;
@@ -83,6 +89,12 @@ export const ui = createStore<UIState>({
   view: null,
   part: null,
   explodeManual: null,
+  anatomyExploded: false,
+  anatomyDetail: null,
+  anatomyAngle: 0,
+  anatomyPitch: .65,
+  anatomySubExplode: false,
+  anatomyManualAt: 0,
   galleryIndex: 0,
   region: 'todos',
   destination: null,

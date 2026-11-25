@@ -508,3 +508,119 @@ html:not([data-motion='cinematic']) .globe-surface { position: relative; inset: 
 html:not([data-motion='cinematic']) .destinations .chapter__sticky { display: flex; flex-direction: column; }
 
 .portal__line--b { color: #fffaf2; text-shadow: none; filter: drop-shadow(0 2px 3px rgba(40, 22, 8, 0.45)) drop-shadow(0 10px 30px rgba(40, 22, 8, 0.7)); }
+
+/* V24: only engineering and cabin; preserve SIMFLY hero/globe/fleet. */
+#engenharia h2 { color:#123d76; font-size:clamp(2.5rem,5.1vw,5.3rem); }
+#engenharia h2 .w[data-near] { text-shadow:0 0 16px #a5d8ff; }
+#interior h2 .w[data-near],#experiencia h2 .w[data-near] {text-shadow:0 0 14px #72bfff;}
+.anatomy24-panel {display:grid;gap:12px;}
+.anatomy24-panel .part-list {gap:5px 8px;}
+.anatomy24-panel .chip[aria-pressed=true]{color:#1355a2!important;border-bottom:1px solid #276cba;}
+.anatomy24-details {display:flex;flex-wrap:wrap;gap:6px;max-height:140px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px 3px 5px;}
+.anatomy24-detail {font-size:.72rem;line-height:1.3;border:1px solid #7194bd55;border-radius:9px;background:linear-gradient(160deg,#fff9,#b8d5f23b);color:#24486c;padding:7px 9px;min-height:32px;cursor:pointer;}
+.anatomy24-detail[aria-pressed=true]{background:#d9edff;color:#06478e;border-color:#4d92d1;box-shadow:0 0 8px #609ef42b;}
+.anatomy24-detail small{opacity:.66;font-size:.65rem;}
+.anatomy24-panel .part-card {min-height:0;padding-top:10px;}
+.anatomy24-panel .part-card p {font-size:clamp(.85rem,1.05vw,1.06rem);line-height:1.4;}
+.anatomy24-panel .part-card small{font-size:.72rem;color:#536b82;}
+.anatomy24-actions {display:flex;flex-wrap:wrap;gap:6px;}
+.anatomy24-actions .btn {min-height:36px;padding:7px 12px;}
+.anatomy24-assemble{justify-self:start;}
+.anatomy24-subpoint i{width:9px;height:9px;background:#1f70ce;box-shadow:0 0 0 3px #86c5ff66,0 0 8px #7ec0ff;}
+.anatomy24-subpoint span{z-index:3;background:#e9f5ff;}
+#experiencia .card {background:linear-gradient(145deg,rgba(235,247,255,.36),rgba(25,69,116,.38) 40%,rgba(12,30,57,.58));border:1px solid #d4eaff69;box-shadow:inset 0 1px 0 #ffffff85,0 9px 24px #09224122;backdrop-filter:blur(10px) saturate(1.15);color:#f4faff;border-radius:16px;}
+#experiencia .card[data-active=true] {border-color:#d4f0ffbb;box-shadow:inset 0 1px 0 #ffffffbd,0 0 18px #75bdff40;}
+#experiencia .card__kicker{color:#c6e5ff;}
+#experiencia .gallery__head {position:relative;z-index:1;}
+@media(min-width:761px){html[data-motion=cinematic] #experiencia .gallery__viewport{overflow:visible;margin:0;padding:0;justify-self:start;width:min(380px,32vw);align-self:end;}html[data-motion=cinematic] #experiencia .gallery__track{display:grid;transform:none!important;}html[data-motion=cinematic] #experiencia .card{grid-area:1/1;min-width:0;opacity:0;visibility:hidden;transform:translate3d(0,15px,0);transition:opacity .25s,transform .35s,visibility .35s;pointer-events:none;}html[data-motion=cinematic] #experiencia .card[data-active=true]{opacity:1;visibility:visible;transform:translate3d(0,0,0);pointer-events:auto;}}
+@media(max-width:760px){#engenharia h2{font-size:clamp(2rem,8vw,3.1rem);}.anatomy24-details{max-height:95px;}.anatomy24-panel{gap:7px;}.anatomy24-panel .part-card p{font-size:.83rem;}.anatomy24-detail{min-height:32px;}.anatomy24-actions .btn{min-height:32px;padding:6px 8px;}}
+@media(prefers-reduced-motion:reduce){#experiencia .card{transition:none!important;}}
+html[data-motion=cinematic] #experiencia .gallery__viewport,html[data-motion=cinematic] #experiencia .gallery__controls{opacity:var(--sf24-card-alpha,1);}
+@media(max-width:760px){html[data-motion=cinematic] #experiencia .gallery__viewport{overflow:visible;margin:0;padding:0;justify-self:start;width:min(320px,85vw);align-self:end;}html[data-motion=cinematic] #experiencia .gallery__track{display:grid;transform:none!important;}html[data-motion=cinematic] #experiencia .card{grid-area:1/1;min-width:0;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .22s,transform .28s,visibility .28s;pointer-events:none;}html[data-motion=cinematic] #experiencia .card[data-active=true]{opacity:1;visibility:visible;transform:none;pointer-events:auto;}}
+
+/* V25 – active-only glass. No underline, no card behind title. */
+#engenharia .anatomy24-panel .part-list .chip{border:1px solid transparent!important;background:transparent!important;box-shadow:none!important;text-decoration:none!important;border-radius:999px;padding:0 10px;min-height:35px;transition:background .25s,color .25s,box-shadow .25s;}
+#engenharia .anatomy24-panel .part-list .chip::before,#engenharia .anatomy24-panel .part-list .chip::after{content:none!important;display:none!important;}
+#engenharia .anatomy24-panel .part-list .chip[aria-pressed=true]{border:1px solid #8eafd285!important;background:linear-gradient(155deg,#ffffffc9,#b1d6fa78 42%,#6fa0d831)!important;box-shadow:inset 0 1px 0 #fff,0 4px 15px #336db51c!important;color:#1253a0!important;backdrop-filter:blur(9px);}
+#engenharia .anatomy24-details{gap:8px;max-height:155px;padding:4px 2px 6px;}
+#engenharia .anatomy24-detail{border-radius:999px;border:1px solid #88a4c23d;background:linear-gradient(160deg,#ffffff92,#b7d1eb27);padding:8px 12px;color:#355676;font-size:.73rem;box-shadow:inset 0 1px 0 #ffffffa6;}
+#engenharia .anatomy24-detail:hover,#engenharia .anatomy24-detail[aria-pressed=true]{border-color:#6dace8;background:linear-gradient(155deg,#f8fdff,#b7dcff91);box-shadow:inset 0 1px 0 white,0 2px 14px #438ce42c;color:#164e92;}
+#engenharia .anatomy24-panel[data-focused=true] .part-list{opacity:.65;gap:2px;}
+#engenharia .anatomy24-panel[data-focused=true] .anatomy24-detail:not([aria-pressed=true]){opacity:.62;}
+#engenharia .anatomy24-panel[data-focused=true] .part-card{padding:14px 0 8px;border-top:1px solid #8cacc24a;}
+#engenharia .anatomy24-panel[data-focused=true] .part-card h3{color:#143d74;font-size:clamp(1.5rem,2vw,2.2rem);}
+#engenharia .anatomy24-panel[data-focused=true] .part-card p{color:#354a62;font-family:var(--font-sans);font-style:normal;font-size:clamp(.86rem,1.02vw,1rem);line-height:1.6;}
+.anatomy25-orbit{position:absolute;inset:12% 36% 8% 3%;pointer-events:auto;touch-action:none;cursor:grab;outline-offset:-4px;}
+.anatomy25-orbit:active{cursor:grabbing;}.anatomy25-orbit span{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap;color:#55708f;pointer-events:none;}
+.hotspots[data-visible=false] .anatomy25-orbit{pointer-events:none;}.anatomy24-subpoint{z-index:2;}
+@media(max-width:760px){.anatomy25-orbit{inset:10% 0 50% 0;}.anatomy25-orbit span{font-size:9px;}.anatomy24-panel[data-focused=true] .part-list .chip{min-height:29px;padding:0 6px;}}
+/* One editorial card at a time, crossfade driven by the same reversible scroll. */
+html[data-motion=cinematic] #experiencia .gallery__viewport{justify-self:center;align-self:end;width:min(460px,78vw);margin-bottom:clamp(12px,7vh,66px);}
+html[data-motion=cinematic] #experiencia .gallery__track .card{opacity:var(--sf25-alpha,0);visibility:visible;transform:translate3d(0,var(--sf25-y,18px),0) scale(var(--sf25-scale,.97));transition:none;pointer-events:none;}
+html[data-motion=cinematic] #experiencia .gallery__track .card[data-active=true]{pointer-events:auto;}
+html[data-motion=cinematic] #experiencia .gallery__controls{justify-self:center;}
+#experiencia .card__body{text-align:center;padding:17px 23px 20px;}
+
+/* V26 – atlas study language brought into the top aircraft section. */
+#engenharia .anatomy26-panel{display:grid;gap:12px;align-content:start}
+#engenharia .anatomy26-atlas{display:grid;gap:7px;padding:0 0 10px}
+#engenharia .anatomy26-eyebrow{font-size:.67rem;letter-spacing:.22em;text-transform:uppercase;color:#6f88a5}
+#engenharia .anatomy26-atlas h3{margin:0;color:#12488a;font-size:clamp(1.25rem,1.6vw,1.9rem);line-height:1.05}
+#engenharia .anatomy26-atlas p{margin:0;color:#40566f;font-family:var(--font-sans);font-style:normal;line-height:1.55;font-size:clamp(.86rem,1vw,.98rem);max-width:52ch}
+#engenharia .anatomy26-atlas small{color:#6e8298;font-size:.77rem;line-height:1.45}
+#engenharia .anatomy26-meta{display:flex;flex-wrap:wrap;gap:8px}
+#engenharia .anatomy26-meta span{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #8fb1d165;border-radius:999px;background:linear-gradient(155deg,#ffffffd9,#cfe3f651);box-shadow:inset 0 1px 0 #ffffffbd,0 8px 24px #4b82c111;color:#315a87;font-size:.74rem;backdrop-filter:blur(10px)}
+#engenharia .anatomy26-meta b{font-weight:700;color:#12488a}
+#engenharia .anatomy26-index{display:grid;gap:8px}
+#engenharia .anatomy26-index__head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#5d7691;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+#engenharia .anatomy26-index__head span:last-child{letter-spacing:.08em}
+#engenharia .anatomy24-details{display:flex;flex-wrap:wrap}
+#engenharia .anatomy24-detail{display:inline-grid;gap:2px;align-items:start;justify-items:start;min-height:unset;padding:10px 12px}
+#engenharia .anatomy24-detail strong{font-size:.77rem;line-height:1.2;font-weight:600}
+#engenharia .anatomy24-detail small{font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:#5f7e9d}
+#engenharia .anatomy24-detail[aria-pressed=true] small{color:#16569c}
+#engenharia .anatomy26-actions{gap:8px;flex-wrap:wrap}
+#engenharia .part-card small{display:block;margin-top:6px;color:#6f8398}
+@media (max-width:760px){
+  #engenharia .anatomy26-meta span{padding:7px 10px;font-size:.68rem}
+  #engenharia .anatomy26-index__head{font-size:.65rem;gap:6px;flex-wrap:wrap}
+}
+
+/* V27: no card, no backdrop on the cabin copy. */
+.sf27-cabin-cinema{position:absolute;inset:0;z-index:5;pointer-events:none;display:grid;place-items:center;text-align:center;color:#fff;overflow:hidden}
+html[data-motion=cinematic] #experiencia:has(.sf27-cabin-cinema) :is(.gallery__head,.gallery__viewport,.gallery__controls){visibility:hidden!important;pointer-events:none!important}
+.sf27-copy-stack{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.sf27-cinema-line{grid-area:1/1;max-width:88vw;opacity:var(--sf27-alpha,0);transform:translate3d(0,var(--sf27-y,15px),0);pointer-events:none;text-shadow:0 2px 18px #08162d70;visibility:hidden}
+.sf27-cinema-line[data-visible=true]{visibility:visible;pointer-events:auto}
+.sf27-cinema-line>span,.sf27-hangar-gate>span{font:500 clamp(10px,.85vw,13px)/1.4 var(--font-sans,Arial);letter-spacing:.25em;text-transform:uppercase;color:#e0efff}
+.sf27-cinema-line h2,.sf27-hangar-gate h2{margin:.18em 0 0;font-size:clamp(2.5rem,6vw,7rem);line-height:1.05;letter-spacing:-.045em;font-weight:400;color:#fff;text-shadow:0 4px 35px #102d4c99}
+.sf27-cinema-line strong{font-family:var(--font-sans,Arial);font-weight:400;letter-spacing:-.065em}
+.sf27-cinema-line h2{background:linear-gradient(100deg,#fff 10%,#eaf5ff 34%,#7fc9ff 49%,#fff 61%,#fff 88%);background-size:260% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sf27-shine 5s ease-in-out infinite}
+.sf27-cinema-line:hover h2,.sf27-cinema-line:active h2{animation:none;background-position:var(--sf27-pointer,50%) 50%;filter:drop-shadow(0 0 8px #6fc4ff75)}
+@keyframes sf27-shine{0%,18%{background-position:100% 50%}70%,100%{background-position:0% 50%}}
+.sf27-hangar-gate{position:absolute;top:50%;left:50%;width:min(88%,700px);transform:translate(-50%,-44%);opacity:0;visibility:hidden;transition:opacity .32s ease,transform .32s ease;pointer-events:none;text-shadow:0 2px 15px #18385caa}
+.sf27-hangar-gate[data-open=true]{opacity:1;visibility:visible;transform:translate(-50%,-50%);pointer-events:auto}
+.sf27-hangar-gate h2{font-size:clamp(2.5rem,5vw,5.5rem)}
+.sf27-hangar-gate button{margin-top:28px;padding:16px 26px;display:inline-flex;align-items:center;gap:24px;border-radius:999px;border:1px solid #fff9;background:linear-gradient(135deg,#ffffffb0,#b9daf575);box-shadow:inset 0 1px 1px #fff,0 8px 28px #174d792c;backdrop-filter:blur(12px);color:#092e55;font:600 12px var(--font-sans,Arial);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .25s,transform .25s}
+.sf27-hangar-gate button:hover{background:#e4f4ff;transform:translateY(-2px)}
+.sf27-hangar-gate button:focus-visible{outline:2px solid #174d79;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.sf27-cinema-line h2{animation:none}.sf27-hangar-gate{transition:none}}
+
+/* V28: typography-only cabin cinema and deeper glass portal. */
+html[data-motion=cinematic] #experiencia:has(.sf27-cabin-cinema) :is(.gallery__head,.gallery__viewport,.gallery__controls){display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+#experiencia .sf27-copy-stack,#experiencia .sf27-cinema-line,#experiencia .sf27-cinema-line h2{border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#experiencia .sf27-copy-stack,#experiencia .sf27-cinema-line{background:none!important}
+#experiencia .sf27-cinema-line h2{background:none!important;-webkit-text-fill-color:initial;color:#fff;filter:none!important;text-shadow:none;animation:none;max-width:90vw;font-size:clamp(2.25rem,5.7vw,6.8rem);line-height:1.08;letter-spacing:-.045em}
+#experiencia .sf27-cinema-line h2 strong{font-family:var(--font-sans,Arial);font-weight:400;letter-spacing:-.065em}
+#experiencia .sf27-cinema-line h2 :is(strong,em){display:inline; background-image:linear-gradient(100deg,#fff 17%,#edf8ff 38%,#8ad5ff 46%,#299bff 50%,#bdeaff 54%,#fff 66%,#fff 90%);background-size:280% 100%;background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 9px #061b3c70);animation:sf28-shine 2.25s linear infinite}
+#experiencia .sf27-cinema-line h2 em{font-weight:inherit}
+#experiencia .sf27-cinema-line:is(:hover,:active) h2 :is(strong,em){animation-duration:1.15s;filter:drop-shadow(0 0 8px #359fffaa) drop-shadow(0 2px 9px #061b3c66)}
+@keyframes sf28-shine{0%{background-position:100% 50%}68%,100%{background-position:0% 50%}}
+/* Fallback remains accessible; no glass rectangle around cabin copy in lightweight mode. */
+#experiencia .gallery__track .card,#experiencia .gallery__track .card__body{border:0!important;background:none!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#experiencia .sf27-hangar-gate button{position:relative;isolation:isolate;overflow:hidden;min-height:58px;padding:17px 30px;border:1px solid #e9f7ffbb;border-radius:999px;background:radial-gradient(ellipse at 25% 0%,#ffffffd9,transparent 65%),linear-gradient(160deg,#f2faff9e 0%,#b9dbf561 45%,#639acb55 100%);color:#092747;box-shadow:inset 0 1.5px 1px #fff,inset 0 -1px 2px #a7d5ff85,inset 0 0 14px #e2f4ff5c,0 6px 12px #163c6340,0 18px 38px #0e315538;backdrop-filter:blur(17px) saturate(155%);-webkit-backdrop-filter:blur(17px) saturate(155%);transition:transform .22s ease,box-shadow .22s ease,background .22s ease;text-shadow:0 1px 0 #ffffff66}
+#experiencia .sf27-hangar-gate button::before{content:'';position:absolute;z-index:-1;inset:2px 8px auto;height:42%;border-radius:999px;background:linear-gradient(180deg,#fff8,#fff0);pointer-events:none}
+#experiencia .sf27-hangar-gate button:hover{transform:translateY(-2px);box-shadow:inset 0 1px 2px white,inset 0 -1px 2px #c6e5ff,0 10px 26px #214d7959,0 0 18px #b5e7ff45;background:linear-gradient(155deg,#f4fbffcf,#b1d8f57a 55%,#6ea8d96b)}
+#experiencia .sf27-hangar-gate button:active{transform:translateY(0) scale(.98)}
+@media(max-width:760px){#experiencia .sf27-cinema-line h2{font-size:clamp(2rem,9vw,4rem)}#experiencia .sf27-hangar-gate button{min-height:52px;padding:14px 22px}}
+@media(prefers-reduced-motion:reduce){#experiencia .sf27-cinema-line h2 :is(strong,em){animation:none;color:#fff;-webkit-text-fill-color:#fff;background:none}#experiencia .sf27-hangar-gate button{transition:none}}

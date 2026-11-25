@@ -1,14 +1,15 @@
 import ExperienceRoot from '@/components/ExperienceRoot';
 import SiteHeader from '@/components/SiteHeader';
 import SceneProgress from '@/components/SceneProgress';
-import AircraftControls from '@/components/AircraftControls';
 import AnatomyPanel, { HotspotLayer } from '@/components/AnatomyPanel';
 import CabinGallery from '@/components/CabinGallery';
+import CabinCinema27 from '@/components/CabinCinema27';
 import DestinationsPanel from '@/components/DestinationsPanel';
 import CharterInquiry from '@/components/CharterInquiry';
 import Epilogue from '@/components/Epilogue';
 import ConsentBar from '@/components/ConsentBar';
 import SimFlyHero from '@/components/SimFlyHero';
+import { SimFlyAviationSection, SimFlyRoutesGlobe } from '@/components/SimFlyJourney';
 import FleetShowroom from '@/components/FleetShowroom';
 import Cursor from '@/components/Cursor';
 import Words from '@/components/Words';
@@ -38,37 +39,21 @@ export default function Page() {
           <div className="chapter__sticky"><SimFlyHero /></div>
         </section>
 
-        <section id="portal" className="chapter portal" data-chapter="1" style={L(240)} aria-label="Limiar">
-          <div className="chapter__sticky">
-            <Still id="portal" />
-            <p className="portal__line reveal" data-in="0.04" data-out="0.3" data-split><Words>Toda jornada tem</Words> <em><Words>um limiar.</Words></em></p>
-            <p className="portal__line portal__line--b reveal" data-in="0.42" data-out="0.72" data-split><Words>Do outro lado,</Words> <em><Words>o tempo desacelera.</Words></em></p>
-          </div>
+        <section id="portal" className="chapter portal simfly-aircraft-chapter" data-chapter="1" style={L(310)} aria-label="A aeronave SimFly">
+          <div className="chapter__sticky"><SimFlyAviationSection /></div>
         </section>
 
-        <section id="aeronave" className="chapter" data-chapter="2" style={L(300)} aria-labelledby="aeronave-title">
-          <div className="chapter__sticky">
-            <Still id="aeronave" alt="Aeronave conceitual em hangar escuro" scrim="linear-gradient(90deg, rgba(6,8,11,0.7), transparent 60%)" />
-            <div className="panel panel--bottom reveal" data-in="0.06" data-out="0.96">
-              <h2 id="aeronave-title" data-split data-focus-target><Words>Escultura</Words> <em><Words>em movimento.</Words></em></h2>
-              <AircraftControls />
-            </div>
-          </div>
+        {/* Independent scroll chapter: preserve the original director's 0..8 chapter indices. */}
+        <section id="rotas-preview" className="chapter simfly-routes-chapter" style={L(235)} aria-labelledby="rotas-preview-title">
+          <div className="chapter__sticky"><SimFlyRoutesGlobe /></div>
         </section>
 
-        <section id="frota" className="chapter fleet" data-chapter="3" style={L(520)} aria-labelledby="frota-title">
-          <div className="chapter__sticky">
-            <Still id="frota" alt="Fila de aeronaves conceituais no hangar" scrim="linear-gradient(180deg, rgba(6,8,11,0.6), transparent 40%)" />
-            <h2 id="frota-title" className="fleet__title reveal" data-in="0.02" data-split data-focus-target><Words>A</Words> <em><Words>frota.</Words></em></h2>
-            <FleetShowroom />
-          </div>
-        </section>
-
-        <section id="engenharia" className="chapter anatomy" data-chapter="4" style={L(300)} aria-labelledby="engenharia-title">
+        <section id="engenharia" className="chapter anatomy" data-chapter="4" style={L(276)} aria-labelledby="engenharia-title">
+          <span id="aeronave" aria-hidden="true" style={{ position: "absolute", top: 0 }} />
           <div className="chapter__sticky">
             <Still id="engenharia" alt="Vista superior técnica da aeronave em fundo marfim" />
             <HotspotLayer />
-            <div className="panel panel--right reveal" data-in="0.3" data-out="0.97">
+            <div className="panel panel--right reveal" data-in="0.205" data-out="0.966">
               <h2 id="engenharia-title" data-split data-focus-target><Words>Cada linha,</Words> <em><Words>uma intenção.</Words></em></h2>
               <AnatomyPanel />
             </div>
@@ -87,10 +72,19 @@ export default function Page() {
         <section id="experiencia" className="chapter" data-chapter="6" style={L(420)} aria-labelledby="experiencia-title">
           <div className="chapter__sticky gallery">
             <Still id="experiencia" scrim="linear-gradient(180deg, rgba(20,14,9,0.6), transparent 40%)" />
-            <div className="gallery__head reveal" data-in="0.01">
+            <div className="gallery__head reveal" data-in="0.01" data-out="0.91">
               <h2 id="experiencia-title" data-split data-focus-target><Words>Cada</Words> <em><Words>detalhe.</Words></em></h2>
             </div>
             <CabinGallery />
+            <CabinCinema27 />
+          </div>
+        </section>
+
+        <section id="frota" className="chapter fleet" data-chapter="3" style={L(520)} aria-labelledby="frota-title">
+          <div className="chapter__sticky">
+            <Still id="frota" alt="Fila de aeronaves conceituais no hangar" scrim="linear-gradient(180deg, rgba(6,8,11,0.6), transparent 40%)" />
+            <h2 id="frota-title" className="fleet__title reveal" data-in="0.02" data-split data-focus-target><Words>A</Words> <em><Words>frota.</Words></em></h2>
+            <FleetShowroom />
           </div>
         </section>
 

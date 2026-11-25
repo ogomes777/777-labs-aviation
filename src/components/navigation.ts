@@ -9,7 +9,7 @@ export const nav = { lenis: null as LenisLike, veil: null as HTMLElement | null,
  */
 export function navigate(hash: string, opts: { focus?: boolean } = {}) {
   const id = hash.replace('#', '');
-  const el = document.getElementById(id);
+  const el = document.getElementById(id === 'aeronave' ? 'engenharia' : id);
   if (!el) return;
   // capítulos com revelação por scroll: entra 14% adiante, quando o conteúdo já está visível
   const isChapter = el.classList.contains('chapter') && document.documentElement.dataset.motion === 'cinematic';

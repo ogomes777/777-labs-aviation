@@ -88,18 +88,26 @@ export default function ExperienceRoot() {
           let t = 0;
           for (let i = 0; i < 9; i++) {
             let p = frame.chapters[i];
-            if (i === 6 && frame.gallerySwipe && p > 0 && p < 0.999) p = clamp(frame.gallery / 3);
+            // V28: cabin timeline uses vertical scroll on every device.
             if (i === 3 && frame.fleetSwipe && p > 0 && p < 0.999) p = fleetProgressFor(frame.fleet);
             t += p;
           }
+          // V21: trim six additional percentage points into the illuminated studio key.
+          // Keep the legacy director's time coordinates for all following chapters.
+          const editorial = t;
+          t = editorial < 2 - 0.00001 ? editorial : editorial < 3 ? 3.37 + Math.max(0, editorial - 2) * 0.63 : editorial + 1;
+          // The preceding opaque globe masks this edit; do not ease through deleted poses.
+          if ((frame.t >= 3.37) !== (t >= 3.37)) frame.ts = t;
           frame.t = t;
-          const active = Math.min(8, Math.floor(t + 0.0001));
+          const order = [0, 1, 2, 4, 5, 6, 3, 7, 8] as const;
+          const slot = Math.min(8, Math.floor(t + 0.0001));
+          const active = order[slot];
           if (active !== lastChapter) {
             lastChapter = active; ui.set({ activeChapter: active });
             if (active !== 3 && ui.get().inspect) ui.set({ inspect: null, assembled: true, inspectPart: null });
           }
           const formOver = document.documentElement.dataset.form === 'over';
-          const scene = formOver ? 'light' : sceneFor(t);
+          const scene = formOver ? 'light' : sceneFor(active + (t - Math.floor(t)));
           if (scene !== lastScene) { lastScene = scene; document.documentElement.dataset.scene = scene; }
         };
         (window as unknown as { __777recompute: () => void }).__777recompute = recompute;
@@ -149,13 +157,31 @@ export default function ExperienceRoot() {
           gsap.fromTo(el.querySelectorAll('.wi'), { yPercent: 118, rotationX: -78, '--c': 1, transformOrigin: '50% 100%' }, { yPercent: 0, rotationX: 0, '--c': 0, duration: 1.1, stagger: 0.05, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 75%', toggleActions: 'play none none reverse' } });
         });
         const galCh = document.querySelector<HTMLElement>('[data-chapter="6"]');
-        if (gal && vp && galCh && !frame.gallerySwipe) {
-          gsap.to(gal, {
-            x: () => -(gal.scrollWidth - vp.clientWidth + parseFloat(getComputedStyle(vp).paddingLeft) * 2),
-            ease: 'none',
-            scrollTrigger: { trigger: galCh, start: 'top top', end: 'bottom bottom', scrub: 0.5, invalidateOnRefresh: true,
-              onUpdate: (s) => { frame.gallery = s.progress * 3; const idx = Math.round(s.progress * 3); if (idx !== ui.get().galleryIndex) { ui.set({ galleryIndex: idx }); track('gallery_card_view', { index: idx }); } } },
-          });
+        if (gal && vp && galCh) {
+          const galleryProgress = (p: number) => {
+            const g = clamp((p - .13) / .73) * 3;
+            frame.gallery = g;
+            const idx = Math.round(g);
+            if (idx !== ui.get().galleryIndex) { ui.set({ galleryIndex: idx }); track('gallery_card_view', { index: idx }); }
+            galCh.style.setProperty('--sf24-card-alpha', String(1 - clamp((p - .90) / .075)));
+            const positions=[.055,.19,.41,.64,.85];
+            galCh.querySelectorAll<HTMLElement>('[data-sf27-copy]').forEach((line,i)=>{
+              const start=i===0?0:(positions[i-1]+positions[i])/2;
+              const end=i===4?.94:(positions[i]+positions[i+1])/2;
+              const a=clamp((p-start)/.035)*clamp((end-p)/.035);
+              line.style.setProperty('--sf27-alpha',String(a));
+              line.style.setProperty('--sf27-y',String((1-clamp((p-start)/.035))*18-(1-clamp((end-p)/.035))*18)+'px');
+              line.dataset.visible=a>.003?'true':'false';
+            });
+            gal.querySelectorAll<HTMLElement>('.card').forEach((card,i)=>{
+              const delta=g-i, distance=Math.abs(delta);
+              const a=1-clamp((distance-.27)/.46);
+              card.style.setProperty('--sf25-alpha',String(a));
+              card.style.setProperty('--sf25-y',String(-delta*24)+'px');
+              card.style.setProperty('--sf25-scale',String(1-Math.min(.04,distance*.04)));
+            });
+          };
+          ScrollTrigger.create({ trigger: galCh, start:'top top', end:'bottom bottom', onUpdate: self => galleryProgress(self.progress), onRefresh: self => galleryProgress(self.progress) });
         }
         recompute();
       });

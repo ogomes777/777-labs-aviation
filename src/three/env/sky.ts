@@ -59,13 +59,14 @@ export function createCloudSea(palette: SkyPalette, octaves: number) {
     uCam: { value: new THREE.Vector3() },
     uOpacity: { value: 1 },
     uScale: { value: 0.0032 },
+    uCinemaOcean: { value: 0 },
     uFlow: { value: 0 },
   };
   const mat = new THREE.ShaderMaterial({
     uniforms, transparent: true, depthWrite: false, fog: false,
     vertexShader: /* glsl */ `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: /* glsl */ `
-      varying vec3 vW; uniform float uTime, uOpacity, uScale, uFlow; uniform vec3 uSun, uLit, uShade, uDeep, uHaze, uCam;
+      varying vec3 vW; uniform float uTime, uOpacity, uScale, uFlow, uCinemaOcean; uniform vec3 uSun, uLit, uShade, uDeep, uHaze, uCam;
       ${NOISE}
       float dens(vec2 p){
         vec2 q = vec2(fbm(p * 0.5 + vec2(0.0, uTime * 0.006), 3), fbm(p * 0.5 + vec2(5.2, 1.3), 3));
@@ -76,7 +77,7 @@ export function createCloudSea(palette: SkyPalette, octaves: number) {
       void main(){
         vec2 p = vW.xz * uScale + vec2(uFlow, uTime * 0.003);
         float d = dens(p);
-        float cov = smoothstep(0.5, 0.64, d);
+        float cov = smoothstep(0.5 + .045*uCinemaOcean, 0.64 + .035*uCinemaOcean, d);
         vec2 sd = normalize(uSun.xz) * 0.03;
         float ds = dens(p + sd);
         float lit = clamp(0.5 + (d - ds) * 9.0, 0.0, 1.0);
@@ -97,6 +98,7 @@ export function createCloudSea(palette: SkyPalette, octaves: number) {
         vec3 ocean = uDeep * (0.85 + 0.35 * w1) + glint * vec3(1.0, 0.97, 0.9) + fres * uHaze * 0.35;
         ocean *= 1.0 - 0.45 * smoothstep(0.5, 0.64, ds);
         ocean = mix(ocean, uHaze, 0.14);
+        ocean = mix(ocean, ocean * vec3(.62,.85,1.13) + vec3(.008,.018,.027)*glint, uCinemaOcean*.72);
         col = mix(ocean, col, cov);
         float dist = length(vW.xz - uCam.xz);
         float fog = 1.0 - exp(-dist / 4200.0);

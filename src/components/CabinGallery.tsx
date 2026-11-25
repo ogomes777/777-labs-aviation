@@ -13,6 +13,8 @@ import { track } from '@/lib/analytics';
 export default function CabinGallery() {
   const index = ui.useStore((s) => s.galleryIndex);
   const motion = ui.useStore((s) => s.motion);
+  const webgl = ui.useStore((s) => s.webgl);
+  const quality = ui.useStore((s) => s.quality);
   const vp = useRef<HTMLDivElement>(null);
   const n = GALLERY.length;
   const swipe = useRef(false);
@@ -20,13 +22,13 @@ export default function CabinGallery() {
 
   useEffect(() => {
     const decide = () => {
-      swipe.current = motion !== 'cinematic' || matchMedia('(max-width: 760px)').matches;
+      swipe.current = motion !== 'cinematic' || !webgl || quality === 'lite';
       frame.gallerySwipe = motion === 'cinematic' && swipe.current;
     };
     decide();
     window.addEventListener('resize', decide);
     return () => window.removeEventListener('resize', decide);
-  }, [motion]);
+  }, [motion, webgl, quality]);
 
   // modo swipe: índice contínuo a partir do scrollLeft
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function CabinGallery() {
     if (!ch) return;
     const top = ch.getBoundingClientRect().top + window.scrollY;
     const range = ch.offsetHeight - window.innerHeight;
-    const y = top + range * (target / (n - 1)) + (target === 0 ? 2 : 0);
+    const y = top + range * ([.025,.30,.59,.88][target] ?? 0) + (target === 0 ? 2 : 0);
     if (nav.lenis) nav.lenis.scrollTo(y, { duration: 1.1 });
     else window.scrollTo({ top: y, behavior: 'smooth' });
   }, [n, motion]);

@@ -82,22 +82,22 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
   const X = (d: number) => f.x(d);
   const wallZ = (y: number) => Ri * Math.sqrt(Math.max(0, 1 - (y / Ri) ** 2));
 
-  const wood = T(woodTexture());
+  const wood = T(woodTexture(opts.detail >= .95 ? 1024 : 512));
   const carpetNoise = T(noiseTexture(256, 128, 60));
-  const grain = T(noiseTexture(256, 128, 90));
+  const grain = T(noiseTexture(opts.detail >= .95 ? 1024 : 512, 128, 65));
   grain.repeat.set(3, 3);
   carpetNoise.repeat.set(8, 2);
 
   const lining = clip(withWindows(new THREE.MeshStandardMaterial({ color: '#d9cfbf', roughness: 0.8, metalness: 0, side: THREE.BackSide }), windowUniforms(s, Ri), 'lining'));
-  const bezel = clip(new THREE.MeshStandardMaterial({ color: '#eee7dc', roughness: 0.4, metalness: 0, side: THREE.DoubleSide }));
-  const leather = clip(new THREE.MeshPhysicalMaterial({ color: '#d6c7b0', roughness: 0.5, metalness: 0, bumpMap: grain, bumpScale: 0.35, sheen: 0.6, sheenColor: new THREE.Color('#fff2df'), sheenRoughness: 0.6 }));
-  const leatherDark = clip(new THREE.MeshPhysicalMaterial({ color: '#4c3d33', roughness: 0.55, metalness: 0, sheen: 0.3, sheenColor: new THREE.Color('#9b7d66') }));
+  const bezel = clip(new THREE.MeshStandardMaterial({ color: '#eee7dc', roughness: 0.34, metalness: 0, side: THREE.DoubleSide }));
+  const leather = clip(new THREE.MeshPhysicalMaterial({ color: '#e9e3d9', roughness: 0.43, metalness: 0, bumpMap: grain, bumpScale: 0.012, sheen: 0.6, sheenColor: new THREE.Color('#fff2df'), sheenRoughness: 0.6 }));
+  const leatherDark = clip(new THREE.MeshPhysicalMaterial({ color: '#172e4c', roughness: 0.55, metalness: 0, sheen: 0.3, sheenColor: new THREE.Color('#9b7d66') }));
   const walnut = clip(new THREE.MeshPhysicalMaterial({ color: '#ffffff', map: wood, roughness: 0.32, metalness: 0, clearcoat: 0.7, clearcoatRoughness: 0.12 }));
-  const trim = clip(new THREE.MeshStandardMaterial({ color: '#d8c09a', roughness: 0.38, metalness: 0.72, envMapIntensity: 2.2, emissive: new THREE.Color('#3a2c1a'), emissiveIntensity: 0.35 }));
-  const carpet = clip(new THREE.MeshStandardMaterial({ color: '#4f4741', roughness: 1, metalness: 0, bumpMap: carpetNoise, bumpScale: 0.6 }));
+  const trim = clip(new THREE.MeshStandardMaterial({ color: '#b4c2d1', roughness: 0.38, metalness: 0.72, envMapIntensity: 2.2, emissive: new THREE.Color('#172b43'), emissiveIntensity: 0.35 }));
+  const carpet = clip(new THREE.MeshStandardMaterial({ color: '#142b49', roughness: 1, metalness: 0, bumpMap: carpetNoise, bumpScale: 0.035 }));
   const stone = clip(new THREE.MeshPhysicalMaterial({ color: '#e4ddd2', roughness: 0.18, metalness: 0, clearcoat: 0.5 }));
   const fabric = clip(new THREE.MeshPhysicalMaterial({ color: '#f5f1ea', roughness: 0.92, sheen: 0.6, sheenColor: new THREE.Color('#ffffff') }));
-  const throwMat = clip(new THREE.MeshPhysicalMaterial({ color: '#b49a74', roughness: 0.85, sheen: 0.5, sheenColor: new THREE.Color('#f0d9b5') }));
+  const throwMat = clip(new THREE.MeshPhysicalMaterial({ color: '#214778', roughness: 0.85, sheen: 0.5, sheenColor: new THREE.Color('#f0d9b5') }));
   const screen = clip(new THREE.MeshPhysicalMaterial({ color: '#0b0d10', roughness: 0.08, metalness: 0.2, clearcoat: 1 }));
   const glowWarm = clip(new THREE.MeshStandardMaterial({ color: '#000000', emissive: new THREE.Color('#ffd6a0'), emissiveIntensity: 2.2, toneMapped: true }));
   const glowSoft = clip(new THREE.MeshStandardMaterial({ color: '#000000', emissive: new THREE.Color('#ffe9cc'), emissiveIntensity: 1.4 }));
@@ -110,11 +110,11 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
     parent.add(m);
     return m;
   };
-  const rb = (w: number, h: number, d: number, r: number) => new RoundedBoxGeometry(w, h, d, Math.max(2, Math.round(3 * opts.detail)), r);
+  const rb = (w: number, h: number, d: number, r: number) => new RoundedBoxGeometry(w, h, d, Math.max(3, Math.round(6 * opts.detail)), r);
 
   // ---- casca interna (lining), piso e teto ----
   const c0 = s.cabinStart, c1 = s.cabinEnd;
-  add(fuselageGeometry(f, { nu: Math.round(90 * opts.detail), nv: Math.round(64 * opts.detail), inset: CABIN_INSET, d0: c0 - 0.05, d1: c1 + 0.05 }), lining, 0, 0, 0);
+  add(fuselageGeometry(f, { nu: Math.round(140 * opts.detail), nv: Math.round(112 * opts.detail), inset: CABIN_INSET, d0: c0 - 0.05, d1: c1 + 0.05 }), lining, 0, 0, 0).name='lining';
   const fw = wallZ(yf) + 0.06;
   const floorGeo = new THREE.PlaneGeometry(c1 - c0, fw * 2);
   floorGeo.rotateX(-Math.PI / 2);
@@ -123,20 +123,20 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
   const ceilY = Ri * 0.84;
   const ceil = new THREE.PlaneGeometry(c1 - c0, wallZ(ceilY) * 1.3);
   ceil.rotateX(Math.PI / 2);
-  add(ceil, bezel, X((c0 + c1) / 2), ceilY, 0);
+  add(ceil, bezel, X((c0 + c1) / 2), ceilY, 0).name='ceiling';
   const coveY = Ri * 0.6;
   for (const side of [1, -1]) {
     const strip = new THREE.BoxGeometry(c1 - c0 - 0.4, 0.018, 0.04);
-    add(strip, glowWarm, X((c0 + c1) / 2), coveY, side * (wallZ(coveY) - 0.06));
+    add(strip, glowWarm, X((c0 + c1) / 2), coveY, side * (wallZ(coveY) - 0.06)).name='cove-light';
     const wash = new THREE.BoxGeometry(c1 - c0 - 0.4, 0.012, 0.03);
     add(wash, glowSoft, X((c0 + c1) / 2), yf + 0.03, side * (fw - 0.2));
     const lip = new THREE.BoxGeometry(c1 - c0, 0.035, 0.12);
-    add(lip, bezel, X((c0 + c1) / 2), ceilY - 0.02, side * (wallZ(ceilY) * 0.65));
+    add(lip, bezel, X((c0 + c1) / 2), ceilY - 0.02, side * (wallZ(ceilY) * 0.65)).name='ceiling-lip';
   }
   for (let d = c0 + 0.8; d < c1 - 0.4; d += 1.1) {
     const dl = new THREE.CircleGeometry(0.035, 16);
     dl.rotateX(Math.PI / 2);
-    add(dl, glowWarm, X(d), ceilY - 0.002, 0);
+    add(dl, glowWarm, X(d), ceilY - 0.002, 0).name='downlight';
   }
 
   // ---- divisórias (seção elíptica interna com portas) ----
@@ -170,16 +170,18 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
   const seatParts = {
     base: rb(0.56, 0.28, 0.58, 0.04),
     cushion: rb(0.66, 0.16, 0.64, 0.06),
-    back: rb(0.64, 0.74, 0.17, 0.07),
-    head: rb(0.46, 0.17, 0.12, 0.05),
-    arm: rb(0.12, 0.2, 0.62, 0.05),
+    back: rb(0.17, 0.74, 0.64, 0.07),
+    head: rb(0.14, 0.20, 0.46, 0.055),
+    arm: rb(0.62, 0.20, 0.12, 0.05),
     armTrim: new THREE.BoxGeometry(0.03, 0.008, 0.5),
+    lumbar: rb(0.10, 0.25, 0.39, 0.045),
   };
   Object.values(seatParts).forEach(T);
   const seats: { pos: THREE.Vector3; facing: 1 | -1 }[] = [];
   const seat = (x: number, z: number, facing: 1 | -1) => {
     seats.push({ pos: V(x, yf, z), facing });
     const g = new THREE.Group();
+    g.name='seat';
     g.position.set(x, yf, z);
     g.rotation.y = facing === 1 ? 0 : Math.PI;
     const m = (geo: THREE.BufferGeometry, mat: THREE.Material, px: number, py: number, pz: number, rz = 0) => {
@@ -187,8 +189,9 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
     };
     m(seatParts.base, leatherDark, 0, 0.14, 0);
     m(seatParts.cushion, leather, 0.02, 0.36, 0);
-    m(seatParts.back, leather, -0.3, 0.78, 0, -0.16);
-    m(seatParts.head, leather, -0.37, 1.2, 0, -0.16);
+    m(seatParts.back, leather, -0.3, 0.78, 0, 0.12);
+    m(seatParts.head, leather, -0.35, 1.2, 0, 0.12);
+    m(seatParts.lumbar, throwMat, -0.18, 0.60, 0, 0.12);
     for (const sz of [0.37, -0.37]) {
       m(seatParts.arm, leather, 0.0, 0.52, sz);
       m(seatParts.armTrim, trim, 0.0, 0.625, sz).rotation.y = Math.PI / 2;
@@ -197,7 +200,7 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
     return g;
   };
   const sideTable = (x: number, z: number, w = 0.62, depth = 0.52) => {
-    add(rb(w, 0.04, depth, 0.015), walnut, x, yf + 0.72, z);
+    add(rb(w, 0.04, depth, 0.015), walnut, x, yf + 0.72, z).name='table';
     add(new THREE.CylinderGeometry(0.035, 0.05, 0.7, 16), trim, x, yf + 0.35, z + Math.sign(z) * 0.12);
   };
   const ledge = (d0: number, d1: number, side: 1 | -1) => {
@@ -242,7 +245,7 @@ export function buildCabin(s: JetSpec, f: Fuselage, opts: { detail: number }): C
   if (zones.dining) {
     dc = (zones.dining[0] + zones.dining[1]) / 2;
     for (const side of [1, -1] as const) { seat(X(dc - 0.92), side * 0.62, -1); seat(X(dc + 0.92), side * 0.62, 1); }
-    add(rb(1.05, 0.045, 1.5, 0.02), walnut, X(dc), yf + 0.73, 0);
+    add(rb(1.05, 0.045, 1.5, 0.02), walnut, X(dc), yf + 0.73, 0).name='table';
     add(new THREE.CylinderGeometry(0.06, 0.12, 0.7, 20), trim, X(dc), yf + 0.36, 0);
     // pratos e taças discretos
     for (const [px, pz] of [[-0.3, 0.45], [0.3, 0.45], [-0.3, -0.45], [0.3, -0.45]]) {

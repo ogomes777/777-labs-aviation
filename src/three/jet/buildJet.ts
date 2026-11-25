@@ -370,16 +370,17 @@ export function buildJet(variant: AircraftId | VariantId, opts: BuildOptions): J
   const hub = (r: number, w: number) => { const c = new THREE.CylinderGeometry(r * 0.56, r * 0.56, w * 0.9, 24); c.rotateX(Math.PI / 2); return c; };
   const leg = (x: number, z: number, topY: number, wr: number, twin: boolean) => {
     const pivot = new THREE.Group();
+    pivot.name = z === 0 ? 'gear-nose' : 'gear-main';
     pivot.position.set(x, topY, z);
     const len = topY - (gy + wr);
     const strut = new THREE.CylinderGeometry(0.07, 0.08, len, 16);
     strut.translate(0, -len / 2, 0);
-    const sm = new THREE.Mesh(track(strut), strutMat); pivot.add(sm);
+    const sm = new THREE.Mesh(track(strut), strutMat); sm.name = 'strut'; pivot.add(sm);
     const axle = new THREE.CylinderGeometry(0.05, 0.05, twin ? 0.62 : 0.3, 12); axle.rotateX(Math.PI / 2); axle.translate(0, -len, 0);
-    pivot.add(new THREE.Mesh(track(axle), strutMat));
+    const am = new THREE.Mesh(track(axle), strutMat); am.name='axle'; pivot.add(am);
     for (const off of twin ? [-0.24, 0.24] : [0]) {
-      const wgeo = track(wheel(wr, 0.22)); const w = new THREE.Mesh(wgeo, rubber); w.position.set(0, -len, off); pivot.add(w);
-      const hgeo = track(hub(wr, 0.22)); const h = new THREE.Mesh(hgeo, strutMat); h.position.set(0, -len, off); pivot.add(h);
+      const wgeo = track(wheel(wr, 0.22)); const w = new THREE.Mesh(wgeo, rubber); w.name='wheel'; w.position.set(0, -len, off); pivot.add(w);
+      const hgeo = track(hub(wr, 0.22)); const h = new THREE.Mesh(hgeo, strutMat); h.name='hub'; h.position.set(0, -len, off); pivot.add(h);
     }
     parts.trem.add(pivot);
     gearPivots.push(pivot);

@@ -1,0 +1,42 @@
+import * as THREE from 'three';
+import { detailById } from '@/content/anatomy24';
+import type { JetBuild } from './jet/buildJet';
+// Educational, independently inspectable assemblies. No OEM CAD or maintenance dimensions.
+export const schematicIds = new Set(['frames','radome','winglet','ailerons','flaps','spoilers','spar','fuel','core','rudder','elevator','brakes','systems','table','glass','bezels','reveals']);
+export function makeAnatomyModel(id:string, jet:JetBuild) {
+ const group=new THREE.Group(); group.name='atlas-'+id; group.visible=false;
+ const geo:THREE.BufferGeometry[]=[];
+ const mat=(c:string,metalness=.35,roughness=.36,clearcoat=.35)=>new THREE.MeshPhysicalMaterial({color:c,metalness,roughness,clearcoat,clearcoatRoughness:Math.min(.65,roughness+.08)});
+ const silver=mat('#bcc9d7',.72,.28,.48), blue=mat('#2e6fb2',.42,.27,.62), dark=mat('#1f2f43',.18,.42,.3), gold=mat('#c4a15f',.62,.32,.58), pale=mat('#eef4fb',.12,.14,.72), rubber=mat('#333c49',.05,.82,.05);
+ const materials=[silver,blue,dark,gold,pale,rubber];
+ const mesh=(g:THREE.BufferGeometry,m:THREE.Material,x=0,y=0,z=0)=>{geo.push(g);const o=new THREE.Mesh(g,m);o.position.set(x,y,z);group.add(o);return o;};
+ const box=(x:number,y:number,z:number,w:number,h:number,d:number,m=silver)=>mesh(new THREE.BoxGeometry(w,h,d),m,x,y,z);
+ const cyl=(x:number,y:number,z:number,r:number,h:number,m=silver,axis='x',r2=r)=>{const o=mesh(new THREE.CylinderGeometry(r,r2,h,32),m,x,y,z);if(axis==='x')o.rotation.z=Math.PI/2;if(axis==='z')o.rotation.x=Math.PI/2;return o;};
+ const ring=(x:number,y:number,z:number,r:number,t:number,m=silver,axis='x')=>{const o=mesh(new THREE.TorusGeometry(r,t,8,48),m,x,y,z);if(axis==='x')o.rotation.y=Math.PI/2;if(axis==='y')o.rotation.x=Math.PI/2;return o;};
+ const sphere=(x:number,y:number,z:number,a:number,b:number,c:number,m=silver)=>{const o=mesh(new THREE.SphereGeometry(1,32,20),m,x,y,z);o.scale.set(a,b,c);return o;};
+ const bolt=(x:number,y:number,z:number,axis='x')=>{const o=mesh(new THREE.CylinderGeometry(.048,.048,.07,6),gold,x,y,z);if(axis==='x')o.rotation.z=Math.PI/2;if(axis==='z')o.rotation.x=Math.PI/2;};
+ const panel=(pts:number[][],thick=.09,m=blue)=>{const s=new THREE.Shape();pts.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();const o=mesh(new THREE.ExtrudeGeometry(s,{depth:thick,bevelEnabled:true,bevelSize:.025,bevelThickness:.025,bevelSegments:2,steps:1}),m);o.rotation.x=-Math.PI/2;return o;};
+ const radius=jet.spec.R;
+ switch(id){
+ case 'frames':{for(let i=0;i<6;i++)ring(-2.5+i,0,0,radius,.065);for(let j=0;j<12;j++){const a=j*Math.PI/6;box(0,Math.cos(a)*radius,Math.sin(a)*radius,5.3,.065,.065,blue);}for(let j=0;j<8;j++){const a=j*Math.PI/4;for(const x of [-2.5,2.5])bolt(x,Math.cos(a)*radius,Math.sin(a)*radius);}break;}
+ case 'radome':{const o=mesh(new THREE.SphereGeometry(1,40,24,0,Math.PI*2,0,Math.PI/2),pale,1.15);o.rotation.z=-Math.PI/2;o.scale.set(1.05,1.65,1.05);ring(.15,0,0,1,.08);cyl(-.35,0,0,.82,.13,blue);cyl(-.5,0,0,.24,.5,dark);box(-.85,-.44,0,.66,.22,.65,dark);for(let i=0;i<12;i++){const a=i*Math.PI/6;bolt(.15,Math.cos(a),Math.sin(a));}break;}
+ case 'winglet':{const o=panel([[0,0],[1.9,0],[1.28,.85],[.63,1.9],[.12,1.85],[-.2,.65]],.15,pale);o.rotation.x=0;o.rotation.z=-.25;box(.8,0,.1,1.5,.17,.3,dark);for(let i=0;i<5;i++)bolt(.2+i*.28,.13,.1,'y');break;}
+ case 'ailerons':case 'flaps':case 'spoilers':case 'rudder':case 'elevator':{const length=id==='flaps'?4.6:id==='rudder'?3.1:3.5;panel([[-length/2,0],[length/2,0],[length*.35,.65],[-length*.45,.85]],.10,pale);for(let i=0;i<4;i++){const x=-length*.38+i*length*.25;box(x,-.12,0,.16,.28,.25,dark);cyl(x,-.12,0,.075,.32,gold);bolt(x,-.12,.16,'z');}cyl(0,-.35,-.35,.10,1.4,silver);cyl(.8,-.35,-.35,.045,.9,gold);if(id==='flaps'){panel([[-2.1,1.08],[2.1,1.08],[1.6,1.46],[-1.8,1.46]],.09,blue);for(const x of [-1.2,1.2])box(x,-.25,-.6,.12,.2,1.2,dark);}break;}
+ case 'spar':case 'fuel':{const n=6;for(const z of [-.78,.78])box(0,0,z,5.8,.34,.09,silver);for(let i=0;i<n;i++){const x=-2.55+i*1.02;box(x,0,0,.09,.30,1.65,silver);for(const z of [-.78,.78])bolt(x,.19,z,'y');}if(id==='fuel'){for(const x of [-1.4,1.4]){box(x,0,0,2.5,.23,1.38,blue);cyl(x,.26,0,.13,.2,gold,'y');}cyl(0,-.35,0,.055,5.2,gold);cyl(-2.45,-.35,0,.18,.32,dark);}break;}
+ case 'core':{cyl(0,0,0,.13,6.2,gold);for(let i=0;i<6;i++){const x=-2.55+i*.48,r=.84-i*.047;cyl(x,0,0,r*.44,.13,dark);ring(x,0,0,r,.045,silver);for(let j=0;j<18;j++){const a=j*Math.PI/9;const b=box(x,Math.cos(a)*r*.70,Math.sin(a)*r*.70,.12,r*.48,.085,silver);b.rotation.x=a;}}for(let i=0;i<8;i++){const a=i*Math.PI/4;const c=cyl(.62,Math.cos(a)*.49,Math.sin(a)*.49,.17,.85,gold);c.rotation.z=Math.PI/2;}for(let i=0;i<3;i++){const x=1.42+i*.58,r=.55+i*.13;ring(x,0,0,r,.04,blue);cyl(x,0,0,r*.48,.15,dark);for(let j=0;j<20;j++){const a=j*Math.PI/10;const b=box(x,Math.cos(a)*r*.74,Math.sin(a)*r*.74,.15,r*.43,.10,gold);b.rotation.x=a;}}break;}
+ case 'brakes':{for(let i=0;i<6;i++){const x=-.65+i*.21;ring(x,0,0,.72,.12,i%2?dark:silver);for(let j=0;j<6;j++){const a=j*Math.PI/3;bolt(x,Math.cos(a)*.48,Math.sin(a)*.48);}}cyl(0,0,0,.24,2.1,silver);ring(1.15,0,0,.95,.24,rubber);cyl(-.75,.98,0,.17,1.8,blue,'y');cyl(-.75,1.75,0,.085,1.1,silver,'y');break;}
+ case 'systems':{box(-1.3,0,0,1.5,.85,1.15,blue);box(1.35,0,0,1.45,.72,1.05,dark);for(let i=0;i<7;i++)box(1.35,.40,-.45+i*.15,1.30,.08,.065,silver);cyl(0,.15,0,.17,1.4,silver);cyl(-1.3,.73,0,.23,.66,silver,'y');for(const z of [-.38,.38]){cyl(0,-.48,z,.065,4.1,z<0?gold:blue);cyl(-2.04,-.20,z,.065,.56,gold,'y');}for(let i=0;i<5;i++)box(1.35,-.47,-.35+i*.17,.25,.16,.08,gold);break;}
+ case 'seat': {box(0,-.65,0,1.05,.25,.92,dark);box(0,-.35,0,1.04,.30,.94,pale);const back=box(-.44,.30,0,.20,1.16,.92,pale);back.rotation.z=.13;box(-.49,.99,0,.24,.30,.68,pale);for(const z of [-.53,.53]){box(.0,.02,z,.94,.18,.15,pale);box(.0,-.28,z,.12,.52,.12,silver);}break;}
+ case 'table': {box(0,.62,0,1.7,.10,1.1,dark);box(0,.56,0,1.69,.035,1.08,silver);cyl(0,0,0,.13,1.12,silver,'y');box(0,-.58,0,.65,.10,.65,dark);break;}
+ case 'bezels':case 'reveals':case 'glass':case 'windshield': {const shape=new THREE.Shape();shape.absellipse(0,0,.63,.91,0,Math.PI*2,false,0);const hole=new THREE.Path();hole.absellipse(0,0,.48,.75,0,Math.PI*2,true,0);shape.holes.push(hole);for(let i=0;i<3;i++)mesh(new THREE.ExtrudeGeometry(shape,{depth:.075,bevelEnabled:true,bevelSize:.025,bevelThickness:.025,bevelSegments:2,steps:1,curveSegments:32}),i===1?dark:pale,0,0,i*.13);if(id==='glass'||id==='windshield'){const lens=sphere(0,0,.35,.48,.75,.045,blue);(lens.material as THREE.MeshPhysicalMaterial).roughness=.12;}break;}
+ case 'wheel':case 'axle':case 'strut':case 'gear-nose':case 'gear-main': {cyl(0,0,0,.15,2.0,silver);if(id!=='axle'){for(const x of [-.68,.68]){ring(x,0,0,.62,.23,rubber);cyl(x,0,0,.48,.32,silver);for(let j=0;j<6;j++){const a=j*Math.PI/3;bolt(x+.19,Math.cos(a)*.28,Math.sin(a)*.28);}}}if(id!=='wheel'&&id!=='axle'){cyl(0,.75,0,.19,1.5,blue,'y');cyl(0,1.75,0,.11,.9,silver,'y');}break;}
+ case 'nacelle':case 'lip':case 'duct':case 'exhaust-duct':case 'exhaust-cone':case 'fan':case 'pylon': {if(id==='pylon'){panel([[-1.5,0],[1.5,0],[.6,1.0],[-1.0,.9]],.24,silver);for(let i=0;i<5;i++)bolt(-1+i*.45,0,0,'y');break;}if(id==='exhaust-cone'){cyl(0,0,0,.10,1.8,silver,'x',.65);break;}for(const x of [-.85,.85])ring(x,0,0,.85,.08,silver);if(id==='fan'){cyl(0,0,0,.24,.7,dark);for(let i=0;i<24;i++){const a=i*Math.PI/12;const m=box(0,Math.cos(a)*.56,Math.sin(a)*.56,.14,.53,.10,silver);m.rotation.x=a;}}else if(id!=='lip'){const m=mesh(new THREE.CylinderGeometry(.85,.77,1.7,64,1,true),pale);m.rotation.z=Math.PI/2;(m.material as THREE.MeshPhysicalMaterial).side=THREE.DoubleSide;}break;}
+ case 'wing-port':case 'wing-starboard':case 'fin':case 'stab':case 'fairing': {const m=panel([[0,0],[2.6,0],[1.65,3.9],[.85,3.9]],.15,pale);if(id==='fin')m.rotation.x=0;if(id==='wing-starboard')m.rotation.y=Math.PI;break;}
+ case 'shell': {const m=mesh(new THREE.CylinderGeometry(radius,radius,5.5,64,1,true,0,Math.PI*1.65),pale);m.rotation.z=Math.PI/2;(m.material as THREE.MeshPhysicalMaterial).side=THREE.DoubleSide;for(let i=0;i<5;i++)ring(-2.5+i*1.25,0,0,radius,.04,silver);break;}
+ default: throw new Error('Unsupported atlas assembly: '+id);
+ }
+ const d=detailById(id)?.group ?? 'cabine';
+ group.position.copy(jet.anchors[d]);
+ jet.group.add(group);
+ return {group,dispose(){jet.group.remove(group);geo.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}};
+}

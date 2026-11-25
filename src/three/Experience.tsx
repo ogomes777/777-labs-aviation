@@ -9,6 +9,7 @@ import { buildTracks, sampleTracks, GLOBE_CENTER, type Track } from '@/experienc
 import { domRefs } from '@/experience/domRefs';
 import { buildJet, type JetBuild } from './jet/buildJet';
 import { CUT } from './jet/materials';
+import { createAnatomy24 } from './anatomy24';
 import { groundY, SPECS, type AircraftId } from './jet/spec';
 import { createCloudPuffs, createCloudSea, createSkyDome, lerpPalette, SKY_PALETTES } from './env/sky';
 import { createEnvMaps, type EnvKey } from './env/envmaps';
@@ -35,7 +36,7 @@ class FXBoundary extends Component<{ children: ReactNode }, { failed: boolean }>
 }
 const C = (hex: string) => new THREE.Color(hex);
 const BG = { hangar: C('#06080b'), studio: C('#f1eee7'), cabin: C('#20170f'), globe: C('#070b12') };
-const HIGHLIGHT = C('#2f63ff');
+
 
 function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const { gl, scene, camera, size } = useThree();
@@ -67,7 +68,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   }, [gl, quality]);
 
   const jet = useMemo<JetBuild>(() => buildJet(variant, { textureSize: quality === 'high' ? 2048 : 1024, detail }), [variant, quality, detail]);
-  useEffect(() => () => jet.dispose(), [jet]);
+  const anatomy24 = useMemo(() => createAnatomy24(jet), [jet]);
+  useEffect(() => () => { anatomy24.dispose(); jet.dispose(); }, [jet, anatomy24]);
   useEffect(() => () => {
     env.sea.mesh.geometry.dispose(); (env.sea.mesh.material as THREE.Material).dispose();
     env.sky.mesh.geometry.dispose(); (env.sky.mesh.material as THREE.Material).dispose();
@@ -157,7 +159,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
-  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, lastPart: null as PartId | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
+  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
 
   // ---------- configuração do renderer ----------
   useEffect(() => {
@@ -190,17 +192,47 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // amortecimento do tempo global; saltos longos (navegação) cortam direto
     if (Math.abs(frame.t - frame.ts) > 1.2) frame.ts = frame.t;
     else frame.ts = damp(frame.ts, frame.t, frame.freezeClock ? 1000 : 5.5, dt);
-    const raw = frame.ts;
-    // capítulo 3 = frota (trilha própria); depois dele a linha do tempo original continua deslocada em 1
-    const t = raw < 3 ? raw : raw < 4 ? 2.9999 : raw - 1;
-    const inFleet = raw >= 3 && raw < 4;
+    // Tempo editorial contínuo; IDs e poses legadas são preservados.
+    const sequence = frame.ts;
+    const handoff = (id: string, boundary: number) => {
+      if (Math.abs(frame.t - boundary) > 0.12) return -1;
+      const el = document.getElementById(id);
+      if (!el) return -1;
+      const y = el.getBoundingClientRect().top;
+      return y > 0 && y < window.innerHeight ? 1 - y / window.innerHeight : -1;
+    };
+    const toFleet = handoff('frota', 6);
+    const toDest = handoff('destinos', 7);
+    let slot = sequence;
+    if (toFleet >= 0) slot = toFleet < .5 ? 5.99999 : 6;
+    if (toDest >= 0) slot = toDest < .5 ? 6.99999 : 7;
+    const raw = slot < 3 ? slot : slot < 6 ? slot + 1 : slot < 7 ? slot - 3 : slot;
+    const inFleet = slot >= 6 && slot < 7;
+    const t = slot < 3 ? slot : slot < 6 ? slot : inFleet ? 2.9999 : slot < 8 ? 6.32 + (slot - 7) * .68 : slot - 1;
     const trk = tracks.current;
     if (!trk.length) return;
     const s = jet.spec;
+    anatomy24.restoreFrame();
+    const anatomyActive = !inFleet && t >= 3.34 && t < 3.985;
+    const current = ui.get();
+    if ((!anatomyActive || Math.abs(frame.chapters[4] - current.anatomyManualAt) > .12) && (current.explodeManual !== null || current.part !== null)) {
+      ui.set({ explodeManual: null, part: null, anatomyDetail: null, anatomyAngle: 0, anatomyPitch: .65, anatomySubExplode: false });
+    }
     const st = ui.get();
 
     // ----- câmera -----
-    let fov = sampleTracks(trk, t, tmp.eye, tmp.target);
+    let fov = sampleTracks(trk, slot >= 5 && slot < 6 ? 5 + Math.min(1, (t - 5) / .88) : t, tmp.eye, tmp.target);
+    // Final window shot now belongs to the cabin-to-fleet handoff, not the old globe.
+    if (slot >= 5 && slot < 6 && t > 5.88) {
+      const w = jet.cabin.spots.janela;
+      const q = ramp(t, 5.88, 5.9999);
+      const flight = toFleet >= 0 ? ramp(toFleet,0,.48) : 0;
+      tmp.vTarget.copy(w.target).sub(w.eye).normalize();
+      tmp.vEye.copy(w.target).addScaledVector(tmp.vTarget, 1.35 * q + 9 * ramp(t,5.94,5.9999) + 65 * flight);
+      tmp.eye.lerp(tmp.vEye, q);
+      tmp.target.lerp(tmp.vEye.addScaledVector(tmp.vTarget, 12 + flight * 60), q);
+      fov = THREE.MathUtils.lerp(fov, 54, q);
+    }
     if (inFleet) {
       const p = raw - 3;
       const all = [mainCraft, ...crafts.current].sort((a, b) => b.x - a.x);
@@ -242,7 +274,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       if (ins && st.inspectMode !== 'parts') { tmp.camEye = tmp.camEye ?? tmp.eye.clone(); tmp.camEye.lerp(tmp.eye, 1 - Math.exp(-3.2 * dt)); tmp.eye.copy(tmp.camEye); } else tmp.camEye = null;
     }
     // perspectivas manuais no hangar (Exterior / Cabine / Detalhes)
-    const viewActive = st.view && t > 2.05 && t < 2.99 ? 1 : 0;
+    const viewActive = st.view && !inFleet && t > 2.05 && t < 2.99 ? 1 : 0;
     if (!inFleet) tmp.viewW = damp(tmp.viewW, viewActive, 3.2, dt);
     if (!inFleet && tmp.viewW > 0.001 && st.view) {
       viewPose(jet, st.view, tmp.vEye, tmp.vTarget);
@@ -303,7 +335,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       su.uZenith.value.copy(pal.zenith); su.uHorizon.value.copy(pal.horizon); su.uGlow.value.copy(pal.glow); su.uBelow.value.copy(pal.below);
       cu.uLit.value.copy(pal.lit); cu.uShade.value.copy(pal.shade); cu.uDeep.value.copy(pal.deep); cu.uHaze.value.copy(pal.haze);
       pu.uLit.value.copy(pal.lit); pu.uShade.value.copy(pal.shade); pu.uHaze.value.copy(pal.haze);
-      su.uOpacity.value = skyW; cu.uOpacity.value = skyW; pu.uOpacity.value = skyW;
+      su.uOpacity.value = skyW; cu.uOpacity.value = skyW; cu.uCinemaOcean.value = slot >= 5 && slot < 6 ? ramp(t,5.72,5.95) : 0; pu.uOpacity.value = skyW;
       cu.uTime.value = time; pu.uTime.value = time;
       cu.uCam.value.copy(cam.position);
       env.sea.mesh.position.x = cam.position.x; env.sea.mesh.position.z = cam.position.z;
@@ -377,6 +409,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const ex = st.explodeManual ?? explodeScroll;
     tmp.explode = damp(tmp.explode, ex, 4, dt);
     const e = tmp.explode;
+    // A UI follows the rendered geometry, including automatic scroll and reverse.
+    const exploded = st.anatomyExploded ? e > .09 : e > .16;
+    if (exploded !== st.anatomyExploded) ui.set({ anatomyExploded: exploded });
     (Object.keys(jet.parts) as PartId[]).forEach((id) => {
       const off = jet.explode[id];
       if (id === 'asas') {
@@ -385,16 +420,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         jet.parts.motores.children.forEach((m) => { const z = (m as THREE.Object3D).position.z; if (m.type === 'Group') m.position.set(m.position.x, (m.userData.y0 ??= m.position.y) + off.y * e, (m.userData.z0 ??= z) + Math.sign(m.userData.z0) * 1.6 * e); else m.position.set(0, off.y * e, 0); });
       } else jet.parts[id].position.copy(off).multiplyScalar(e);
     });
-    // destaque azul da peça selecionada
-    if (st.part !== tmp.lastPart || tmp.firstFrame) {
-      (Object.keys(jet.partMaterials) as PartId[]).forEach((id) => jet.partMaterials[id].forEach((m) => {
-        const mm = m as THREE.MeshStandardMaterial;
-        if (!('emissive' in mm) || id === 'cabine') return;
-        mm.emissive.copy(id === st.part ? HIGHLIGHT : C('#000000'));
-        mm.emissiveIntensity = id === st.part ? 0.55 : 1;
-      }));
-      tmp.lastPart = st.part;
-    }
     // corte do teto (cutaway)
     let cut = 100;
     if (t > 3.98 && t < 4.82) {
@@ -405,6 +430,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // planta: teto cortado na linha das janelas; vista sentado: teto volta quando a câmera está abaixo dele
       cut = st.inspectMode === 'seat' && cam.position.y < 0.9 ? 100 : 0.32;
     }
+    if (anatomyActive && st.part === 'cabine') cut = 100;
     CUT.constant = cut;
 
     // ----- mapas de ambiente e luzes -----
@@ -418,9 +444,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const envTex = env.maps.get(envKey as EnvKey);
     if (scene.environment !== envTex) scene.environment = envTex;
     const inside = insidePortal || inCabin;
-    const wantDof = true; // DOF/AO validados dentro da cabine após remover CA e ruído (causa real dos artefatos)
+    const wantDof = !(anatomyActive && st.part); // DOF/AO validados dentro da cabine após remover CA e ruído (causa real dos artefatos)
     if (wantDof !== st.dof) ui.set({ dof: wantDof });
-    scene.environmentIntensity = inside ? 0.26 : envKey === 'hangar' ? 0.2 : envKey === 'studio' ? 0.7 : 0.5;
+    scene.environmentIntensity = inside ? 0.37 : envKey === 'hangar' ? 0.2 : envKey === 'studio' ? 0.7 : 0.5;
     lights.sun.intensity = inside ? 0 : 2.6 * Math.max(skyA, epi) + 0.5 * studioW;
     lights.hemi.intensity = inside ? 0.05 : 0.32 * Math.max(skyA, epi) + 1.1 * studioW + 0.02 * hangarW;
     lights.key.intensity = 30 * hangarW;
@@ -429,16 +455,16 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (Math.abs(lights.key.position.x - (kx - 7)) > 0.01) { lights.key.position.set(kx - 7, 6.5, -9); lights.key.lookAt(kx - 2, 0.6, 0); lights.rim.position.set(kx + 14, 9, 34); lights.rim.target.position.set(kx, 0, 0); lights.rim.target.updateMatrixWorld(); }
     lights.rim.intensity = 2.4 * hangarW;
     const cabinLight = inside ? 1 : hangarW > 0.5 ? 0.9 : 0.3;
-    lights.cab.forEach((l) => { l.intensity = (inside ? 0.9 : 1.1) * cabinLight; });
+    lights.cab.forEach((l) => { l.intensity = (inside ? 0.74 : 1.1) * cabinLight; });
     const day = inside ? (inCabin ? 1 : 0.8) : 0;
-    lights.winL.intensity = lights.winR.intensity = 1.8 * day;
+    lights.winL.intensity = lights.winR.intensity = 2.15 * day;
     if (fx.ao) {
       // na travessia da janela a câmera fica a centímetros da geometria: AO desligada (evita artefatos de profundidade)
       const ao = 2.6 * (inCabin ? 1 : 0) + 2.0 * hangarW + 1.4 * studioW + 0.6 * Math.max(skyA, epi) * (t < 1.0 ? 1 : 0);
       fx.ao.configuration.intensity = damp(fx.ao.configuration.intensity, ao, 3, dt);
       fx.ao.configuration.aoRadius = inside ? 0.6 : 1.6;
     }
-    jet.cabin.glow.forEach((m, i) => { m.emissiveIntensity = (i === 0 ? 2.2 : 1.4) * (0.4 + 0.6 * cabinLight); });
+    jet.cabin.glow.forEach((m, i) => { m.emissiveIntensity = (i === 0 ? 1.65 : 1.15) * (0.4 + 0.6 * cabinLight); });
 
     // ----- velocidade: nuvens passando, turbinas girando, ar escorrendo -----
     const flying = Math.max(skyA, skyB, epi);
@@ -463,12 +489,12 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- lente e grade por cena (exposição de câmera, não filtro) -----
     const W = { sky: Math.max(skyA, epi), hangar: hangarW, studio: studioW, cabin: insidePortal || inCabin ? 1 : 0, globe: globeW };
     if (fx.dof) {
-      const bokeh = 0.9 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 1.4 * W.hangar + 1.0 * W.cabin * (t > 4.85 ? 1 : 0.3);
+      const bokeh = 0.9 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 1.4 * W.hangar + 0.30 * W.cabin * (t > 4.85 ? 1 : 0.3);
       fx.dof.bokehScale = damp(fx.dof.bokehScale, bokeh, 3, dt);
     }
     if (fx.grade) {
       const u = fx.grade.uniforms;
-      const warm = 0.05 * W.sky + 0.12 * W.hangar - 0.05 * W.studio + 0.65 * W.cabin - 0.25 * W.globe;
+      const warm = 0.05 * W.sky + 0.12 * W.hangar - 0.05 * W.studio + 0.14 * W.cabin - 0.25 * W.globe;
       const contrast = 0.24 * W.sky + 0.3 * W.hangar + 0.08 * W.studio + 0.22 * W.cabin + 0.2 * W.globe;
       const sat = 1.1 * W.sky + 1.0 * W.hangar + 0.92 * W.studio + 1.06 * W.cabin + 1.0 * W.globe;
       u.get('uWarm')!.value = damp(u.get('uWarm')!.value, warm, 3, dt);
@@ -510,7 +536,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
     // ----- tráfego de fundo (céu): reage ao cursor -----
     traffic.group.visible = Math.max(skyA, skyB, epi) > 0.5;
-    if (traffic.group.visible) traffic.update(time, frame.px, frame.py);
+    if (traffic.group.visible) { traffic.update(time, frame.px, frame.py); if (slot >= 5 && slot < 6 && t > 5.65) traffic.windowPass(cam, ramp(t,5.65,5.9999), time); }
 
     // ----- rede de rotas no globo + traço conectando a janela ao globo -----
     if (globe?.root.visible && lastRegion.current !== st.region) {
@@ -520,7 +546,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (!globe?.root.visible) lastRegion.current = null;
     const route = domRefs.route;
     if (route) {
-      const on = t > 5.96 && t < 6.75;
+      const on = slot >= 7 && slot < 8 && t > 6.32 && t < 6.75;
       route.style.opacity = on ? String(Math.min(1, ramp(t, 5.96, 6.08)) * (1 - ramp(t, 6.6, 6.75))) : '0';
       if (on) {
         const sx = size.width * 0.5, sy = size.height * 0.46;
@@ -534,15 +560,28 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
     // ----- véu de transição (luminância contínua, nunca preto) -----
     const vPortal = pulse(t, 1.62, 1.74, 1.79, 1.95);
-    const vGlobe = pulse(t, 6.16, 6.28, 6.32, 6.5);
-    const vFleet = pulse(raw, 3.86, 3.93, 3.975, 4.06);
-    const veil = Math.max(vPortal, vGlobe, vFleet);
+    const transition = (q: number) => q < 0 ? 0 : pulse(q, .04, .44, .56, .96);
+    const vFleet = transition(toFleet);
+    const vDest = transition(toDest);
+    const vWindow = !inFleet && slot >= 5 && slot < 6 ? ramp(t, 5.93, 5.9999) : 0;
+    // V25: real sky pass; a brief light veil only masks the actual scene cut.
+    void vWindow;
+    const skyPass = toFleet < 0 ? 0 : pulse(toFleet,.28,.49,.51,.76);
+    void vFleet;
+    const veil = Math.max(vPortal, vDest, skyPass);
     if (domRefs.veil) {
       domRefs.veil.style.opacity = veil.toFixed(3);
-      domRefs.veil.style.backgroundColor = vFleet > 0.01 ? '#f1eee7' : vPortal >= vGlobe ? '#e8cfae' : '#f2eee8';
+      domRefs.veil.style.backgroundImage = '';
+      domRefs.veil.style.backgroundSize = '';
+      domRefs.veil.style.backgroundPosition = '';
+      domRefs.veil.style.backgroundColor = skyPass > .001 ? '#e5f0fa' : (Math.max(vFleet, vDest) > 0.01 ? '#0d1724' : '#e8cfae');
     }
     frame.veil = veil;
 
+    // ----- V24: camera and mesh isolation use the same renderer -----
+    if (!inFleet && slot >= 5 && slot < 6 && t > 5.98) jg.visible = false;
+    const isolated = anatomy24.apply(cam, anatomyActive ? st.part : null, anatomyActive ? st.anatomyDetail : null, st.anatomyAngle, st.anatomyPitch, anatomyActive && st.anatomySubExplode, dt, time, size.width, size.height);
+    if (isolated) { cam.getWorldDirection(tmp.proj); focus.copy(cam.position).addScaledVector(tmp.proj, Math.max(1, cam.position.distanceTo(tmp.target))); }
     // ----- hotspots projetados (DOM) -----
     const layer = domRefs.hotspotLayer;
     const hsVis = t > 3.42 && t < 3.97;
@@ -550,7 +589,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       layer.dataset.visible = hsVis ? 'true' : 'false';
       if (hsVis) {
         domRefs.hotspots.forEach((el, id) => {
-          const a = jet.anchors[id];
+          el.style.display = isolated ? 'none' : '';
+          const a = id === 'fuselagem' ? jet.anchors.cabine.clone().add(new THREE.Vector3(3,0,0)) : jet.anchors[id];
           tmp.proj.copy(a);
           const off = jet.explode[id];
           if (id === 'asas') tmp.proj.z += -2.6 * e; else if (id === 'motores') { tmp.proj.y += off.y * e; tmp.proj.z += -1.6 * e; } else tmp.proj.addScaledVector(off, e);
@@ -561,6 +601,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       }
     }
 
+    if (hsVis) anatomy24.project(cam, st.part, st.anatomyDetail, size.width, size.height);
     if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown }).__777env = { ...env, gl }; }
     // custo de CPU do loop de direção (sem o desenho da GPU), média móvel — exposto para QA
     const cpu = performance.now() - cpu0;
