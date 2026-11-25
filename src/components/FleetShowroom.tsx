@@ -134,13 +134,13 @@ export default function FleetShowroom() {
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
       const d = drag.current; if (!d || d.id !== e.pointerId) return;
       const dx = e.clientX - d.x, dy = e.clientY - d.y; d.x = e.clientX; d.y = e.clientY;
-      ui.set((s) => ({ fleetYaw: s.fleetYaw + dx * 0.0085, fleetPitch: Math.max(-0.32, Math.min(1.15, s.fleetPitch + dy * 0.006)) }));
+      ui.set((s) => ({ fleetYaw: s.fleetYaw + dx * 0.0085, fleetPitch: Math.max(-0.18, Math.min(1.15, s.fleetPitch - dy * 0.006)) }));
     },
     onPointerUp: () => { drag.current = null; }, onPointerCancel: () => { drag.current = null; }, onLostPointerCapture: () => { drag.current = null; },
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
       e.preventDefault();
-      ui.set((s) => ({ fleetYaw: s.fleetYaw + (e.key === 'ArrowLeft' ? 0.18 : e.key === 'ArrowRight' ? -0.18 : 0), fleetPitch: Math.max(-0.32, Math.min(1.15, s.fleetPitch + (e.key === 'ArrowUp' ? 0.12 : e.key === 'ArrowDown' ? -0.12 : 0))) }));
+      ui.set((s) => ({ fleetYaw: s.fleetYaw + (e.key === 'ArrowLeft' ? 0.18 : e.key === 'ArrowRight' ? -0.18 : 0), fleetPitch: Math.max(-0.18, Math.min(1.15, s.fleetPitch + (e.key === 'ArrowUp' ? 0.12 : e.key === 'ArrowDown' ? -0.12 : 0))) }));
     },
   };
 
@@ -223,7 +223,7 @@ export default function FleetShowroom() {
               </div>}
               {selSys && <ul className="inspect__parts">
                 {selSys.parts.map((p) => (
-                  <li key={p.id}><button type="button" aria-pressed={part === p.id} onMouseEnter={() => ui.set({ inspectPart: p.id })} onFocus={() => ui.set({ inspectPart: p.id })} onClick={() => ui.set({ inspectPart: part === p.id ? null : p.id })}>{p.label}</button></li>
+                  <li key={p.id}><button type="button" aria-pressed={part === p.id} onClick={() => ui.set({ inspectPart: part === p.id ? null : p.id, fleetYaw: 0, fleetPitch: 0 })}>{p.label}</button></li>
                 ))}
               </ul>}
               <p className="inspect__text" aria-live="polite">{selPart ? selPart.text : selSys ? selSys.text : `${item.category}. ${item.engine}. Passe pelos pontos da aeronave para pré-visualizar cada sistema; clique para isolar.`}</p>

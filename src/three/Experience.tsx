@@ -260,22 +260,25 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       if (ins) {
         const gp = ins.group.position;
         if (st.inspectMode === 'plan' && ins.seats.length) {
-          // planta: de cima, teto cortado, nariz à esquerda
-          tmp.vEye.set(ins.x - (portrait ? 0 : ins.size * 0.2), gp.y + ins.size * (portrait ? 2.2 : 1.05), portrait ? 0.01 : -3);
-          tmp.vTarget.set(ins.x - (portrait ? 0 : ins.size * 0.2), gp.y + ins.floorY, 0);
-          if (portrait) { tmp.vEye.x -= 0.6; }
+          // planta: de cima, teto cortado na linha das janelas, cabine inteira no quadro (nariz à esquerda)
+          let x0 = Infinity, x1 = -Infinity; for (const se of ins.seats) { x0 = Math.min(x0, se.pos.x); x1 = Math.max(x1, se.pos.x); }
+          const cx = gp.x + (x0 + x1) / 2, len = x1 - x0 + 2.4;
+          const h = (len * 1.55 + 3) * (portrait ? 2.1 : 1);
+          const shift = portrait ? 0 : len * 0.42;
+          tmp.vEye.set(cx - shift, gp.y + ins.floorY + h, portrait ? -0.05 : -h * 0.08);
+          tmp.vTarget.set(cx - shift, gp.y + ins.floorY, 0);
         } else if (st.inspectMode === 'seat' && st.seat !== null && ins.seats[st.seat]) {
           // vista sentado: altura dos olhos, olhando para frente e levemente para a janela
           const se = ins.seats[st.seat];
           tmp.vEye.set(gp.x + se.pos.x - se.facing * 0.18, gp.y + ins.floorY + (ins.id === 'matrix' ? 0.92 : 1.12), se.pos.z * 0.92);
           tmp.vTarget.set(tmp.vEye.x + se.facing * 3.2, tmp.vEye.y - 0.22, se.pos.z * 1.35);
         } else {
-          const b = st.inspectSystem ? ins.bounds[st.inspectSystem] : null;
+          const b = (st.inspectSystem && st.inspectPart ? ins.partBounds(st.inspectPart) : null) ?? (st.inspectSystem ? ins.bounds[st.inspectSystem] : null);
           const c = tmp.oc.set(gp.x, gp.y - ins.axisH * 0.12, gp.z);
           if (b) c.set(gp.x + b.center.x, gp.y + b.center.y, gp.z + b.center.z);
           const rad = b ? b.radius : ins.size * 0.55;
           const d = (b ? rad * 2.5 + 1.4 : rad * 2.2) * (portrait ? 1.65 : 1);
-          const yaw = -1.04 + st.fleetYaw, pitch = clamp(0.2 + st.fleetPitch, -0.12, 1.35);
+          const yaw = -1.04 + st.fleetYaw, pitch = clamp(0.2 + st.fleetPitch, 0.02, 1.35);
           tmp.vEye.set(c.x + d * Math.cos(pitch) * Math.cos(yaw), c.y + d * Math.sin(pitch), c.z + d * Math.cos(pitch) * Math.sin(yaw));
           tmp.vTarget.copy(c);
           // composição: libera o painel (direita no desktop, base no celular)
@@ -541,6 +544,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         if (c.id === st.inspect || (prevP > 0 && c.id === tmp.lastIns)) applyInspect(c.entries, inspectP.current, st.fleetPreview, time);
         c.setXray(c.id === st.inspect ? tmp.xray : 0);
         c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
+        c.focusPart(c.id === st.inspect && st.inspectMode === 'parts' && st.inspectSystem ? st.inspectPart : null);
       });
       if (st.inspect) tmp.lastIns = st.inspect;
     }

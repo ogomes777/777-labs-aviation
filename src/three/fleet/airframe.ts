@@ -36,6 +36,11 @@ export interface FleetCraftBuild {
   /** altura do eixo acima do solo */
   axisH: number;
   setXray: (k: number) => void;
+  /** isola uma peça (ID de catálogo) dentro do sistema visível; demais malhas viram fantasma de raio-X */
+  focusPart: (part: string | null) => void;
+  partBounds: (part: string) => { center: THREE.Vector3; radius: number } | null;
+  /** IDs de peça com malha real nesta aeronave */
+  partIds: Set<string>;
   isolate: (s: SystemId | null) => void;
   dispose: () => void;
 }
@@ -244,7 +249,10 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const xray = tr(xrayMaterial());
 
   // ---------- FUSELAGEM ----------
-  mesh(systems.fuselagem, fuselageGeometry(f, { nu: Math.round(170 * detail), nv: Math.round(64 * detail) }), paint, 'skin', 'skin');
+  const noseCut = prop ? s.Ln : s.Ln * 0.34;
+  mesh(systems.fuselagem, fuselageGeometry(f, { nu: Math.round(160 * detail), nv: Math.round(64 * detail), d0: noseCut * 0.995, d1: L }), paint, 'skin', 'skin');
+  // nariz como malha própria: radome (jatos) ou capô do motor (Matrix, pertence à propulsão)
+  mesh(prop ? systems.propulsao : systems.fuselagem, fuselageGeometry(f, { nu: Math.round(40 * detail), nv: Math.round(64 * detail), d0: 0, d1: noseCut }), paint, prop ? 'cowling' : 'radome', 'skin');
   // para-brisa (painéis no nariz)
   {
     const panes: [number, number, number, number][] = prop
@@ -399,13 +407,16 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
       for (let b = 0; b < 20; b++) { const bg = new THREE.BoxGeometry(0.025, r * 0.56, 0.13); bg.translate(0, r * 0.5, 0); bg.applyMatrix4(new THREE.Matrix4().makeRotationY(0.6)); bg.rotateX((b / 20) * TAU); blades.push(bg); }
       const bl = mesh(eg, mergeGeometries(blades)!, darkMetal, 'fan'); bl.position.x = -0.85; blades.forEach((g) => g.dispose());
       const sp = mesh(eg, lathe([[0.001, 0.4], [r * 0.2, 0.68], [r * 0.27, 0.9]], 28), polished, 'spinner'); void sp;
-      // núcleo ilustrativo: compressor, câmara, turbina
-      const core: THREE.BufferGeometry[] = [];
-      for (let i = 0; i < 9; i++) { const c = new THREE.CylinderGeometry(r * (0.5 - i * 0.02), r * (0.5 - i * 0.02), 0.05, 20); c.rotateZ(Math.PI / 2); c.translate(-1.1 - i * 0.14, 0, 0); core.push(c); }
-      { const c = new THREE.TorusGeometry(r * 0.36, r * 0.09, 8, 24); c.rotateY(Math.PI / 2); c.translate(-2.45, 0, 0); core.push(c); }
-      for (let i = 0; i < 4; i++) { const c = new THREE.CylinderGeometry(r * (0.38 + i * 0.03), r * (0.38 + i * 0.03), 0.06, 20); c.rotateZ(Math.PI / 2); c.translate(-2.75 - i * 0.16, 0, 0); core.push(c); }
-      { const c = new THREE.CylinderGeometry(r * 0.12, r * 0.12, Le * 0.85, 10); c.rotateZ(Math.PI / 2); c.translate(-Le * 0.5, 0, 0); core.push(c); }
-      mesh(eg, mergeGeometries(core)!, internalMat, 'engine-core', 'internal'); core.forEach((g) => g.dispose());
+      // núcleo ilustrativo (estágios genéricos de turbofan, não geometria Honeywell/Williams)
+      const disc = (rad: number, x: number, w = 0.05) => { const c = new THREE.CylinderGeometry(rad, rad, w, 22); c.rotateZ(Math.PI / 2); c.translate(x, 0, 0); return c; };
+      const k0 = Le / 3.3;
+      const comp = Array.from({ length: 8 }, (_, i) => disc(r * (0.5 - i * 0.025), (-1.05 - i * 0.13) * k0));
+      mesh(eg, mergeGeometries(comp)!, internalMat, 'compressor', 'internal'); comp.forEach((g) => g.dispose());
+      { const c = new THREE.TorusGeometry(r * 0.34, r * 0.1, 10, 26); c.rotateY(Math.PI / 2); c.translate(-2.2 * k0, 0, 0); mesh(eg, c, internalMat, 'combustor', 'internal'); }
+      const turb = Array.from({ length: 4 }, (_, i) => disc(r * (0.36 + i * 0.035), (-2.55 - i * 0.15) * k0, 0.07));
+      mesh(eg, mergeGeometries(turb)!, internalMat, 'turbine', 'internal'); turb.forEach((g) => g.dispose());
+      { const c = new THREE.CylinderGeometry(r * 0.1, r * 0.1, Le * 0.8, 10); c.rotateZ(Math.PI / 2); c.translate(-Le * 0.5, 0, 0); mesh(eg, c, internalMat, 'shaft', 'internal'); }
+      { const c = new THREE.BoxGeometry(0.5 * k0, 0.18 * k0, 0.22 * k0); c.translate(-1.5 * k0, -r * 0.62, 0); mesh(eg, c, internalMat, 'accessory', 'internal'); }
       // pilone
       const rz = f.profile(e.d).w * 0.9;
       const py: Station[] = [0, 1].map((t) => ({ le: V(ex - 0.85, ey, side * (rz + t * (ez - r * 0.7 - rz))), chord: Le * 0.55, up: V(0, 1, 0) }));
@@ -435,12 +446,12 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     }
     // escapamentos
     for (const side of [1, -1]) { const c = new THREE.CylinderGeometry(0.035, 0.04, 0.22, 10); c.rotateZ(Math.PI / 2 - 0.4); const m = mesh(systems.propulsao, c, darkMetal, `exhaust-${side === 1 ? 'R' : 'L'}`); m.position.set(fx(1.05), -s.R * 0.62, side * s.R * 0.42); }
-    // núcleo ilustrativo: bloco, cilindros opostos e turbocompressor
-    const core: THREE.BufferGeometry[] = [];
-    { const b = new THREE.BoxGeometry(0.75, 0.32, 0.36); b.translate(fx(0.85), -0.04, 0); core.push(b); }
-    for (let i = 0; i < 3; i++) for (const side of [1, -1]) { const c = new THREE.CylinderGeometry(0.075, 0.075, 0.34, 12); c.rotateX(Math.PI / 2); c.translate(fx(0.6 + i * 0.24), 0.02, side * 0.32); core.push(c); }
-    { const t = new THREE.TorusGeometry(0.09, 0.04, 8, 18); t.translate(fx(1.35), -0.28, 0.18); core.push(t); }
-    mesh(systems.propulsao, mergeGeometries(core)!, internalMat, 'engine-core', 'internal'); core.forEach((g) => g.dispose());
+    // motor a pistão ilustrativo: cárter, 6 cilindros opostos, turbocompressor e intercooler (não é geometria Lycoming)
+    { const b = new THREE.BoxGeometry(0.75, 0.32, 0.34); b.translate(fx(0.85), -0.04, 0); mesh(systems.propulsao, b, internalMat, 'crankcase', 'internal'); }
+    { const cyl: THREE.BufferGeometry[] = []; for (let i = 0; i < 3; i++) for (const side of [1, -1]) { const c = new THREE.CylinderGeometry(0.075, 0.075, 0.32, 14); c.rotateX(Math.PI / 2); c.translate(fx(0.6 + i * 0.24), 0.02, side * 0.32); cyl.push(c); }
+      mesh(systems.propulsao, mergeGeometries(cyl)!, internalMat, 'cylinders', 'internal'); cyl.forEach((g) => g.dispose()); }
+    { const t = new THREE.TorusGeometry(0.085, 0.04, 8, 18); t.translate(fx(1.38), -0.28, 0.18); mesh(systems.propulsao, t, internalMat, 'turbo', 'internal'); }
+    { const b = new THREE.BoxGeometry(0.22, 0.12, 0.3); b.translate(fx(1.2), 0.24, -0.12); mesh(systems.propulsao, b, internalMat, 'intercooler', 'internal'); }
     propAnchor = V(fx(0) - 0.1, 0.1, -0.35);
   }
 
@@ -459,6 +470,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     for (const off of twin ? [-ww * 0.95, ww * 0.95] : [0]) {
       const w = mesh(pivot, wheel(wr, ww), rubber, 'wheel'); w.position.set(0, -len, off);
       const h = mesh(pivot, hub(wr, ww), strutMat, 'hub'); h.position.set(0, -len, off);
+      if (name !== 'gear-nose') { const bd = new THREE.CylinderGeometry(wr * 0.42, wr * 0.42, ww * 0.35, 18); bd.rotateX(Math.PI / 2); const bm = mesh(pivot, bd, darkMetal, 'brake'); bm.position.set(0, -len, off + (off >= 0 ? -1 : 1) * ww * 0.18); }
     }
     return pivot;
   };
@@ -513,6 +525,47 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     // mesma pintura e mesma UV da fuselagem: a porta é uma malha própria, mas visualmente contínua (só o contorno aparece)
     const doorMat = tr(paint.clone()); doorMat.side = THREE.DoubleSide; doorMat.polygonOffset = true; doorMat.polygonOffsetFactor = -2;
     mesh(systems.portas, g, doorMat, 'door', 'skin');
+  }
+
+  // ---------- micropeças visíveis (catálogo V6; posições ilustrativas) ----------
+  {
+    const navMat = (c: string) => tr(new THREE.MeshStandardMaterial({ color: c, emissive: new THREE.Color(c), emissiveIntensity: 1.6, roughness: 0.3 }));
+    const lightGeo = tr(new THREE.SphereGeometry(0.06, 12, 8));
+    for (const side of [1, -1] as const) {
+      const wg = systems.asas.getObjectByName(side === 1 ? 'wing-R' : 'wing-L')!;
+      const tip = station(side, 1);
+      const m = new THREE.Mesh(lightGeo, navMat(side === 1 ? '#3dff8a' : '#ff3b3b')); m.name = 'navlight'; m.userData.xray = 'solid';
+      m.position.copy(tip.le).add(V(-0.12, 0.02, side * 0.04)); wg.add(m);
+    }
+    const tl = new THREE.Mesh(lightGeo, navMat('#ffffff')); tl.name = 'navlight'; tl.position.set(fx(L) + 0.02, (f.profile(L - 0.05).top + f.profile(L - 0.05).bot) / 2, 0); systems.empenagem.add(tl);
+    // pitots e antenas
+    const sens: THREE.BufferGeometry[] = [];
+    for (const side of [1, -1]) { const c = new THREE.CylinderGeometry(0.012, 0.016, 0.22, 8); c.rotateZ(Math.PI / 2); const q = f.point(prop ? s.Ln + 0.2 : s.Ln * 0.42, side === 1 ? 0.15 : Math.PI - 0.15, -0.05); c.translate(q.x, q.y, q.z); sens.push(c); }
+    for (const [d, th, hgt] of [[s.Ln + (L - s.Ln) * 0.35, Math.PI / 2, 0.22], [s.Ln + (L - s.Ln) * 0.6, Math.PI / 2, 0.16], [s.Ln + (L - s.Ln) * 0.45, -Math.PI / 2, 0.14]] as const) {
+      const b = new THREE.BoxGeometry(0.22, hgt, 0.025); const q = f.point(d, th, 0); b.translate(q.x - 0.03, q.y + (th > 0 ? hgt / 2 : -hgt / 2), q.z); sens.push(b);
+    }
+    mesh(systems.fuselagem, mergeGeometries(sens.map((g) => (g.index ? g.toNonIndexed() : g)))!, darkMetal, 'sensors'); sens.forEach((g) => g.dispose());
+    // cockpit: painel de instrumentos + assentos de tripulação (jatos)
+    const ck = new THREE.Group(); ck.name = 'cockpit'; systems.cabine.add(ck);
+    const pd = prop ? s.Ln + 0.15 : s.Ln * 0.62;
+    const pw = f.profile(pd + 0.2).w * 1.4;
+    const panel = new RoundedBoxGeometry(0.22, 0.32, pw, 2, 0.03); const pm = mesh(ck, panel, darkMetal, 'panel'); pm.position.set(fx(pd), floorY + 0.75, 0);
+    const scr = tr(new THREE.MeshStandardMaterial({ color: '#0a1220', emissive: new THREE.Color('#2f6fd8'), emissiveIntensity: 0.9, roughness: 0.2 }));
+    const sg = new THREE.PlaneGeometry(pw * 0.8, 0.18); sg.rotateY(-Math.PI / 2); const sm2 = mesh(ck, sg, scr, 'displays'); sm2.position.set(fx(pd) - 0.115, floorY + 0.78, 0);
+    if (!prop) for (const side of [1, -1]) { const m = new THREE.Mesh(seatGeo, leather); m.name = 'crew-seat'; m.position.set(fx(pd + 0.9), floorY, side * s.R * 0.42); m.rotation.y = Math.PI; ck.add(m); }
+    // lavatório: somente onde o anúncio o declara (Legacy 450 "8 pax + 1 toilet")
+    if (id === 'legacy-450') {
+      const lav = new RoundedBoxGeometry(0.95, 1.65, s.R * 1.5, 2, 0.05);
+      const lavMat = tr(lining.clone()); lavMat.side = THREE.DoubleSide; const lm = mesh(cab, lav, lavMat, 'lavatory'); lm.position.set(fx(s.cabin.end - 0.5), floorY + 0.83, 0);
+    }
+    // tanques de combustível ilustrativos (volume entre longarinas; só no raio-X)
+    const fuelMat = tr(new THREE.MeshStandardMaterial({ color: '#7fb6ff', emissive: new THREE.Color('#1d4fa8'), emissiveIntensity: 0.6, transparent: true, opacity: 0.55, depthWrite: false }));
+    for (const side of [1, -1] as const) {
+      const wg = systems.asas.getObjectByName(side === 1 ? 'wing-R' : 'wing-L')!;
+      const st = [0.06, 0.4, prop ? 0.7 : 0.78].map((t) => { const q = station(side, t); return { ...q, le: q.le.clone().addScaledVector(V(-1, 0, 0), q.chord * 0.27), chord: q.chord * 0.4 }; });
+      const g = loft(st, naca(0, 0.4, prop ? 0.12 : 0.09, 10), true, true); if (side === -1) flipWinding(g);
+      mesh(wg, g, fuelMat, 'fuel', 'internal');
+    }
   }
 
   // ---------- sombra de contato (assenta a aeronave no piso) ----------
@@ -570,24 +623,80 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   if (tail.kind !== 'T') add('empenagem', stabG, V(-2.2 * k, 0.6 * k, 0), [0.34, 0.84]);
   systems.trem.children.forEach((g) => add('trem', g, V(0, -1.6 * k, 0), [0.4, 0.9]));
 
-  // ---------- raio-X e isolamento ----------
+  // ---------- IDs de peça (ligam a malha ao catálogo do atlas) ----------
+  const PART_OF: Record<string, string> = {
+    skin: 'skin', fairing: 'skin', radome: 'radome', windshield: 'windshield', frames: 'frames', sensors: 'sensors',
+    wing: 'wing', winglet: 'winglet', flap: 'flap', aileron: 'aileron', spar: 'spar', fuel: 'fuel', navlight: 'navlights',
+    nacelle: 'nacelle', lip: 'nacelle', duct: 'nacelle', exhaust: 'nacelle', fan: 'fan', spinner: prop ? 'spinner' : 'fan',
+    compressor: 'compressor', combustor: 'combustor', turbine: 'turbine', shaft: 'shaft', accessory: 'accessory',
+    cowling: 'cowling', crankcase: 'crankcase', cylinders: 'cylinders', turbo: 'turbo', intercooler: 'intercooler',
+    fin: 'fin', rudder: 'fin', stab: 'stab', elevator: 'stab',
+    floor: 'floor', lining: 'floor', lavatory: 'lavatory', panel: 'cockpit', displays: 'cockpit', 'crew-seat': 'cockpit', door: 'door',
+  };
+  const allMeshes: THREE.Mesh[] = [];
+  const partIds = new Set<string>();
+  group.traverse((o) => {
+    const m = o as THREE.Mesh; if (!m.isMesh || m.name.startsWith('contact-shadow')) return;
+    let part = PART_OF[m.name];
+    if (!part) {
+      if (m.name.startsWith('prop-blade')) part = 'prop';
+      else if (m.name.startsWith('exhaust-')) part = 'cowling';
+      else if (m.name.startsWith('pylon-')) part = 'pylon';
+      else if (m.name.startsWith('seat-')) part = 'seats';
+      else if (m.name === 'brake') part = 'brakes';
+      else if (['strut', 'axle', 'wheel', 'hub'].includes(m.name)) { let p: THREE.Object3D | null = m.parent; while (p && !p.name.startsWith('gear-')) p = p.parent; part = p?.name === 'gear-nose' ? 'gear-nose' : 'gear-main'; }
+      else part = m.name;
+    }
+    m.userData.part = part; partIds.add(part); allMeshes.push(m);
+  });
   const original = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
-  skins.forEach((m) => original.set(m, m.material));
-  let xrOn = false;
+  allMeshes.forEach((m) => original.set(m, m.material));
+  const skinSet = new Set(skins);
+  let xrOn = false, focused: string | null = null;
+  const refresh = () => {
+    for (const m of allMeshes) {
+      const internal = m.userData.xray === 'internal';
+      if (focused) {
+        const hit = m.userData.part === focused;
+        m.material = hit ? original.get(m)! : xray;
+        m.visible = hit || !internal || xrOn;
+        m.renderOrder = hit ? 0 : 3;
+      } else {
+        m.material = xrOn && skinSet.has(m) ? xray : original.get(m)!;
+        m.visible = internal ? xrOn : true;
+        m.renderOrder = xrOn && skinSet.has(m) ? 3 : 0;
+      }
+    }
+  };
   const setXray = (amount: number) => {
     const on = amount > 0.02;
-    (xray.uniforms.uAlpha as { value: number }).value = amount;
+    (xray.uniforms.uAlpha as { value: number }).value = focused ? Math.max(0.55, amount) : amount;
     internalMat.emissiveIntensity = 0.35 + 0.9 * amount;
     if (on === xrOn) return;
-    xrOn = on;
-    skins.forEach((m) => { m.material = on ? xray : original.get(m)!; m.renderOrder = on ? 3 : 0; });
-    internals.forEach((o) => { o.visible = on; });
+    xrOn = on; refresh();
+  };
+  const focusPart = (part: string | null) => {
+    const p = part && partIds.has(part) ? part : null;
+    if (p === focused) return;
+    focused = p; partCache.clear();
+    (xray.uniforms.uAlpha as { value: number }).value = p ? 0.55 : xrOn ? 1 : 0;
+    refresh();
+  };
+  const partCache = new Map<string, { center: THREE.Vector3; radius: number } | null>();
+  const partBounds = (part: string) => {
+    if (partCache.has(part)) return partCache.get(part)!;
+    const b = new THREE.Box3(), tmpB = new THREE.Box3();
+    group.updateMatrixWorld(true);
+    const inv = group.matrixWorld.clone().invert();
+    for (const m of allMeshes) if (m.userData.part === part) { m.geometry.computeBoundingBox(); tmpB.copy(m.geometry.boundingBox!).applyMatrix4(m.matrixWorld).applyMatrix4(inv); b.union(tmpB); }
+    const r = b.isEmpty() ? null : (() => { const sp = b.getBoundingSphere(new THREE.Sphere()); return { center: sp.center.clone(), radius: Math.max(0.35, sp.radius) }; })();
+    partCache.set(part, r); return r;
   };
   const isolate = (sid: SystemId | null) => { for (const k2 of SYSTEMS) systems[k2].visible = !sid || k2 === sid; };
 
   return {
     id, spec: s, group, systems, anchors, anchorRefs, bounds, entries, seats, floorY, cutY: s.R * 0.26, size: s.envelope.length, axisH: s.axisH,
-    setXray, isolate,
+    setXray, isolate, focusPart, partBounds, partIds,
     dispose: () => { disposables.forEach((d) => d.dispose()); },
   };
 }
