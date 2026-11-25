@@ -162,9 +162,10 @@ test.describe('frota', () => {
     await page.getByRole('button', { name: 'Próxima', exact: true }).first().click();
     await expect(page.locator('.fleet__nav [aria-live]')).toHaveText(/02 \/ 05/);
     await page.locator('.fcard').first().getByRole('button', { name: 'Ver por dentro' }).click();
-    const dlg = page.getByRole('dialog', { name: /Componentes de Meridian/ });
+    // V6: frota real; o atlas substitui a lista conceitual (Meridian…)
+    const dlg = page.getByRole('dialog', { name: /Atlas do Embraer Legacy 450/ });
     await expect(dlg).toBeVisible();
-    await expect(dlg.getByRole('button', { name: 'Montar' })).toBeVisible();
+    await dlg.getByRole('button', { name: 'Propulsão' }).click();
     await dlg.getByRole('button', { name: 'Fan' }).click();
     await expect(dlg.locator('.inspect__text')).toContainText('empuxo');
     await dlg.getByRole('tab', { name: 'Planta' }).click();

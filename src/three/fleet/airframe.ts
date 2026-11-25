@@ -63,6 +63,24 @@ class PropFuselage extends Fuselage {
   }
 }
 
+/** Nariz de jato com altura de ponta ajustável (Embraer/Citation têm o nariz mais baixo). */
+class JetFuselage extends Fuselage {
+  constructor(s: JetSpec, private tip: number) { super(s); }
+  profile(d: number) {
+    const { R, Ln } = this.s;
+    if (d >= Ln) return super.profile(d);
+    const k = Math.max(0, d / Ln);
+    const e = 1 - (1 - k) * (1 - k);
+    const tipY = this.tip * R;
+    void e;
+    // nariz longo e caído: linha superior sobe devagar (para-brisa inclinado), inferior chega cedo ao ventre, planta ogival
+    const top = tipY + (R - tipY) * (1 - Math.pow(1 - k, 1.7));
+    const bot = tipY - (R + tipY) * Math.pow(1 - Math.pow(1 - k, 3), 0.62);
+    const w = R * Math.pow(1 - Math.pow(1 - k, 2.0), 0.6);
+    return { top, bot, w };
+  }
+}
+
 function flipWinding(g: THREE.BufferGeometry) {
   const idx = g.getIndex();
   if (!idx) return g;
@@ -124,45 +142,57 @@ function liveryTexture(s: FleetSpec, f: Fuselage, L: number, W: number) {
       g.lineWidth = width * (W / 2048); g.strokeStyle = color; g.stroke();
     }
   };
-  if (lv.scheme === 'dark-belly') {
-    // ventre escuro que sobe em direção à cauda (pintura clara em cima, escura embaixo)
+  // linha divisória θb(d) (lado; θ=0 é a lateral, negativo desce) → ventre pintado de θb até o ponto mais baixo
+  const sm01 = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const paintBelly = (thB: (d: number) => number, color: string, line?: { color: string; w: number; off?: number }) => {
+    for (const side of [1, -1]) {
+      const pts: [number, number][] = [];
+      for (let i = 0; i <= 260; i++) { const d = 0.15 + (L - 0.3) * (i / 260); const t = Math.min(-0.02, thB(d)); pts.push([X(d), Y(side === 1 ? t : Math.PI - t)]); }
+      g.beginPath(); g.moveTo(pts[0][0], Y(1.5 * Math.PI)); pts.forEach(([x, y]) => g.lineTo(x, y)); g.lineTo(pts[pts.length - 1][0], Y(1.5 * Math.PI)); g.closePath();
+      g.fillStyle = color; g.fill();
+      if (line) {
+        g.beginPath();
+        for (let i = 0; i <= 260; i++) { const d = 0.15 + (L - 0.3) * (i / 260); const t = Math.min(-0.02, thB(d)) + (line.off ?? 0.035); const y = Y(side === 1 ? t : Math.PI - t); if (i === 0) g.moveTo(X(d), y); else g.lineTo(X(d), y); }
+        g.lineWidth = line.w * (W / 2048); g.strokeStyle = line.color; g.stroke();
+      }
+    }
+  };
+  const curve = (thFn: (d: number) => number, d0: number, d1: number, width: number, color: string) => {
     for (const side of [1, -1]) {
       g.beginPath();
-      const pts: [number, number][] = [];
-      for (let i = 0; i <= 200; i++) {
-        const d = 0.4 + (L - 0.8) * (i / 200);
-        const k = Math.max(0, (d - (L - s.Lt - 2)) / (s.Lt + 2));
-        pts.push([X(d), Y(side === 1 ? -0.42 + 0.7 * k * k : Math.PI + 0.42 - 0.7 * k * k)]);
-      }
-      g.moveTo(pts[0][0], Y(1.5 * Math.PI));
-      pts.forEach(([x, y]) => g.lineTo(x, y));
-      g.lineTo(pts[pts.length - 1][0], Y(1.5 * Math.PI));
-      g.closePath(); g.fillStyle = lv.belly; g.fill();
+      for (let i = 0; i <= 260; i++) { const d = d0 + (d1 - d0) * (i / 260); const t = thFn(d); const y = Y(side === 1 ? t : Math.PI - t); if (i === 0) g.moveTo(X(d), y); else g.lineTo(X(d), y); }
+      g.lineWidth = width * (W / 2048); g.strokeStyle = color; g.lineCap = 'round'; g.stroke();
     }
-    sweepLine(-0.36, 7, lv.stripe, 0.7, 0.8);
+  };
+  const tailFrom = L - s.Lt;
+  const darkTail = (color: string, from: number) => { const grd = g.createLinearGradient(X(from), 0, X(from + 1.6), 0); grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(1, color); g.fillStyle = grd; g.fillRect(X(from), 0, W - X(from), H); };
+  if (lv.scheme === 'dark-belly') {
+    // Legacy 450 (landing SimFly): pérola em cima, ventre azul-marinho que sobe em direção à cauda, filete dourado
+    paintBelly((d) => -0.95 + 0.72 * sm01(0.6, s.Ln * 1.6, d) + 0.22 * sm01(tailFrom - 2.5, L, d), lv.belly, { color: lv.stripe, w: 6 });
+    darkTail(lv.belly, tailFrom + 1.2);
   } else if (lv.scheme === 'pinstripe') {
-    bellyBand(0.7, lv.belly, 0.8);
-    sweepLine(-0.3, 5, lv.stripe); sweepLine(-0.4, 3, lv.accent);
+    // Praetor 500: branco com dois frisos escuros finos do nariz à nacele
+    bellyBand(0.75, lv.belly, 0.7);
+    curve((d) => -0.5 + 0.32 * sm01(0.8, s.Ln * 1.8, d) + 0.5 * sm01(tailFrom - 1.5, L - 0.6, d), 0.9, L - 0.7, 5, lv.stripe);
+    curve((d) => -0.6 + 0.32 * sm01(0.8, s.Ln * 1.8, d) + 0.5 * sm01(tailFrom - 1.5, L - 0.6, d), 1.1, L - 0.9, 3, lv.accent);
   } else if (lv.scheme === 'dark-tail') {
-    bellyBand(0.72, lv.belly, 0.85);
-    sweepLine(-0.34, 4, lv.stripe, 0.9);
-    // cone de cauda escuro
-    const d0 = L - s.Lt * 0.7;
-    const grd = g.createLinearGradient(X(d0), 0, X(d0 + 1.2), 0);
-    grd.addColorStop(0, 'rgba(20,27,36,0)'); grd.addColorStop(1, lv.accent);
-    g.fillStyle = grd; g.fillRect(X(d0), 0, W - X(d0), H);
+    // Praetor 600: branco, ventre preto no terço inferior com filete claro, cone de cauda e deriva pretos
+    paintBelly((d) => -0.85 + 0.5 * sm01(0.6, s.Ln * 1.5, d) + 0.12 * sm01(tailFrom - 2, L, d), lv.belly, { color: '#c9ced6', w: 3, off: 0.03 });
+    darkTail(lv.accent, tailFrom + 0.6);
   } else if (lv.scheme === 'piper') {
-    bellyBand(0.8, lv.belly, 0.7);
-    sweepLine(-0.22, 9, lv.stripe, 0.4, 1.2); sweepLine(-0.34, 3, lv.accent, 0.4, 1.2);
+    // Matrix: branco, ventre preto da carenagem do motor à cauda, filete dourado
+    paintBelly((d) => -0.32 + 0.06 * sm01(0, L, d) + 0.12 * sm01(tailFrom, L, d), lv.belly, { color: lv.stripe, w: 5 });
   } else {
-    sweepLine(-0.26, 8, lv.stripe, 0.75, 1.0); sweepLine(-0.38, 3, lv.accent, 0.75, 1.0);
+    // Citation CJ2+: faixa marinho em curva do nariz até a nacele, filete dourado acompanhando
+    curve((d) => -0.62 + 0.55 * sm01(0.8, L * 0.5, d) + 0.45 * sm01(L * 0.55, L - 0.6, d), 0.7, L - 0.6, 11, lv.stripe);
+    curve((d) => -0.74 + 0.55 * sm01(0.8, L * 0.5, d) + 0.45 * sm01(L * 0.55, L - 0.6, d), 1.0, L - 0.8, 4, lv.accent);
   }
   // janelas da cabine (pintadas; vidro escuro com reflexo)
   const wn = s.windows;
   for (let i = 0; i < wn.n; i++) {
     const d = wn.d0 + i * wn.pitch;
     for (const side of [1, -1]) {
-      const th = side === 1 ? 0.2 : Math.PI - 0.2;
+      const th = side === 1 ? (wn.th ?? 0.2) : Math.PI - (wn.th ?? 0.2);
       const w = (wn.w / L) * W, h = ((wn.h / s.R) / TAU) * H;
       const x = X(d) - w / 2, y = Y(th) - h / 2;
       const grd = g.createLinearGradient(0, y, 0, y + h);
@@ -170,6 +200,17 @@ function liveryTexture(s: FleetSpec, f: Fuselage, L: number, W: number) {
       g.fillStyle = grd;
       g.beginPath(); g.roundRect(x, y, w, h, Math.min(w, h) * 0.45); g.fill();
       g.strokeStyle = 'rgba(120,130,140,0.55)'; g.lineWidth = Math.max(1, W / 2048); g.stroke();
+    }
+  }
+  // janelas laterais do cockpit (atrás do para-brisa)
+  {
+    const prop2 = s.nose === 'prop';
+    const d0 = prop2 ? s.Ln + 0.12 : s.Ln * 0.86, d1 = prop2 ? s.Ln + 0.62 : s.Ln * 1.02;
+    for (const side of [1, -1]) {
+      const thc = prop2 ? 0.42 : 0.5;
+      const pts: [number, number][] = [[d0, thc + 0.18], [d1, thc + 0.26], [d1, thc - 0.08], [d0 + (d1 - d0) * 0.25, thc - 0.12]];
+      g.beginPath(); pts.forEach(([d, t], i) => { const y = Y(side === 1 ? t : Math.PI - t); if (i === 0) g.moveTo(X(d), y); else g.lineTo(X(d), y); }); g.closePath();
+      g.fillStyle = '#121a24'; g.fill(); g.strokeStyle = 'rgba(150,160,170,0.6)'; g.lineWidth = Math.max(1, W / 2048); g.stroke();
     }
   }
   // contorno da porta principal
@@ -203,9 +244,9 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const s = FLEET_SPECS[id];
   const prop = s.nose === 'prop';
   const spinnerLen = prop ? 0.38 : 0;
-  const L = s.envelope.length - spinnerLen;
+  const L = s.fusL ?? s.envelope.length - spinnerLen;
   const js = { L, R: s.R, Ln: s.Ln, Lt: s.Lt } as JetSpec;
-  const f = prop ? new PropFuselage(js) : new Fuselage(js);
+  const f = prop ? new PropFuselage(js) : new JetFuselage(js, s.noseTip ?? -0.3);
   const fx = (d: number) => f.x(d);
   const detail = opts.detail;
   const group = new THREE.Group(); group.name = `fleet-${id}`;
@@ -230,9 +271,9 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   paint.clippingPlanes = CUT_PLANES;
   const wingPaint = tr(new THREE.MeshPhysicalMaterial({ color: s.livery.scheme === 'dark-belly' ? '#e9eaeb' : '#eceded', roughness: 0.32, metalness: 0.12, clearcoat: 0.85, clearcoatRoughness: 0.1 }));
   const surfacePaint = tr(new THREE.MeshPhysicalMaterial({ color: '#d4d8dc', roughness: 0.36, metalness: 0.15, clearcoat: 0.6, clearcoatRoughness: 0.14 }));
-  const finColor = s.livery.scheme === 'dark-tail' || s.livery.scheme === 'dark-belly' ? s.livery.accent : s.livery.base;
+  const finColor = s.livery.fin;
   const finPaint = tr(new THREE.MeshPhysicalMaterial({ color: finColor, roughness: 0.26, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.07 }));
-  const nacellePaint = tr(new THREE.MeshPhysicalMaterial({ color: s.livery.scheme === 'dark-tail' ? '#f2f2f0' : s.livery.base, roughness: 0.25, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.06 }));
+  const nacellePaint = tr(new THREE.MeshPhysicalMaterial({ color: s.livery.nacelle, roughness: 0.25, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.06 }));
   const polished = tr(new THREE.MeshStandardMaterial({ color: '#d8dbde', roughness: 0.14, metalness: 1 }));
   const darkMetal = tr(new THREE.MeshStandardMaterial({ color: '#2a2f35', roughness: 0.38, metalness: 0.85 }));
   const ductMat = tr(new THREE.MeshStandardMaterial({ color: '#14171b', roughness: 0.6, metalness: 0.4, side: THREE.BackSide }));
@@ -256,8 +297,8 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   // para-brisa (painéis no nariz)
   {
     const panes: [number, number, number, number][] = prop
-      ? [[s.Ln * 0.6, s.Ln * 1.02, 0.1, 0.62], [s.Ln * 0.74, s.Ln * 1.1, 0.68, 1.02]]
-      : [[s.Ln * 0.58, s.Ln * 0.86, 0.06, 0.6], [s.Ln * 0.66, s.Ln * 0.92, 0.68, 1.04]];
+      ? [[s.Ln * 0.78, s.Ln * 1.04, 0.05, 0.78], [s.Ln * 0.84, s.Ln * 1.08, 0.82, 1.12]]
+      : [[s.Ln * 0.56, s.Ln * 0.84, 0.05, 0.58], [s.Ln * 0.64, s.Ln * 0.9, 0.66, 1.06]];
     const geos: THREE.BufferGeometry[] = [];
     for (const side of [1, -1]) for (const [a0, a1, t0, t1] of panes) {
       const pos: number[] = []; const nu = 10, nv = 8;
@@ -309,12 +350,21 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const xr = fx(s.wing.d);
   const station = (side: 1 | -1, t: number): Station => {
     const z = z0 + (zt - z0) * t; const dz = z - z0;
-    return { le: V(xr - dz * Math.tan(sweep), s.wing.y + dz * Math.tan(dih), side * z), chord: s.wing.root + (s.wing.tip - s.wing.root) * Math.pow(t, 0.9), up: V(0, 1, 0) };
+    // quebra do bordo de fuga (Embraer): trecho interno com bordo de fuga reto, externo enflechado até a ponta
+    const kk = s.wing.kink ?? 0;
+    let chord: number;
+    if (kk > 0) {
+      const zk = z0 + (zt - z0) * kk, ck = s.wing.root - (zk - z0) * Math.tan(sweep);
+      chord = t <= kk ? s.wing.root - dz * Math.tan(sweep) : ck + (s.wing.tip - ck) * ((t - kk) / (1 - kk));
+    } else chord = s.wing.root + (s.wing.tip - s.wing.root) * Math.pow(t, 0.9);
+    return { le: V(xr - dz * Math.tan(sweep), s.wing.y + dz * Math.tan(dih), side * z), chord, up: V(0, 1, 0) };
   };
   const wingAnchors: THREE.Vector3[] = [];
   for (const side of [1, -1] as const) {
     const wg = new THREE.Group(); wg.name = side === 1 ? 'wing-R' : 'wing-L'; systems.asas.add(wg);
-    const st = Array.from({ length: 8 }, (_, i) => station(side, i / 7));
+    const tk = s.wing.kink ?? 0;
+    const ts = tk > 0 ? [0, tk * 0.5, tk, tk + (1 - tk) * 0.25, tk + (1 - tk) * 0.5, tk + (1 - tk) * 0.75, 1] : Array.from({ length: 8 }, (_, i) => i / 7);
+    const st = ts.map((t) => station(side, t));
     const g = loft(st, foil, wl === 'none', false); if (side === -1) flipWinding(g);
     mesh(wg, g, wingPaint, 'wing', 'skin');
     if (wl !== 'none') {
@@ -366,7 +416,9 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const finSw = D2R(tail.finSweep);
   const finLeD = Math.min(finRootD0, L - 0.08 - tail.finTip - finH * Math.tan(finSw));
   const finSt: Station[] = [0, 0.5, 1].map((t) => ({ le: V(fx(finLeD + t * finH * Math.tan(finSw)), finRootY + t * finH, 0), chord: tail.finRoot + (tail.finTip - tail.finRoot) * t, up: V(0, 0, 1) }));
-  finSt.unshift({ le: V(finSt[0].le.x + 0.3, finRootY - 0.5, 0), chord: tail.finRoot * 1.06, up: V(0, 0, 1) });
+  // raiz embutida na fuselagem + filete dorsal (barbatana dorsal que nasce à frente da deriva)
+  const dorsal = tail.kind === 'T' ? s.envelope.length * 0.085 : 0.9;
+  finSt.unshift({ le: V(finSt[0].le.x + dorsal, finRootY - 0.42, 0), chord: tail.finRoot + dorsal * 0.92, up: V(0, 0, 1) });
   const finG = new THREE.Group(); finG.name = 'fin-group'; systems.empenagem.add(finG);
   mesh(finG, loft(finSt, thinFoil, true), finPaint, 'fin', 'skin');
   mesh(finG, loft(finSt.slice(1).map((q, i) => ({ ...q, le: q.le.clone(), chord: q.chord })).filter((_, i) => i < 3), trailingFoil(thinFoil, 0.68, 1.08), true, true), surfacePaint, 'rudder', 'skin');
@@ -376,8 +428,10 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   if (tail.kind === 'T') { stabRootLe = V(tipLe.x - 0.12, tipLe.y + 0.04, 0); stabY = tipLe.y + 0.04; }
   else { const d = L - 0.1 - tail.stabRoot - 0.25; stabY = (f.profile(d).top + f.profile(d).bot) / 2 + 0.05; stabRootLe = V(fx(d), stabY, 0); }
   const stabTipChord = tail.stabRoot * 0.52;
-  const room = (stabRootLe.x - fx(L - 0.08)) - stabTipChord;
-  const stabSw = Math.min(D2R(32), Math.atan(Math.max(0, room) / half));
+  // cauda em T: as pontas do estabilizador definem o comprimento total do tipo (vista cotada do fabricante)
+  const tailEnd = tail.kind === 'T' ? s.envelope.length - spinnerLen : L - 0.08;
+  const room = (stabRootLe.x - fx(tailEnd)) - stabTipChord;
+  const stabSw = Math.min(D2R(tail.kind === 'T' ? 38 : 32), Math.atan(Math.max(0, room) / half));
   const stabSt: Station[] = [-1, -0.5, 0, 0.5, 1].map((u) => {
     const a = Math.abs(u);
     return { le: V(stabRootLe.x - a * half * Math.tan(stabSw), stabY + a * half * (tail.kind === 'T' ? -0.03 : 0.06), u * half), chord: tail.stabRoot * (1 - 0.48 * a), up: V(0, 1, 0) };
@@ -395,7 +449,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   let propAnchor = V();
   if (e.kind === 'rear-turbofan') {
     const r = e.r, Le = e.len;
-    const ex = fx(e.d) + Le * 0.5, ey = s.R * 0.36, ez = s.R * 0.86 + r + 0.3;
+    const ex = fx(e.d) + Le * 0.5, ey = s.R * (e.yk ?? 0.36), ez = s.R * 0.86 + r + 0.3;
     for (const side of [1, -1] as const) {
       const eg = new THREE.Group(); eg.name = side === 1 ? 'engine-R' : 'engine-L'; eg.position.set(ex, ey, side * ez); systems.propulsao.add(eg);
       mesh(eg, lathe([[r, 0.3], [r * 1.0, Le * 0.36], [r * 0.97, Le * 0.62], [r * 0.86, Le * 0.86], [r * 0.74, Le]]), nacellePaint, 'nacelle', 'skin');

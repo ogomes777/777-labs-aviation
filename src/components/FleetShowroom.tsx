@@ -209,7 +209,7 @@ export default function FleetShowroom() {
             <h3 className="inspect__name">{item.name}</h3>
             <div className="inspect__tabs" role="tablist" aria-label="Modo do atlas">
               <button type="button" role="tab" aria-selected={mode === 'parts'} className="textbtn" onClick={() => ui.set({ inspectMode: 'parts', seat: null })}>Atlas 3D</button>
-              <button type="button" role="tab" aria-selected={mode !== 'parts'} className="textbtn" onClick={() => { preview.close(); ui.set({ inspectMode: 'plan', assembled: true, seat: null, fleetXray: false, inspectSystem: null }); }}>Planta</button>
+              <button type="button" role="tab" aria-selected={mode !== 'parts'} className="textbtn" onClick={() => { preview.close(); ui.set({ inspectMode: 'plan', assembled: true, seat: null, fleetXray: false, inspectSystem: null, inspectPart: null }); }}>Planta</button>
               <button type="button" className="textbtn inspect__close" onClick={close}>Fechar</button>
             </div>
             {mode === 'parts' ? (<>

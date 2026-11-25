@@ -41,8 +41,26 @@ Pacote V6: `simfly-fleet-pack/` (docs, data, starter, scripts, referências). Ag
 - Matrix: lado/posição da porta (não verificado), número de pás do exemplar (S/N), cockpit.
 - CJ2+: janelas, porta, cockpit e pintura do exemplar.
 
+## Rodada de fidelidade visual (pedido do usuário: "tem que ser igual aos aviões da landing SimFly")
+- Referências usadas (estudo, não publicadas): vistas superior/lateral **cotadas** das brochuras Embraer Praetor 500/600 (out/2020, p.19) renderizadas em 240 dpi; foto lateral Commons `Piper_PA-46_Matrix_Deurne_03.JPG` (CC BY-SA); imagens dos cards da landing SimFly (somente pintura/aparência — 4/5 são IA).
+- Medido (escala pela envergadura 21,50 m e comprimento 19,68/20,74 m): largura da fuselagem 2,33 m; fuselagem EMB-545 ≈ 17,85 m e EMB-550 ≈ 18,9 m (o comprimento total inclui as pontas do estabilizador em T); raiz da asa a ~6,5 m do nariz (P500), corda de raiz ~4,4 m com **quebra do bordo de fuga** (~30% da semienvergadura), enflechamento do bordo de ataque ~32°; naceles ~3,65 m centradas a 13,45 m (P500) / 14,55 m (P600), 2,0 m do eixo; deriva ~46° com filete dorsal; porta logo atrás do cockpit (4,4 m P500 / 4,65 m P600); janelas 5 (EMB-545) / 7 (EMB-550).
+- Aplicado no gerador: nariz longo e caído (Embraer/Citation), comprimento de fuselagem real + estabilizador até o comprimento total, quebra do bordo de fuga, filete dorsal, naceles maiores e mais altas, janelas laterais de cockpit, capô longo do Matrix, janelas do Matrix mais altas/maiores.
+- Pinturas fiéis aos cards da landing: Legacy 450 pérola + ventre marinho subindo à cauda, deriva/naceles marinho, filete dourado; Praetor 500 branco + dois frisos escuros; Praetor 600 branco + ventre/deriva pretos e naceles escuras; Matrix branco + ventre preto e filete dourado; CJ2+ branco + faixa marinho e dourado em curva.
+- Comparativos lado a lado gerados por `scripts/render-views.mjs` (vistas lateral/superior/frontal/3-4 do laboratório `/lab/preview`, só em dev).
+- Limite honesto: igualdade "de exemplar" (cada detalhe, matrícula, interior real) exige fotos/documentos dos aviões anunciados; as fotos da landing não servem como prova geométrica.
+
+## Atlas de peças (V6)
+- Toda malha tem ID de peça ligado ao catálogo; cobertura verificada no navegador: 100% dos itens listados no atlas têm malha real em cada aeronave (Matrix sem winglet/turbina; CJ2+ sem winglet; lavatório só no Legacy, conforme anúncio).
+- Novas micropeças: radome/capô, luzes de navegação, pitots/antenas, freios, cockpit (painel + assentos de tripulação), compressor/câmara/turbina/eixo/caixa de acessórios, cárter/cilindros/turbo/intercooler, tanques de combustível.
+- Selecionar uma peça isola a malha (demais em fantasma de raio-X) e reenquadra a câmera.
+
 ## Próxima ação concreta
-Ver seção "Resultados" — após QA visual, ajustar composição/hangar e registrar medições.
+Regenerar previews após cada mudança de geometria (`node scripts/render-previews.mjs fleet && python3 -I scripts/png2webp.py public/media/previews`), capturas 1440×900/390×844, build de produção e e2e.
 
 ## Resultados e medições reais
-(preenchido ao fim de cada rodada de QA)
+- tsc OK; vitest 19/19 (inclui `tests/unit/fleet.test.ts`: dados do anúncio, Matrix ≠ jato, CTA, envelopes, catálogo de previews com mídia existente).
+- Fluxo desktop (Playwright, swiftshader): hover → preview → clique → sistema isolado → raio-X → conjunto → abrir em camadas (rótulo vira "Montar aeronave") → órbita → planta → Escape volta um nível. OK.
+- Fluxo mobile 390×844: 1º toque arma o preview (data-armed=true, sem abrir o atlas); CTA confirma e abre o sistema. OK.
+- Carga da fila: 5 aeronaves construídas em ~10 s no headless (corrigida inanição do requestIdleCallback com `timeout`). 37–62 mil triângulos por aeronave.
+- Previews: 78 WebP (35 frota + 43 anatomia) ≈ 0,8 MB, carregados só ao abrir o card.
+- FPS: medição em swiftshader (CPU) não representa GPU real — medição em dispositivo físico pendente.

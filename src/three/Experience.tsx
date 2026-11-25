@@ -89,6 +89,18 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   // ---------- frota SimFly: cinco aeronaves anunciadas (ilustração paramétrica calibrada), construídas em idle ----------
   type Craft = FleetCraftBuild & { x: number };
   const lineup = useMemo(() => { const g = new THREE.Group(); g.name = 'lineup'; return g; }, []);
+  // marcas de estacionamento discretas no piso do hangar (linha de eixo + barra de parada por aeronave)
+  useEffect(() => {
+    const mat = new THREE.MeshBasicMaterial({ color: '#9aa0a8', transparent: true, opacity: 0.22, depthWrite: false });
+    const geos: THREE.BufferGeometry[] = [];
+    for (const f of FLEET) {
+      const L = FLEET_SPECS[f.id].envelope.length;
+      const c = new THREE.PlaneGeometry(L * 1.25, 0.12); c.rotateX(-Math.PI / 2); c.translate(f.x, env.gy + 0.006, 0); geos.push(c);
+      const bar = new THREE.PlaneGeometry(0.16, 3.2); bar.rotateX(-Math.PI / 2); bar.translate(f.x + L * 0.52 + 0.8, env.gy + 0.006, 0); geos.push(bar);
+    }
+    const meshes = geos.map((geo) => { const m = new THREE.Mesh(geo, mat); m.renderOrder = -2; m.name = 'parking-mark'; lineup.add(m); return m; });
+    return () => { meshes.forEach((m) => { lineup.remove(m); m.geometry.dispose(); }); mat.dispose(); };
+  }, [lineup, env.gy]);
   const crafts = useRef<Craft[]>([]);
   useEffect(() => {
     let cancelled = false;
@@ -159,7 +171,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
-  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
+  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
 
   // ---------- configuração do renderer ----------
   useEffect(() => {
@@ -244,13 +256,16 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const size = THREE.MathUtils.lerp(sz(i0), sz(i1), f0);
       const x = THREE.MathUtils.lerp(FLEET[i0].x, FLEET[i1].x, f0);
       const portrait = window.innerWidth < window.innerHeight;
-      const portraitK = portrait ? 1.9 : 1;
       const gy = env.gy;
-      const dist = Math.max(17, size * 1.75) * portraitK;
       const axis = THREE.MathUtils.lerp(FLEET_SPECS[FLEET[i0].id].axisH, FLEET_SPECS[FLEET[i1].id].axisH, f0);
-      // composição: aeronave no terço superior, acima dos cards de vidro (alvo abaixo do eixo, proporcional à distância)
-      tmp.vEye.set(x + 2 + size * 0.14, gy + 2.6 + size * 0.12, -dist);
-      tmp.vTarget.set(x + size * 0.04, gy + axis * 0.6 - dist * (portrait ? 0.15 : 0.085), 0);
+      // composição: aeronave no terço superior, acima dos cards de vidro (alvo abaixo do eixo, proporcional à distância).
+      // retrato: vista 3/4 frontal (comprimento aparente menor) e mais distante, entre o título e o card.
+      // retrato: o comprimento inteiro precisa caber na largura estreita → câmera mais distante, perfil lateral
+      const aspect = window.innerWidth / window.innerHeight;
+      const dist = portrait ? Math.max(24, (size * 0.56) / (Math.tan(THREE.MathUtils.degToRad(15)) * aspect)) : Math.max(17, size * 1.75);
+      tmp.fogK = Math.min(1, 34 / dist);
+      tmp.vEye.set(x + 2 + size * (portrait ? 0.2 : 0.14), gy + 2.6 + size * (portrait ? 0.3 : 0.12), -dist);
+      tmp.vTarget.set(x + size * 0.04, gy + axis * 0.6 - dist * (portrait ? 0.1 : 0.085), 0);
       const into = ramp(p, 0.0, 0.1);
       tmp.eye.lerp(tmp.vEye, into); tmp.target.lerp(tmp.vTarget, into);
       fov = THREE.MathUtils.lerp(fov, 30, into);
@@ -367,7 +382,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // névoa atmosférica
     const fog = scene.fog as THREE.FogExp2;
     fog.color.copy(skyW > 0.5 ? tmp.pal.haze ?? C('#efd3cc') : tmp.bg);
-    fog.density = skyA > 0.5 ? 0.0019 : epi > 0 ? 0.0018 : hangarW > 0.5 ? 0.012 : 0.0;
+    fog.density = skyA > 0.5 ? 0.0019 : epi > 0 ? 0.0018 : hangarW > 0.5 ? 0.012 * (inFleet ? tmp.fogK : 1) : 0.0;
 
     // hangar / estúdio
     env.hangar.group.visible = hangarW > 0.001 || (t > 1.75 && t < 3.25);
@@ -563,7 +578,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           if (!ref) { el.style.display = 'none'; return; }
           ref.obj.updateWorldMatrix(true, false);
           tmp.proj.copy(ref.local); ref.obj.localToWorld(tmp.proj); tmp.proj.project(cam);
-          el.style.display = tmp.proj.z > 1 ? 'none' : '';
+          const hx = (tmp.proj.x * 0.5 + 0.5) * size.width, hy = (-tmp.proj.y * 0.5 + 0.5) * size.height;
+          el.style.display = tmp.proj.z > 1 || hx < 18 || hx > size.width - 18 || hy < 70 || hy > size.height - 18 ? 'none' : '';
           el.style.transform = `translate3d(${((tmp.proj.x * 0.5 + 0.5) * size.width).toFixed(1)}px, ${((-tmp.proj.y * 0.5 + 0.5) * size.height).toFixed(1)}px, 0)`;
         });
       }
