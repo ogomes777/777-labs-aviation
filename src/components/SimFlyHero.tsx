@@ -22,10 +22,12 @@ export default function SimFlyHero() {
     if (!section) return;
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
     let raf=0, active=true, target=0, pending=false;
+    const fps30 = new URLSearchParams(window.location.search).get('fps') === '30';
+    const fps = fps30 ? 30 : 60;
     const seek=() => {
       if (!active || reduced.matches || !Number.isFinite(v.duration) || v.readyState<1 || v.seeking) return;
-      const t=Math.min(Math.max(0,v.duration-0.034),target*v.duration);
-      if (Math.abs(v.currentTime-t)>0.014) { try { v.currentTime=t; } catch {} }
+      const t=Math.min(Math.max(0,v.duration-1/fps),target*v.duration);
+      if (Math.abs(v.currentTime-t)>0.5/fps) { try { v.currentTime=t; } catch {} }
     };
     const draw=() => {
       raf=0;
@@ -52,6 +54,7 @@ export default function SimFlyHero() {
     const fallback=()=>{if(!pending){pending=true;v.src='/media/simfly-hero-original.mp4';v.load();}else el.dataset.videoError='true';};
     v.addEventListener('loadedmetadata',loaded);v.addEventListener('seeked',seek);v.addEventListener('error',fallback);
     window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);reduced.addEventListener('change',schedule);
+    if (fps30) { pending=true; v.src='/media/simfly-hero-original.mp4'; v.load(); }
     schedule();
     return()=>{active=false;cancelAnimationFrame(raf);v.removeEventListener('loadedmetadata',loaded);v.removeEventListener('seeked',seek);v.removeEventListener('error',fallback);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);reduced.removeEventListener('change',schedule);};
   },[]);
