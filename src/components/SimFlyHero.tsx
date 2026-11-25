@@ -11,7 +11,7 @@ export default function SimFlyHero() {
   const video = useRef<HTMLVideoElement>(null);
   const sim = useRef<HTMLSpanElement>(null);
   const fly = useRef<HTMLSpanElement>(null);
-  const words = useRef<HTMLDivElement>(null);
+  const words = useRef<HTMLHeadingElement>(null);
   const copies = useRef<HTMLDivElement>(null);
   const cloud = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLSpanElement>(null);
