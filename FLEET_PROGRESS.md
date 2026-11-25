@@ -72,3 +72,4 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - Carga da fila: 5 aeronaves construídas em ~10 s no headless (corrigida inanição do requestIdleCallback com `timeout`). 37–62 mil triângulos por aeronave.
 - Previews: 78 WebP (35 frota + 43 anatomia) ≈ 0,8 MB, carregados só ao abrir o card.
 - FPS: medição em swiftshader (CPU) não representa GPU real — medição em dispositivo físico pendente.
+- E2E completo (build de produção limpo, desktop+mobile, 25/11 noite): 26 passaram (todos os da Frota, galeria, destinos, formulário, API); 14 falharam. **Os mesmos 14 falham na base aprovada `simfly/v28-approved-baseline` intacta** (rodado em worktree separado): testes legados do herói/anatomia/resiliência que procuram o link "Explorar" e "zero canvas", removidos/alterados pela V28. Não são regressões da V6; atualizar esses testes é tarefa à parte (exige decidir o comportamento esperado do herói V28).
