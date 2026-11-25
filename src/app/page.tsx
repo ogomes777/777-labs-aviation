@@ -8,8 +8,7 @@ import DestinationsPanel from '@/components/DestinationsPanel';
 import CharterInquiry from '@/components/CharterInquiry';
 import Epilogue from '@/components/Epilogue';
 import ConsentBar from '@/components/ConsentBar';
-import HeroActions from '@/components/HeroActions';
-import LiteHeroVideo from '@/components/LiteHeroVideo';
+import SimFlyHero from '@/components/SimFlyHero';
 import FleetShowroom from '@/components/FleetShowroom';
 import Cursor from '@/components/Cursor';
 import Words from '@/components/Words';
@@ -35,19 +34,8 @@ export default function Page() {
       <Cursor />
       <TextReact />
       <main id="main">
-        <section id="top" className="chapter hero" data-chapter="0" style={L(260)} aria-labelledby="hero-title">
-          <div className="chapter__sticky">
-            <Still id="hero" scrim="linear-gradient(90deg, rgba(247,240,236,0.5), transparent 60%)" />
-            <LiteHeroVideo />
-            <div className="hero__copy">
-              <h1 id="hero-title" className="reveal" data-out="0.34" data-intro data-focus-target>
-                <Words>O mundo muda quando você escolhe</Words> <em><Words offset={6}>a altura.</Words></em>
-              </h1>
-              <p className="lede reveal" data-out="0.32" data-intro-fade>Tempo, espaço e liberdade, vistos de cima.</p>
-              <HeroActions />
-            </div>
-            <p className="hero__ascent reveal" data-in="0.4" data-out="0.8" data-split aria-hidden="true"><Words>Acima do ruído,</Words> <em><Words>o tempo é seu.</Words></em></p>
-          </div>
+        <section id="top" className="chapter hero simfly-hero" data-chapter="0" style={L(520)} aria-labelledby="hero-title">
+          <div className="chapter__sticky"><SimFlyHero /></div>
         </section>
 
         <section id="portal" className="chapter portal" data-chapter="1" style={L(240)} aria-label="Limiar">
