@@ -10,7 +10,7 @@ import { domRefs } from '@/experience/domRefs';
 import { buildJet, type JetBuild } from './jet/buildJet';
 import { CUT } from './jet/materials';
 import { createAnatomy24 } from './anatomy24';
-import { groundY, SPECS, type AircraftId } from './jet/spec';
+import { groundY, SPECS } from './jet/spec';
 import { createCloudPuffs, createCloudSea, createSkyDome, lerpPalette, SKY_PALETTES } from './env/sky';
 import { createEnvMaps, type EnvKey } from './env/envmaps';
 import { createBlueprintGrid, createHangar } from './env/hangar';
@@ -19,9 +19,10 @@ import { createContrails } from './env/contrails';
 import { createAirflow } from './env/airflow';
 import PostFX, { fx } from './PostFX';
 import { createTraffic } from './env/traffic';
-import { buildHeli } from './jet/heli';
-import { applyInspect, heliEntries, jetEntries, type InspectEntry } from './inspector';
-import { FLEET, type FleetId } from '@/content/fleet';
+import { applyInspect } from './inspector';
+import { buildFleetCraft, type FleetCraftBuild } from './fleet/airframe';
+import { FLEET_SPECS } from './fleet/specs';
+import { FLEET } from '@/content/fleet';
 import { DESTINATIONS } from '@/content/destinations';
 import type { PartId, VariantId, ViewId } from '@/content/site';
 
@@ -85,41 +86,40 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   useEffect(() => { jet.group.add(airflow.mesh); return () => { jet.group.remove(airflow.mesh); airflow.dispose(); }; }, [jet, airflow]);
   const flow = useRef({ sea: 0, puff: 0, fan: 0 });
 
-  // ---------- frota: fila de aeronaves no hangar, construída progressivamente em idle ----------
-  type Craft = { id: FleetId; group: THREE.Group; fans: { obj: THREE.Object3D; axis: 'x' | 'y' | 'z'; disc?: THREE.Mesh }[]; entries: InspectEntry[]; x: number; size: number; seats: { pos: THREE.Vector3; facing: 1 | -1 }[]; floorY: number; dispose: () => void };
+  // ---------- frota SimFly: cinco aeronaves anunciadas (ilustração paramétrica calibrada), construídas em idle ----------
+  type Craft = FleetCraftBuild & { x: number };
   const lineup = useMemo(() => { const g = new THREE.Group(); g.name = 'lineup'; return g; }, []);
   const crafts = useRef<Craft[]>([]);
-  const mainCraft = useMemo<Craft>(() => ({ id: 'XR', group: jet.group, fans: jet.fans.map((o) => ({ obj: o, axis: 'x' as const })), entries: jetEntries(jet.group, false), x: 0, size: jet.spec.L, seats: jet.cabin.seats, floorY: jet.cabin.floorY, dispose: () => {} }), [jet]);
   useEffect(() => {
     let cancelled = false;
-    const todo = FLEET.filter((f) => f.id !== 'XR');
+    const todo = [...FLEET];
     // prioridade adaptativa: ociosidade enquanto o visitante está no céu; urgente ao se aproximar do hangar/frota
     const ric = (window as unknown as { requestIdleCallback?: (c: () => void, o?: object) => number }).requestIdleCallback;
     const idle = (cb: () => void) => {
-      const wait = () => { if (cancelled) return; if (frame.t > 1.1) window.setTimeout(cb, 60); else if (ric) ric(() => window.setTimeout(wait, 400)); else window.setTimeout(wait, 500); };
+      const wait = () => { if (cancelled) return; if (frame.t > 1.1) window.setTimeout(cb, 60); else if (ric) ric(() => window.setTimeout(wait, 400), { timeout: 1500 }); else window.setTimeout(wait, 500); };
       wait();
     };
     const next = () => {
       if (cancelled) return;
       const item = todo.shift(); if (!item) return;
-      let c: Craft;
-      if (item.id === 'H') {
-        const h = buildHeli({ textureSize: 1024 });
-        h.group.position.set(item.x, groundY(SPECS.XR) + 1.81, 0);
-        c = { id: 'H', group: h.group, fans: h.fans, entries: heliEntries(h.group), x: item.x, size: h.length, seats: [], floorY: 0, dispose: h.dispose };
-      } else {
-        const b = buildJet(item.id as AircraftId, { textureSize: 1024, detail: 0.55 });
-        b.group.position.set(item.x, groundY(SPECS.XR) - groundY(b.spec), 0);
-        c = { id: item.id, group: b.group, fans: b.fans.map((o) => ({ obj: o, axis: 'x' as const })), entries: jetEntries(b.group, b.spec.kind === 'turboprop'), x: item.x, size: b.spec.L, seats: b.cabin.seats, floorY: b.cabin.floorY, dispose: b.dispose };
-      }
+      let b: FleetCraftBuild;
+      try { b = buildFleetCraft(item.id, { textureSize: quality === 'high' ? 2048 : 1024, detail: quality === 'high' ? 0.85 : 0.6 }); }
+      catch (err) { console.error('[simfly] falha ao construir', item.id, err); idle(next); return; }
+      b.group.position.set(item.x, env.gy + b.axisH, 0);
+      const c: Craft = Object.assign(b, { x: item.x });
       lineup.add(c.group);
       // compila os shaders desta aeronave fora da thread principal antes de ela aparecer
-      const done = () => { crafts.current.push(c); idle(next); };
+      const done = () => {
+        if (cancelled) { lineup.remove(c.group); c.dispose(); return; }
+        crafts.current.push(c);
+        if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777fleet: unknown }).__777fleet = crafts.current;
+        idle(next);
+      };
       (gl.compileAsync ? gl.compileAsync(c.group, camera, scene) : Promise.resolve()).then(done, done);
     };
     const start = window.setTimeout(() => idle(next), 1800);
     return () => { cancelled = true; window.clearTimeout(start); crafts.current.forEach((c) => { lineup.remove(c.group); c.dispose(); }); crafts.current = []; };
-  }, [lineup, quality, gl, camera, scene]);
+  }, [lineup, quality, gl, camera, scene, env.gy]);
   const traffic = useMemo(() => createTraffic(), []);
   useEffect(() => () => traffic.dispose(), [traffic]);
   const inspectP = useRef(0);
@@ -159,7 +159,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
-  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
+  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
 
   // ---------- configuração do renderer ----------
   useEffect(() => {
@@ -235,43 +235,62 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
     if (inFleet) {
       const p = raw - 3;
-      const all = [mainCraft, ...crafts.current].sort((a, b) => b.x - a.x);
+      const all = crafts.current;
       const idx = frame.fleetSwipe ? frame.fleet : fleetDwell(p);
+      tmp.fleetIdx = idx;
       const i0 = Math.floor(Math.min(idx, FLEET.length - 1)), f0 = idx - i0;
-      const xA = FLEET[i0].x, xB = FLEET[Math.min(FLEET.length - 1, i0 + 1)].x;
-      const sz = (id: FleetId) => all.find((c) => c.id === id)?.size ?? 20;
-      const size = THREE.MathUtils.lerp(sz(FLEET[i0].id), sz(FLEET[Math.min(FLEET.length - 1, i0 + 1)].id), f0);
-      const x = THREE.MathUtils.lerp(xA, xB, f0);
-      const portraitK = size.valueOf() && (window.innerWidth < window.innerHeight ? 1.9 : 1);
-      const dist = Math.max(22, size * 1.5) * portraitK;
-      tmp.vEye.set(x + 2 + size * 0.12, 1.6, -dist);
-      tmp.vTarget.set(x + size * 0.05, portraitK > 1 ? -4.4 : -1.4, 0);
+      const i1 = Math.min(FLEET.length - 1, i0 + 1);
+      const sz = (k: number) => FLEET_SPECS[FLEET[k].id].envelope.length;
+      const size = THREE.MathUtils.lerp(sz(i0), sz(i1), f0);
+      const x = THREE.MathUtils.lerp(FLEET[i0].x, FLEET[i1].x, f0);
+      const portrait = window.innerWidth < window.innerHeight;
+      const portraitK = portrait ? 1.9 : 1;
+      const gy = env.gy;
+      const dist = Math.max(17, size * 1.75) * portraitK;
+      const axis = THREE.MathUtils.lerp(FLEET_SPECS[FLEET[i0].id].axisH, FLEET_SPECS[FLEET[i1].id].axisH, f0);
+      // composição: aeronave no terço superior, acima dos cards de vidro (alvo abaixo do eixo, proporcional à distância)
+      tmp.vEye.set(x + 2 + size * 0.14, gy + 2.6 + size * 0.12, -dist);
+      tmp.vTarget.set(x + size * 0.04, gy + axis * 0.6 - dist * (portrait ? 0.15 : 0.085), 0);
       const into = ramp(p, 0.0, 0.1);
       tmp.eye.lerp(tmp.vEye, into); tmp.target.lerp(tmp.vTarget, into);
       fov = THREE.MathUtils.lerp(fov, 30, into);
-      // inspeção: aproxima em 3/4
+      // inspeção: atlas da aeronave (órbita 360°, sistema isolado, planta, vista sentado)
       const ins = st.inspect ? all.find((c) => c.id === st.inspect) : null;
       tmp.viewW = damp(tmp.viewW, ins ? 1 : 0, 2.6, dt);
       if (ins) {
         const gp = ins.group.position;
         if (st.inspectMode === 'plan' && ins.seats.length) {
           // planta: de cima, teto cortado, nariz à esquerda
-          tmp.vEye.set(ins.x - (portraitK > 1 ? 0 : ins.size * 0.2), ins.size * (portraitK > 1 ? 2.2 : 1.05), portraitK > 1 ? 0.01 : -3);
-          tmp.vTarget.set(ins.x - (portraitK > 1 ? 0 : ins.size * 0.2), gp.y + ins.floorY, 0);
-          if (portraitK > 1) { tmp.vEye.x -= 0.6; }
+          tmp.vEye.set(ins.x - (portrait ? 0 : ins.size * 0.2), gp.y + ins.size * (portrait ? 2.2 : 1.05), portrait ? 0.01 : -3);
+          tmp.vTarget.set(ins.x - (portrait ? 0 : ins.size * 0.2), gp.y + ins.floorY, 0);
+          if (portrait) { tmp.vEye.x -= 0.6; }
         } else if (st.inspectMode === 'seat' && st.seat !== null && ins.seats[st.seat]) {
           // vista sentado: altura dos olhos, olhando para frente e levemente para a janela
           const se = ins.seats[st.seat];
-          tmp.vEye.set(gp.x + se.pos.x - se.facing * 0.18, gp.y + ins.floorY + 1.12, se.pos.z * 0.92);
+          tmp.vEye.set(gp.x + se.pos.x - se.facing * 0.18, gp.y + ins.floorY + (ins.id === 'matrix' ? 0.92 : 1.12), se.pos.z * 0.92);
           tmp.vTarget.set(tmp.vEye.x + se.facing * 3.2, tmp.vEye.y - 0.22, se.pos.z * 1.35);
         } else {
-          tmp.vEye.set(ins.x + ins.size * 0.62, 4.2, -ins.size * 1.05 * portraitK);
-          tmp.vTarget.set(ins.x - ins.size * (portraitK > 1 ? 0.04 : 0.24), portraitK > 1 ? -2.6 : 0.6, 0);
+          const b = st.inspectSystem ? ins.bounds[st.inspectSystem] : null;
+          const c = tmp.oc.set(gp.x, gp.y - ins.axisH * 0.12, gp.z);
+          if (b) c.set(gp.x + b.center.x, gp.y + b.center.y, gp.z + b.center.z);
+          const rad = b ? b.radius : ins.size * 0.55;
+          const d = (b ? rad * 2.5 + 1.4 : rad * 2.2) * (portrait ? 1.65 : 1);
+          const yaw = -1.04 + st.fleetYaw, pitch = clamp(0.2 + st.fleetPitch, -0.12, 1.35);
+          tmp.vEye.set(c.x + d * Math.cos(pitch) * Math.cos(yaw), c.y + d * Math.sin(pitch), c.z + d * Math.cos(pitch) * Math.sin(yaw));
+          tmp.vTarget.copy(c);
+          // composição: libera o painel (direita no desktop, base no celular)
+          if (!portrait) { tmp.rv.copy(tmp.vTarget).sub(tmp.vEye).cross(THREE.Object3D.DEFAULT_UP).normalize().multiplyScalar(rad * 0.45); tmp.vEye.add(tmp.rv); tmp.vTarget.add(tmp.rv); }
+          else { tmp.vEye.y -= rad * 0.5; tmp.vTarget.y -= rad * 0.5; }
         }
       }
       if (tmp.viewW > 0.001 && (ins || tmp.viewW > 0.01)) { tmp.eye.lerp(tmp.vEye, tmp.viewW); tmp.target.lerp(tmp.vTarget, tmp.viewW); fov = THREE.MathUtils.lerp(fov, st.inspectMode === 'seat' ? 56 : st.inspectMode === 'plan' ? 32 : 36, tmp.viewW); }
-      // a câmera da poltrona amortece mais devagar: entra pela planta e desce até o assento
-      if (ins && st.inspectMode !== 'parts') { tmp.camEye = tmp.camEye ?? tmp.eye.clone(); tmp.camEye.lerp(tmp.eye, 1 - Math.exp(-3.2 * dt)); tmp.eye.copy(tmp.camEye); } else tmp.camEye = null;
+      // câmera do atlas amortecida (troca de sistema/planta sem salto; órbita com inércia curta)
+      if (ins) {
+        tmp.camEye = tmp.camEye ?? tmp.eye.clone(); tmp.camTgt = tmp.camTgt ?? tmp.target.clone();
+        const k = 1 - Math.exp(-(st.motion === 'reduced' ? 30 : st.inspectMode === 'parts' ? 5 : 3.2) * dt);
+        tmp.camEye.lerp(tmp.eye, k); tmp.camTgt.lerp(tmp.target, k);
+        tmp.eye.copy(tmp.camEye); tmp.target.copy(tmp.camTgt);
+      } else { tmp.camEye = null; tmp.camTgt = null; }
     }
     // perspectivas manuais no hangar (Exterior / Cabine / Detalhes)
     const viewActive = st.view && !inFleet && t > 2.05 && t < 2.99 ? 1 : 0;
@@ -388,7 +407,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
     // ----- jato -----
     const jg = jet.group;
-    jg.visible = t < 6.31 || epi > 0;
+    // V6: no hangar só aparecem as cinco aeronaves anunciadas; o avião conceitual segue no restante do filme
+    jg.visible = (t < 6.31 || epi > 0) && !inFleet;
     const gearDown = t > 1.76 && t < 7 ? 1 : 0;
     jet.parts.trem.visible = gearDown > 0;
     if (epi > 0) {
@@ -428,7 +448,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
     if (inFleet && st.inspect && st.inspectMode !== 'parts') {
       // planta: teto cortado na linha das janelas; vista sentado: teto volta quando a câmera está abaixo dele
-      cut = st.inspectMode === 'seat' && cam.position.y < 0.9 ? 100 : 0.32;
+      const insC = crafts.current.find((c) => c.id === st.inspect);
+      const cy = insC ? insC.group.position.y + insC.cutY : 0.32;
+      cut = st.inspectMode === 'seat' && cam.position.y < cy + 0.55 ? 100 : cy;
     }
     if (anatomyActive && st.part === 'cabine') cut = 100;
     CUT.constant = cut;
@@ -509,20 +531,44 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
     // ----- frota: visibilidade, rotores ociosos, desmontagem -----
     lineup.visible = hangarW > 0.01 && t < 3.2;
-    crafts.current.forEach((c) => { c.fans.forEach((fa) => { if (fa.axis === 'y') fa.obj.rotation.y = time * (c.id === 'H' ? 0.6 : 0.7); else if (fa.axis === 'z') fa.obj.rotation.z = time * 1.2; else fa.obj.rotation.x = time * 0.7; if (fa.disc) (fa.disc.material as THREE.MeshBasicMaterial).opacity = 0; }); });
     const target = st.inspect && !st.assembled ? 1 : 0;
     const prevP = inspectP.current;
-    inspectP.current = clamp(prevP + Math.sign(target - prevP) * dt / 2.4);
+    inspectP.current = clamp(prevP + Math.sign(target - prevP) * dt / (st.motion === 'reduced' ? 0.25 : 2.0));
+    const xrT = inFleet && st.inspect && st.fleetXray && st.inspectMode === 'parts' ? 1 : 0;
+    tmp.xray = xrT === 0 && tmp.xray < 0.01 ? 0 : damp(tmp.xray, xrT, st.motion === 'reduced' ? 40 : 4.5, dt);
     if (inFleet || prevP > 0) {
-      const all = [mainCraft, ...crafts.current];
-      all.forEach((c) => { if (c.id === st.inspect || (prevP > 0 && c.id === (tmp as unknown as { lastIns?: string }).lastIns)) applyInspect(c.entries, inspectP.current, st.inspectPart, time); });
-      if (st.inspect) (tmp as unknown as { lastIns?: string }).lastIns = st.inspect;
+      crafts.current.forEach((c) => {
+        if (c.id === st.inspect || (prevP > 0 && c.id === tmp.lastIns)) applyInspect(c.entries, inspectP.current, st.fleetPreview, time);
+        c.setXray(c.id === st.inspect ? tmp.xray : 0);
+        c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
+      });
+      if (st.inspect) tmp.lastIns = st.inspect;
+    }
+
+    // ----- V6: hotspots da aeronave ativa (pré-seleção) projetados no DOM -----
+    const hl = domRefs.fleetHotLayer;
+    if (hl) {
+      const settled = Math.abs(tmp.fleetIdx - Math.round(tmp.fleetIdx)) < 0.09;
+      const tgt = st.inspect ? crafts.current.find((c) => c.id === st.inspect) : settled ? crafts.current.find((c) => c.id === FLEET[Math.round(clamp(tmp.fleetIdx, 0, FLEET.length - 1))].id) : undefined;
+      const show = !!tgt && inFleet && (st.inspect ? st.inspectMode === 'parts' && !st.inspectSystem && tmp.viewW > 0.85 && inspectP.current < 0.02 : tmp.viewW < 0.05 && ramp(raw - 3, 0.0, 0.1) > 0.98);
+      hl.dataset.visible = show ? 'true' : 'false';
+      if (show && tgt) {
+        hl.dataset.aircraft = tgt.id;
+        domRefs.fleetHotspots.forEach((el, sid) => {
+          const ref = tgt.anchorRefs[sid];
+          if (!ref) { el.style.display = 'none'; return; }
+          ref.obj.updateWorldMatrix(true, false);
+          tmp.proj.copy(ref.local); ref.obj.localToWorld(tmp.proj); tmp.proj.project(cam);
+          el.style.display = tmp.proj.z > 1 ? 'none' : '';
+          el.style.transform = `translate3d(${((tmp.proj.x * 0.5 + 0.5) * size.width).toFixed(1)}px, ${((-tmp.proj.y * 0.5 + 0.5) * size.height).toFixed(1)}px, 0)`;
+        });
+      }
     }
 
     // ----- marcadores de poltrona (DOM) -----
     const seatLayer = domRefs.seatLayer;
     if (seatLayer) {
-      const insC = st.inspect ? [mainCraft, ...crafts.current].find((c) => c.id === st.inspect) : null;
+      const insC = st.inspect ? crafts.current.find((c) => c.id === st.inspect) : null;
       const show = !!insC && inFleet && st.inspectMode === 'plan' && tmp.viewW > 0.85;
       seatLayer.dataset.visible = show ? 'true' : 'false';
       if (show && insC) domRefs.seats.forEach((el, i) => {

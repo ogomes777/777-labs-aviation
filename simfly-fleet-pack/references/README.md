@@ -1,0 +1,2 @@
+# Referências
+01–03: prints comerciais; 04: hangar existente; 05–06: estudos de anatomia enviados pelo usuário. `approved-assets` contém recortes narrativos e cursor disponíveis no patch V23, não modelos 3D nem pinturas confirmadas dos cinco exemplares. Preservar originais. Usar referências do cliente para estudo; não copiar material comercial de terceiros sem autorização. `baseline/` é histórico, não instalação automática.

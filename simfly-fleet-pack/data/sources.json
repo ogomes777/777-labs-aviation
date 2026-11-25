@@ -1,0 +1,82 @@
+{
+  "S01": {
+    "title": "Portfólio SimFly (anúncios; instantâneo indexado e prints do usuário)",
+    "url": "https://simfly.site/#portfolio"
+  },
+  "S02": {
+    "title": "ANAC avaliação operacional EMB-550/545 rev.12 (2024)",
+    "url": "https://www.gov.br/anac/pt-br/assuntos/regulados/aeronaves/avaliacao-operacional/EMB_550_545_OE_Report_rev_12.pdf"
+  },
+  "S03": {
+    "title": "ANAC especificação de aeronave EMB-545/550",
+    "url": "https://sistemas.anac.gov.br/certificacao/Produtos/Espec/EA-2014T04-12i.pdf"
+  },
+  "S04": {
+    "title": "Embraer notícia histórica: desempenho Praetor 500/600",
+    "url": "https://www.embraer.com/media-center/en/?detail=14015&mediatype=NEWS"
+  },
+  "S05": {
+    "title": "Embraer notícia histórica: certificação Praetor 600",
+    "url": "https://status.embraer.com/media-center/pt/?detail=19069&mediatype=NEWS"
+  },
+  "S06": {
+    "title": "Piper: história oficial (Matrix não pressurizado, pistão)",
+    "url": "https://www.piper.com/company/"
+  },
+  "S07": {
+    "title": "CAA: documento de tipo PA-46, Matrix PA-46R-350T",
+    "url": "https://www.caa.co.uk/Documents/Download/3934/ca692457-336e-4190-840e-cd26cf498935/3614"
+  },
+  "S08": {
+    "title": "AOPA: avaliação Matrix, motor e configuração",
+    "url": "https://www.aopa.org/news-and-media/all-news/2008/february/pilot/piper-matrix-graduate-tool"
+  },
+  "S09": {
+    "title": "EASA: certificado de tipo família Citation 525",
+    "url": "https://www.easa.europa.eu/en/document-library/type-certificates/aircraft-cs-25-cs-22-cs-23-cs-vla-cs-lsa/easaima078-525-citation"
+  },
+  "S10": {
+    "title": "FAA: manual educacional de estrutura (não IPC de modelo)",
+    "url": "https://www.faa.gov/regulations_policies/handbooks_manuals/aviation/FAA-H-8083-31B_Aviation_Maintenance_Technician_Handbook.pdf"
+  },
+  "S11": {
+    "title": "FAA: manual educacional de motores",
+    "url": "https://www.faa.gov/regulationspolicies/handbooksmanuals/aviation/faa-h-8083-32b-aviation-maintenance-technician"
+  },
+  "S12": {
+    "title": "Textron: exemplar CJ2+ 2007 diferente do anúncio, referência de categoria apenas",
+    "url": "https://txtav.com/-/media/textron-aviation/images/preowned/525a0369/525a-0369_marketing-photos--specs.pdf"
+  },
+  "S13": {
+    "title": "Embraer: anúncio das versões E em 2026; não misturar com 2019/2024",
+    "url": "https://embraer.com/media-center/?detail=24368&mediatype=NEWS"
+  },
+  "S14": {
+    "title": "Embraer: material histórico Praetor 600 arquivado SEC",
+    "url": "https://www.sec.gov/Archives/edgar/data/1355444/000129281419001398/embraer20190418_6k.htm"
+  },
+  "S15": {
+    "title": "AOPA/Piper Flyer: história da família PA-46",
+    "url": "https://www.piperflyer.com/the-making-of-the-piper-m-class-a-history-of-pipers-pa-46/"
+  },
+  "S16": {
+    "title": "Claude Code: skills e subagents",
+    "url": "https://code.claude.com/docs/en/skills"
+  },
+  "S17": {
+    "title": "Claude Code: subagents",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  "S18": {
+    "title": "EASA: identificação CJ2+ e motor (certificado de ruído)",
+    "url": "https://www.easa.europa.eu/lv/downloads/8259/en"
+  },
+  "S19": {
+    "title": "Brochura histórica Legacy 450 hospedada por terceiro; não usar como ficha do exemplar",
+    "url": "https://globalaircraft.us/wp-content/uploads/2024/09/LEGACY450_BROCHURE.pdf"
+  },
+  "S20": {
+    "title": "Embraer: notícia com alcance Praetor 500",
+    "url": "https://www.embraer.com/media-center/en?detail=21530&mediatype=NEWS"
+  }
+}

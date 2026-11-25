@@ -1,0 +1,283 @@
+{
+  "version": 1,
+  "notes": [
+    "Catálogo inicial de previews anteriores à seleção.",
+    "media.status=placeholder significa que o Claude precisa gerar/coletar o asset final no checkout.",
+    "section=anatomy refere-se ao capítulo superior do avião único; section=fleet refere-se ao hangar/frota."
+  ],
+  "sections": {
+    "anatomy": {
+      "aircraftId": "concept-anatomy",
+      "systems": [
+        {
+          "nodeId": "fuselagem",
+          "label": "Fuselagem",
+          "function": "Estrutura principal que integra cabine, cockpit e união com asas e empenagem.",
+          "media": {
+            "kind": "png",
+            "status": "placeholder",
+            "suggestedAsset": "previews/anatomy/fuselagem.png"
+          }
+        },
+        {
+          "nodeId": "asas",
+          "label": "Asas",
+          "function": "Geram sustentação e alojam superfícies de controle e, em alguns casos, combustível ou mecanismos associados.",
+          "media": {
+            "kind": "png",
+            "status": "placeholder",
+            "suggestedAsset": "previews/anatomy/asas.png"
+          }
+        },
+        {
+          "nodeId": "motores",
+          "label": "Motores",
+          "function": "Sistema propulsivo responsável por gerar empuxo ou potência para deslocar a aeronave.",
+          "media": {
+            "kind": "video",
+            "status": "placeholder",
+            "suggestedAsset": "previews/anatomy/motores-loop.webm"
+          }
+        },
+        {
+          "nodeId": "empenagem",
+          "label": "Empenagem",
+          "function": "Conjunto estabilizador de cauda que controla estabilidade direcional e longitudinal.",
+          "media": {
+            "kind": "png",
+            "status": "placeholder",
+            "suggestedAsset": "previews/anatomy/empenagem.png"
+          }
+        },
+        {
+          "nodeId": "trem-pouso",
+          "label": "Trem de pouso",
+          "function": "Sistema de apoio, absorção de impacto e manobra em solo.",
+          "media": {
+            "kind": "png",
+            "status": "placeholder",
+            "suggestedAsset": "previews/anatomy/trem-pouso.png"
+          }
+        },
+        {
+          "nodeId": "cabine",
+          "label": "Cabine",
+          "function": "Ambiente interno destinado a passageiros, cockpit e áreas funcionais do interior.",
+          "media": {
+            "kind": "video",
+            "status": "placeholder",
+            "suggestedAsset": "previews/anatomy/cabine-loop.webm"
+          }
+        }
+      ],
+      "subsystems": {
+        "fuselagem": [
+          {
+            "nodeId": "parabrisa",
+            "label": "Para-brisa",
+            "function": "Superfície transparente frontal do cockpit."
+          },
+          {
+            "nodeId": "janelas",
+            "label": "Janelas",
+            "function": "Aberturas transparentes da cabine e cockpit."
+          },
+          {
+            "nodeId": "carenagem",
+            "label": "Carenagem",
+            "function": "Painéis externos de fechamento e acabamento aerodinâmico."
+          },
+          {
+            "nodeId": "longarinas-cavernas",
+            "label": "Longarinas e cavernas",
+            "function": "Elementos estruturais internos da fuselagem."
+          },
+          {
+            "nodeId": "radome",
+            "label": "Radome / aviônicos",
+            "function": "Abrigo frontal de sensores e equipamentos aviônicos."
+          }
+        ],
+        "asas": [
+          {
+            "nodeId": "aileron",
+            "label": "Aileron",
+            "function": "Controle de rolagem."
+          },
+          {
+            "nodeId": "flap",
+            "label": "Flap",
+            "function": "Incremento de sustentação em baixa velocidade."
+          },
+          {
+            "nodeId": "slat",
+            "label": "Slat",
+            "function": "Auxilia desempenho em baixa velocidade."
+          },
+          {
+            "nodeId": "spoiler",
+            "label": "Spoiler",
+            "function": "Reduz sustentação/auxilia frenagem aerodinâmica."
+          },
+          {
+            "nodeId": "winglet",
+            "label": "Winglet",
+            "function": "Redução de arrasto induzido na ponta da asa."
+          }
+        ],
+        "motores": [
+          {
+            "nodeId": "fan",
+            "label": "Fan/Hélice",
+            "function": "Elemento primário de geração de fluxo/tração, conforme a arquitetura do propulsor."
+          },
+          {
+            "nodeId": "compressor",
+            "label": "Compressor",
+            "function": "Compressão do ar no ciclo do turbofan."
+          },
+          {
+            "nodeId": "combustao",
+            "label": "Câmara de combustão",
+            "function": "Mistura e queima combustível-ar."
+          },
+          {
+            "nodeId": "turbina",
+            "label": "Turbina",
+            "function": "Extrai energia dos gases quentes."
+          },
+          {
+            "nodeId": "exaustao",
+            "label": "Exaustão",
+            "function": "Saída dos gases/empuxo residual."
+          }
+        ]
+      }
+    },
+    "fleet": {
+      "defaults": {
+        "systems": [
+          {
+            "nodeId": "fuselage",
+            "label": "Fuselagem",
+            "function": "Estrutura principal do exemplar selecionado.",
+            "media": {
+              "kind": "png",
+              "status": "placeholder"
+            }
+          },
+          {
+            "nodeId": "wing",
+            "label": "Asa",
+            "function": "Superfície principal de sustentação do exemplar.",
+            "media": {
+              "kind": "png",
+              "status": "placeholder"
+            }
+          },
+          {
+            "nodeId": "propulsion",
+            "label": "Propulsão",
+            "function": "Sistema de motorização ou motopropulsão da aeronave.",
+            "media": {
+              "kind": "video",
+              "status": "placeholder"
+            }
+          },
+          {
+            "nodeId": "tail",
+            "label": "Empenagem",
+            "function": "Conjunto de cauda e estabilização.",
+            "media": {
+              "kind": "png",
+              "status": "placeholder"
+            }
+          },
+          {
+            "nodeId": "gear",
+            "label": "Trem de pouso",
+            "function": "Sistema de operação em solo.",
+            "media": {
+              "kind": "png",
+              "status": "placeholder"
+            }
+          },
+          {
+            "nodeId": "cabin",
+            "label": "Cabine",
+            "function": "Interior da aeronave e seus ambientes.",
+            "media": {
+              "kind": "video",
+              "status": "placeholder"
+            }
+          }
+        ]
+      },
+      "aircraft": [
+        {
+          "aircraftId": "legacy-450",
+          "label": "Legacy 450",
+          "overrides": {
+            "propulsion": {
+              "label": "Propulsão Honeywell HTF7500E"
+            },
+            "cabin": {
+              "label": "Cabine 8 pax + 1 toilet"
+            }
+          }
+        },
+        {
+          "aircraftId": "praetor-500",
+          "label": "Praetor 500",
+          "overrides": {
+            "propulsion": {
+              "label": "Propulsão HTF7500E evoluída"
+            },
+            "cabin": {
+              "label": "Cabine midsize refinada"
+            }
+          }
+        },
+        {
+          "aircraftId": "praetor-600",
+          "label": "Praetor 600",
+          "overrides": {
+            "propulsion": {
+              "label": "Propulsão HTF7500E de longo alcance"
+            },
+            "cabin": {
+              "label": "Cabine super midsize"
+            }
+          }
+        },
+        {
+          "aircraftId": "matrix",
+          "label": "Piper Matrix",
+          "overrides": {
+            "propulsion": {
+              "label": "Motor Lycoming TIO-540-AE2A + hélice"
+            },
+            "wing": {
+              "label": "Asa baixa monoplano"
+            },
+            "cabin": {
+              "label": "Cabine pressurizada? Não. Ilustração deve sinalizar não pressurizada"
+            }
+          }
+        },
+        {
+          "aircraftId": "citation-cj2-plus",
+          "label": "Citation CJ2+",
+          "overrides": {
+            "propulsion": {
+              "label": "Propulsão Williams FJ44-3A-24"
+            },
+            "cabin": {
+              "label": "Cabine leve executiva"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

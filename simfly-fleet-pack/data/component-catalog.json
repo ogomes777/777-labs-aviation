@@ -1,0 +1,2130 @@
+[
+  {
+    "id": "structure.skin",
+    "system": "structure",
+    "label": "Revestimento estrutural",
+    "description": "Reveste a célula e participa da distribuição de cargas conforme projeto",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "juntas",
+      "fixadores"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__skin"
+  },
+  {
+    "id": "structure.frames",
+    "system": "structure",
+    "label": "Cavernas",
+    "description": "Mantêm a seção transversal e transmitem cargas",
+    "applicability": "all",
+    "subcomponents": [
+      "arcos",
+      "reforços",
+      "uniões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__frames"
+  },
+  {
+    "id": "structure.stringers",
+    "system": "structure",
+    "label": "Longarinas longitudinais da fuselagem",
+    "description": "Reforçam o revestimento ao longo da célula",
+    "applicability": "all",
+    "subcomponents": [
+      "perfis",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__stringers"
+  },
+  {
+    "id": "structure.bulkheads",
+    "system": "structure",
+    "label": "Anteparas",
+    "description": "Separam regiões e transferem esforços; função depende da antepara",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "reforços"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__bulkheads"
+  },
+  {
+    "id": "structure.pressure",
+    "system": "structure",
+    "label": "Anteparas de pressão",
+    "description": "Delimitam o volume pressurizado",
+    "applicability": "jet",
+    "subcomponents": [
+      "antepara",
+      "reforços",
+      "vedação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__pressure"
+  },
+  {
+    "id": "structure.floor",
+    "system": "structure",
+    "label": "Estrutura do piso",
+    "description": "Sustenta cabine e equipamentos",
+    "applicability": "all",
+    "subcomponents": [
+      "vigas",
+      "trilhos",
+      "painéis"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__floor"
+  },
+  {
+    "id": "structure.radome",
+    "system": "structure",
+    "label": "Radome",
+    "description": "Protege antena de radar quando instalado",
+    "applicability": "check",
+    "subcomponents": [
+      "casca",
+      "fixação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__radome"
+  },
+  {
+    "id": "structure.fairing",
+    "system": "structure",
+    "label": "Carenagens",
+    "description": "Suavizam descontinuidades aerodinâmicas",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "juntas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__fairing"
+  },
+  {
+    "id": "structure.door",
+    "system": "structure",
+    "label": "Porta de acesso",
+    "description": "Permite entrada e saída",
+    "applicability": "all",
+    "subcomponents": [
+      "folha",
+      "dobradiças",
+      "vedação",
+      "mecanismo"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__door"
+  },
+  {
+    "id": "structure.emergency",
+    "system": "structure",
+    "label": "Saída de emergência",
+    "description": "Fornece acesso de evacuação conforme configuração",
+    "applicability": "check",
+    "subcomponents": [
+      "abertura",
+      "mecanismo",
+      "marcação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__emergency"
+  },
+  {
+    "id": "structure.windshield",
+    "system": "structure",
+    "label": "Para-brisa",
+    "description": "Permite visão externa do cockpit e protege tripulação",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "moldura",
+      "vedação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__windshield"
+  },
+  {
+    "id": "structure.windows",
+    "system": "structure",
+    "label": "Janelas",
+    "description": "Permitem visão e iluminação da cabine",
+    "applicability": "all",
+    "subcomponents": [
+      "transparências",
+      "moldura",
+      "vedação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__windows"
+  },
+  {
+    "id": "structure.access",
+    "system": "structure",
+    "label": "Painéis de inspeção",
+    "description": "Dão acesso a equipamentos em locais definidos",
+    "applicability": "all",
+    "subcomponents": [
+      "tampa",
+      "fixadores"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__structure__access"
+  },
+  {
+    "id": "wing.spar",
+    "system": "wing",
+    "label": "Longarinas da asa",
+    "description": "Estrutura primária que suporta cargas de flexão",
+    "applicability": "all",
+    "subcomponents": [
+      "alma",
+      "mesas",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__spar"
+  },
+  {
+    "id": "wing.rib",
+    "system": "wing",
+    "label": "Nervuras",
+    "description": "Definem perfil e sustentam revestimento",
+    "applicability": "all",
+    "subcomponents": [
+      "nervura",
+      "reforços"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__rib"
+  },
+  {
+    "id": "wing.skin",
+    "system": "wing",
+    "label": "Revestimento da asa",
+    "description": "Forma superfície aerodinâmica e contribui para estrutura",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "juntas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__skin"
+  },
+  {
+    "id": "wing.root",
+    "system": "wing",
+    "label": "Raiz da asa",
+    "description": "Conecta asa à estrutura central",
+    "applicability": "all",
+    "subcomponents": [
+      "junção",
+      "carenagem"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__root"
+  },
+  {
+    "id": "wing.tip",
+    "system": "wing",
+    "label": "Ponta da asa",
+    "description": "Fecha a geometria da extremidade",
+    "applicability": "all",
+    "subcomponents": [
+      "ponta",
+      "luz quando aplicável"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__tip"
+  },
+  {
+    "id": "wing.winglet",
+    "system": "wing",
+    "label": "Winglet",
+    "description": "Reduz perdas associadas a vórtices em projetos que o utilizam",
+    "applicability": "check",
+    "subcomponents": [
+      "perfil",
+      "junção"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__winglet"
+  },
+  {
+    "id": "wing.aileron",
+    "system": "wing",
+    "label": "Aileron",
+    "description": "Auxilia o controle de rolamento",
+    "applicability": "all",
+    "subcomponents": [
+      "superfície",
+      "dobradiças",
+      "atuador ou ligação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__aileron"
+  },
+  {
+    "id": "wing.flap",
+    "system": "wing",
+    "label": "Flap",
+    "description": "Altera sustentação e arrasto",
+    "applicability": "all",
+    "subcomponents": [
+      "superfície",
+      "trilhos ou dobradiças",
+      "acionamento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__flap"
+  },
+  {
+    "id": "wing.slat",
+    "system": "wing",
+    "label": "Slat",
+    "description": "Dispositivo de bordo de ataque em projetos equipados",
+    "applicability": "check",
+    "subcomponents": [
+      "superfície",
+      "mecanismo"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__slat"
+  },
+  {
+    "id": "wing.spoiler",
+    "system": "wing",
+    "label": "Spoiler",
+    "description": "Reduz sustentação e pode aumentar arrasto",
+    "applicability": "check",
+    "subcomponents": [
+      "painel",
+      "atuador"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__spoiler"
+  },
+  {
+    "id": "wing.fuel",
+    "system": "wing",
+    "label": "Tanque de asa",
+    "description": "Armazena combustível quando essa arquitetura é utilizada",
+    "applicability": "check",
+    "subcomponents": [
+      "volume",
+      "separações",
+      "sensores"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__fuel"
+  },
+  {
+    "id": "wing.antiice",
+    "system": "wing",
+    "label": "Proteção contra gelo da asa",
+    "description": "Mitiga formação ou acúmulo de gelo conforme sistema instalado",
+    "applicability": "check",
+    "subcomponents": [
+      "elementos",
+      "dutos ou botas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__wing__antiice"
+  },
+  {
+    "id": "flight.actuator",
+    "system": "flight",
+    "label": "Atuador de comando",
+    "description": "Converte comando em movimento de superfície",
+    "applicability": "all",
+    "subcomponents": [
+      "corpo",
+      "conexão",
+      "eixo"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__flight__actuator"
+  },
+  {
+    "id": "flight.fbw",
+    "system": "flight",
+    "label": "Computadores fly-by-wire",
+    "description": "Processam comandos eletrônicos de voo",
+    "applicability": "emb",
+    "subcomponents": [
+      "módulos",
+      "interfaces"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__flight__fbw"
+  },
+  {
+    "id": "flight.cables",
+    "system": "flight",
+    "label": "Cabos e ligações de comando",
+    "description": "Transmitem movimento em arquiteturas mecânicas",
+    "applicability": "check",
+    "subcomponents": [
+      "cabos",
+      "polias",
+      "hastes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__flight__cables"
+  },
+  {
+    "id": "flight.trim",
+    "system": "flight",
+    "label": "Compensação",
+    "description": "Reduz esforço de comando em condição de equilíbrio",
+    "applicability": "all",
+    "subcomponents": [
+      "mecanismo",
+      "superfície ou ajuste"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__flight__trim"
+  },
+  {
+    "id": "flight.autopilot",
+    "system": "flight",
+    "label": "Piloto automático",
+    "description": "Auxilia controle automático dentro dos modos disponíveis",
+    "applicability": "check",
+    "subcomponents": [
+      "computador",
+      "interfaces",
+      "servos quando aplicável"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__flight__autopilot"
+  },
+  {
+    "id": "tail.fin",
+    "system": "tail",
+    "label": "Estabilizador vertical",
+    "description": "Contribui para estabilidade direcional",
+    "applicability": "all",
+    "subcomponents": [
+      "estrutura",
+      "revestimento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__tail__fin"
+  },
+  {
+    "id": "tail.rudder",
+    "system": "tail",
+    "label": "Leme",
+    "description": "Comanda guinada",
+    "applicability": "all",
+    "subcomponents": [
+      "superfície",
+      "articulação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__tail__rudder"
+  },
+  {
+    "id": "tail.horizontal",
+    "system": "tail",
+    "label": "Estabilizador horizontal",
+    "description": "Contribui para estabilidade longitudinal",
+    "applicability": "all",
+    "subcomponents": [
+      "estrutura",
+      "revestimento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__tail__horizontal"
+  },
+  {
+    "id": "tail.elevator",
+    "system": "tail",
+    "label": "Profundor",
+    "description": "Comanda arfagem em arquitetura convencional",
+    "applicability": "all",
+    "subcomponents": [
+      "superfície",
+      "articulação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__tail__elevator"
+  },
+  {
+    "id": "tail.trim",
+    "system": "tail",
+    "label": "Compensação da empenagem",
+    "description": "Ajusta equilíbrio longitudinal/direcional conforme projeto",
+    "applicability": "check",
+    "subcomponents": [
+      "atuador",
+      "mecanismo"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__tail__trim"
+  },
+  {
+    "id": "jet.inlet",
+    "system": "jet",
+    "label": "Entrada de ar",
+    "description": "Conduz ar à seção frontal do motor",
+    "applicability": "jet",
+    "subcomponents": [
+      "lábio",
+      "duto"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__inlet"
+  },
+  {
+    "id": "jet.nacelle",
+    "system": "jet",
+    "label": "Nacele",
+    "description": "Envolve motor e integra carenagem",
+    "applicability": "jet",
+    "subcomponents": [
+      "painéis",
+      "fechamento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__nacelle"
+  },
+  {
+    "id": "jet.fan",
+    "system": "jet",
+    "label": "Fan",
+    "description": "Acelera fluxo de ar, produzindo parte do empuxo",
+    "applicability": "jet",
+    "subcomponents": [
+      "disco",
+      "pás",
+      "carcaça"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__fan"
+  },
+  {
+    "id": "jet.compressor",
+    "system": "jet",
+    "label": "Compressor",
+    "description": "Eleva pressão do ar antes da combustão",
+    "applicability": "jet",
+    "subcomponents": [
+      "estágios",
+      "pás",
+      "estatores"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__compressor"
+  },
+  {
+    "id": "jet.combustor",
+    "system": "jet",
+    "label": "Câmara de combustão",
+    "description": "Mistura combustível e ar e fornece energia térmica",
+    "applicability": "jet",
+    "subcomponents": [
+      "câmara",
+      "injetores",
+      "revestimento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__combustor"
+  },
+  {
+    "id": "jet.turbine",
+    "system": "jet",
+    "label": "Turbina",
+    "description": "Extrai energia dos gases para movimentar os conjuntos rotativos",
+    "applicability": "jet",
+    "subcomponents": [
+      "estágios",
+      "discos",
+      "pás"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__turbine"
+  },
+  {
+    "id": "jet.shaft",
+    "system": "jet",
+    "label": "Eixos",
+    "description": "Transmitem torque entre conjuntos rotativos",
+    "applicability": "jet",
+    "subcomponents": [
+      "eixos",
+      "mancais"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__shaft"
+  },
+  {
+    "id": "jet.exhaust",
+    "system": "jet",
+    "label": "Exaustão",
+    "description": "Conduz gases de saída",
+    "applicability": "jet",
+    "subcomponents": [
+      "duto",
+      "bocal"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__exhaust"
+  },
+  {
+    "id": "jet.accessory",
+    "system": "jet",
+    "label": "Caixa de acessórios",
+    "description": "Aciona acessórios segundo arquitetura",
+    "applicability": "jet",
+    "subcomponents": [
+      "carcaça",
+      "engrenagens"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__accessory"
+  },
+  {
+    "id": "jet.fadec",
+    "system": "jet",
+    "label": "Controle eletrônico de motor",
+    "description": "Gerencia parâmetros do motor conforme configuração",
+    "applicability": "jet",
+    "subcomponents": [
+      "módulo",
+      "conectores"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__fadec"
+  },
+  {
+    "id": "jet.mount",
+    "system": "jet",
+    "label": "Suportes do motor",
+    "description": "Transferem esforços à estrutura",
+    "applicability": "jet",
+    "subcomponents": [
+      "suportes",
+      "ligações"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__mount"
+  },
+  {
+    "id": "jet.reverser",
+    "system": "jet",
+    "label": "Reversor de empuxo",
+    "description": "Redireciona fluxo quando equipado",
+    "applicability": "check",
+    "subcomponents": [
+      "painéis",
+      "acionamento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__jet__reverser"
+  },
+  {
+    "id": "piston.cowling",
+    "system": "piston",
+    "label": "Capô",
+    "description": "Protege e canaliza ar ao motor frontal",
+    "applicability": "piston",
+    "subcomponents": [
+      "painéis",
+      "travas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__cowling"
+  },
+  {
+    "id": "piston.propeller",
+    "system": "piston",
+    "label": "Hélice",
+    "description": "Converte torque em tração",
+    "applicability": "piston",
+    "subcomponents": [
+      "pás",
+      "cubo",
+      "spinner"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__propeller"
+  },
+  {
+    "id": "piston.governor",
+    "system": "piston",
+    "label": "Governador da hélice",
+    "description": "Controla rotação em configuração de passo variável",
+    "applicability": "piston",
+    "subcomponents": [
+      "corpo",
+      "acionamento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__governor"
+  },
+  {
+    "id": "piston.crankcase",
+    "system": "piston",
+    "label": "Cárter estrutural",
+    "description": "Abriga e suporta conjuntos do motor",
+    "applicability": "piston",
+    "subcomponents": [
+      "carcaça",
+      "uniões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__crankcase"
+  },
+  {
+    "id": "piston.cylinders",
+    "system": "piston",
+    "label": "Cilindros",
+    "description": "Contêm combustão e guiam pistões",
+    "applicability": "piston",
+    "subcomponents": [
+      "cabeçote",
+      "aletas",
+      "cilindro"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__cylinders"
+  },
+  {
+    "id": "piston.pistons",
+    "system": "piston",
+    "label": "Pistões e bielas",
+    "description": "Convertem pressão dos gases em movimento mecânico",
+    "applicability": "piston",
+    "subcomponents": [
+      "pistão",
+      "anéis",
+      "biela"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__pistons"
+  },
+  {
+    "id": "piston.crankshaft",
+    "system": "piston",
+    "label": "Virabrequim",
+    "description": "Converte movimento alternado em rotação",
+    "applicability": "piston",
+    "subcomponents": [
+      "eixo",
+      "mancais"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__crankshaft"
+  },
+  {
+    "id": "piston.valves",
+    "system": "piston",
+    "label": "Válvulas e distribuição",
+    "description": "Controlam admissão e escape",
+    "applicability": "piston",
+    "subcomponents": [
+      "válvulas",
+      "molas",
+      "acionamento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__valves"
+  },
+  {
+    "id": "piston.ignition",
+    "system": "piston",
+    "label": "Ignição",
+    "description": "Produz centelha para iniciar combustão",
+    "applicability": "piston",
+    "subcomponents": [
+      "magnetos quando aplicáveis",
+      "cabos",
+      "velas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__ignition"
+  },
+  {
+    "id": "piston.turbo",
+    "system": "piston",
+    "label": "Turboalimentação",
+    "description": "Usa energia do escape para elevar pressão de admissão",
+    "applicability": "piston",
+    "subcomponents": [
+      "turbina",
+      "compressor",
+      "carcaças"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__turbo"
+  },
+  {
+    "id": "piston.intercooler",
+    "system": "piston",
+    "label": "Intercooler",
+    "description": "Resfria ar de admissão comprimido",
+    "applicability": "piston",
+    "subcomponents": [
+      "núcleo",
+      "dutos"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__intercooler"
+  },
+  {
+    "id": "piston.exhaust",
+    "system": "piston",
+    "label": "Escape",
+    "description": "Conduz gases de combustão",
+    "applicability": "piston",
+    "subcomponents": [
+      "coletores",
+      "tubos"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__exhaust"
+  },
+  {
+    "id": "piston.oil",
+    "system": "piston",
+    "label": "Lubrificação",
+    "description": "Circula óleo para reduzir atrito e dissipar calor",
+    "applicability": "piston",
+    "subcomponents": [
+      "reservatório",
+      "bomba",
+      "filtro"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__oil"
+  },
+  {
+    "id": "piston.mount",
+    "system": "piston",
+    "label": "Berço do motor",
+    "description": "Fixa conjunto propulsor à célula",
+    "applicability": "piston",
+    "subcomponents": [
+      "estrutura",
+      "isoladores"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__piston__mount"
+  },
+  {
+    "id": "gear.nose",
+    "system": "gear",
+    "label": "Trem dianteiro",
+    "description": "Suporta parte dianteira no solo e permite direcionamento conforme projeto",
+    "applicability": "all",
+    "subcomponents": [
+      "montante",
+      "roda",
+      "ligações"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__nose"
+  },
+  {
+    "id": "gear.main",
+    "system": "gear",
+    "label": "Trem principal",
+    "description": "Suporta cargas predominantes no solo",
+    "applicability": "all",
+    "subcomponents": [
+      "montantes",
+      "eixos",
+      "rodas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__main"
+  },
+  {
+    "id": "gear.strut",
+    "system": "gear",
+    "label": "Amortecedor",
+    "description": "Absorve energia do contato com o solo",
+    "applicability": "all",
+    "subcomponents": [
+      "cilindro",
+      "haste",
+      "articulações"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__strut"
+  },
+  {
+    "id": "gear.tire",
+    "system": "gear",
+    "label": "Pneu",
+    "description": "Transmite cargas entre roda e pista",
+    "applicability": "all",
+    "subcomponents": [
+      "banda",
+      "carcaça"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__tire"
+  },
+  {
+    "id": "gear.wheel",
+    "system": "gear",
+    "label": "Roda",
+    "description": "Suporta pneu e gira no eixo",
+    "applicability": "all",
+    "subcomponents": [
+      "aro",
+      "cubo",
+      "rolamentos"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__wheel"
+  },
+  {
+    "id": "gear.brake",
+    "system": "gear",
+    "label": "Freios",
+    "description": "Dissipam energia para desacelerar",
+    "applicability": "all",
+    "subcomponents": [
+      "discos",
+      "pinças ou conjunto aplicável"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__brake"
+  },
+  {
+    "id": "gear.retract",
+    "system": "gear",
+    "label": "Retração",
+    "description": "Move o trem entre posições",
+    "applicability": "all",
+    "subcomponents": [
+      "acionamento",
+      "articulações",
+      "travas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__retract"
+  },
+  {
+    "id": "gear.doors",
+    "system": "gear",
+    "label": "Portas do trem",
+    "description": "Fecham aberturas conforme desenho",
+    "applicability": "check",
+    "subcomponents": [
+      "painéis",
+      "dobradiças"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__doors"
+  },
+  {
+    "id": "gear.sensor",
+    "system": "gear",
+    "label": "Indicação de posição",
+    "description": "Informa estado do trem",
+    "applicability": "all",
+    "subcomponents": [
+      "sensores",
+      "interfaces"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__gear__sensor"
+  },
+  {
+    "id": "fuel.tank",
+    "system": "fuel",
+    "label": "Armazenamento",
+    "description": "Contém combustível em reservatórios aprovados",
+    "applicability": "all",
+    "subcomponents": [
+      "volume",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__fuel__tank"
+  },
+  {
+    "id": "fuel.pump",
+    "system": "fuel",
+    "label": "Bombas de combustível",
+    "description": "Auxiliam fornecimento ao motor",
+    "applicability": "all",
+    "subcomponents": [
+      "corpo",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__fuel__pump"
+  },
+  {
+    "id": "fuel.filter",
+    "system": "fuel",
+    "label": "Filtragem",
+    "description": "Retém contaminantes no circuito",
+    "applicability": "all",
+    "subcomponents": [
+      "corpo",
+      "elemento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__fuel__filter"
+  },
+  {
+    "id": "fuel.valve",
+    "system": "fuel",
+    "label": "Válvulas",
+    "description": "Controlam fluxo e isolamento conforme arquitetura",
+    "applicability": "all",
+    "subcomponents": [
+      "corpo",
+      "conexão"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__fuel__valve"
+  },
+  {
+    "id": "fuel.lines",
+    "system": "fuel",
+    "label": "Linhas de combustível",
+    "description": "Conduzem combustível entre componentes",
+    "applicability": "all",
+    "subcomponents": [
+      "tubos",
+      "suportes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__fuel__lines"
+  },
+  {
+    "id": "fuel.quantity",
+    "system": "fuel",
+    "label": "Indicação de quantidade",
+    "description": "Mede combustível disponível conforme sistema",
+    "applicability": "all",
+    "subcomponents": [
+      "sensor",
+      "indicação"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__fuel__quantity"
+  },
+  {
+    "id": "hyd.reservoir",
+    "system": "hyd",
+    "label": "Reservatório hidráulico",
+    "description": "Armazena fluido quando equipado",
+    "applicability": "check",
+    "subcomponents": [
+      "reservatório",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__hyd__reservoir"
+  },
+  {
+    "id": "hyd.pump",
+    "system": "hyd",
+    "label": "Bomba hidráulica",
+    "description": "Fornece pressão e fluxo ao circuito",
+    "applicability": "check",
+    "subcomponents": [
+      "corpo",
+      "interfaces"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__hyd__pump"
+  },
+  {
+    "id": "hyd.actuator",
+    "system": "hyd",
+    "label": "Cilindro hidráulico",
+    "description": "Transforma pressão em movimento",
+    "applicability": "check",
+    "subcomponents": [
+      "cilindro",
+      "haste"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__hyd__actuator"
+  },
+  {
+    "id": "hyd.manifold",
+    "system": "hyd",
+    "label": "Distribuição hidráulica",
+    "description": "Direciona fluido entre circuitos",
+    "applicability": "check",
+    "subcomponents": [
+      "bloco",
+      "válvulas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__hyd__manifold"
+  },
+  {
+    "id": "hyd.lines",
+    "system": "hyd",
+    "label": "Tubulações hidráulicas",
+    "description": "Conduzem fluido",
+    "applicability": "check",
+    "subcomponents": [
+      "tubos",
+      "suportes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__hyd__lines"
+  },
+  {
+    "id": "elec.battery",
+    "system": "elec",
+    "label": "Bateria",
+    "description": "Armazena energia elétrica",
+    "applicability": "all",
+    "subcomponents": [
+      "caixa",
+      "terminais"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__elec__battery"
+  },
+  {
+    "id": "elec.generator",
+    "system": "elec",
+    "label": "Gerador ou alternador",
+    "description": "Converte energia mecânica em elétrica",
+    "applicability": "all",
+    "subcomponents": [
+      "carcaça",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__elec__generator"
+  },
+  {
+    "id": "elec.bus",
+    "system": "elec",
+    "label": "Barramentos",
+    "description": "Distribuem energia aos circuitos",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "conexões"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__elec__bus"
+  },
+  {
+    "id": "elec.protection",
+    "system": "elec",
+    "label": "Proteções elétricas",
+    "description": "Protegem circuitos contra falhas",
+    "applicability": "all",
+    "subcomponents": [
+      "disjuntores",
+      "módulos"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__elec__protection"
+  },
+  {
+    "id": "elec.wiring",
+    "system": "elec",
+    "label": "Chicotes",
+    "description": "Transportam energia e sinais",
+    "applicability": "all",
+    "subcomponents": [
+      "cabos",
+      "conectores",
+      "suportes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__elec__wiring"
+  },
+  {
+    "id": "elec.apu",
+    "system": "elec",
+    "label": "APU",
+    "description": "Fornece energia auxiliar se instalada",
+    "applicability": "check",
+    "subcomponents": [
+      "unidade",
+      "entrada",
+      "escape"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__elec__apu"
+  },
+  {
+    "id": "avionics.displays",
+    "system": "avionics",
+    "label": "Displays",
+    "description": "Apresentam informações de voo e sistemas",
+    "applicability": "all",
+    "subcomponents": [
+      "telas",
+      "molduras"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__displays"
+  },
+  {
+    "id": "avionics.fms",
+    "system": "avionics",
+    "label": "Gerenciamento de voo",
+    "description": "Integra navegação e planejamento quando equipado",
+    "applicability": "check",
+    "subcomponents": [
+      "computador",
+      "interface"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__fms"
+  },
+  {
+    "id": "avionics.radio",
+    "system": "avionics",
+    "label": "Comunicações",
+    "description": "Permitem comunicação por rádio",
+    "applicability": "all",
+    "subcomponents": [
+      "rádios",
+      "antenas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__radio"
+  },
+  {
+    "id": "avionics.nav",
+    "system": "avionics",
+    "label": "Navegação",
+    "description": "Fornece dados de posição e orientação",
+    "applicability": "all",
+    "subcomponents": [
+      "receptores",
+      "antenas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__nav"
+  },
+  {
+    "id": "avionics.transponder",
+    "system": "avionics",
+    "label": "Transponder",
+    "description": "Responde a sistemas de vigilância conforme configuração",
+    "applicability": "all",
+    "subcomponents": [
+      "unidade",
+      "antena"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__transponder"
+  },
+  {
+    "id": "avionics.radar",
+    "system": "avionics",
+    "label": "Radar meteorológico",
+    "description": "Apresenta informação meteorológica quando equipado",
+    "applicability": "check",
+    "subcomponents": [
+      "antena",
+      "unidade"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__radar"
+  },
+  {
+    "id": "avionics.airdata",
+    "system": "avionics",
+    "label": "Dados do ar",
+    "description": "Processa medições de pressão e temperatura",
+    "applicability": "all",
+    "subcomponents": [
+      "sondas",
+      "computador quando aplicável"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__airdata"
+  },
+  {
+    "id": "avionics.pitot",
+    "system": "avionics",
+    "label": "Pitot e estática",
+    "description": "Captam pressões usadas na instrumentação",
+    "applicability": "all",
+    "subcomponents": [
+      "sondas",
+      "portas"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__pitot"
+  },
+  {
+    "id": "avionics.aoa",
+    "system": "avionics",
+    "label": "Ângulo de ataque",
+    "description": "Mede incidência quando equipado",
+    "applicability": "check",
+    "subcomponents": [
+      "sensor",
+      "interface"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__aoa"
+  },
+  {
+    "id": "avionics.controls",
+    "system": "avionics",
+    "label": "Comandos de cockpit",
+    "description": "Permitem pilotagem e gestão dos sistemas",
+    "applicability": "all",
+    "subcomponents": [
+      "manche ou sidestick",
+      "pedais",
+      "manetes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__controls"
+  },
+  {
+    "id": "avionics.elt",
+    "system": "avionics",
+    "label": "Localizador de emergência",
+    "description": "Emite sinal de emergência conforme instalação",
+    "applicability": "all",
+    "subcomponents": [
+      "unidade",
+      "antena"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__avionics__elt"
+  },
+  {
+    "id": "cabin.seat",
+    "system": "cabin",
+    "label": "Poltronas",
+    "description": "Acomodam ocupantes",
+    "applicability": "all",
+    "subcomponents": [
+      "estrutura",
+      "assento",
+      "encosto",
+      "cinto"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__seat"
+  },
+  {
+    "id": "cabin.rail",
+    "system": "cabin",
+    "label": "Trilhos de assento",
+    "description": "Fixam assentos em posições autorizadas",
+    "applicability": "check",
+    "subcomponents": [
+      "trilhos",
+      "fixações"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__rail"
+  },
+  {
+    "id": "cabin.table",
+    "system": "cabin",
+    "label": "Mesa",
+    "description": "Apoia atividades da cabine quando instalada",
+    "applicability": "check",
+    "subcomponents": [
+      "tampo",
+      "mecanismo"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__table"
+  },
+  {
+    "id": "cabin.galley",
+    "system": "cabin",
+    "label": "Galley",
+    "description": "Apoia serviço de bordo quando instalada",
+    "applicability": "check",
+    "subcomponents": [
+      "módulos",
+      "bancada"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__galley"
+  },
+  {
+    "id": "cabin.lavatory",
+    "system": "cabin",
+    "label": "Lavatório",
+    "description": "Oferece instalação sanitária quando equipada",
+    "applicability": "check",
+    "subcomponents": [
+      "compartimento",
+      "louças"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__lavatory"
+  },
+  {
+    "id": "cabin.baggage",
+    "system": "cabin",
+    "label": "Bagageiro",
+    "description": "Armazena bagagem dentro da configuração",
+    "applicability": "all",
+    "subcomponents": [
+      "compartimento",
+      "retenção"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__baggage"
+  },
+  {
+    "id": "cabin.panels",
+    "system": "cabin",
+    "label": "Revestimentos internos",
+    "description": "Acabamento e isolamento da cabine",
+    "applicability": "all",
+    "subcomponents": [
+      "painéis",
+      "acabamento"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__panels"
+  },
+  {
+    "id": "cabin.lights",
+    "system": "cabin",
+    "label": "Iluminação interna",
+    "description": "Ilumina áreas de uso",
+    "applicability": "all",
+    "subcomponents": [
+      "luminárias",
+      "controles"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__lights"
+  },
+  {
+    "id": "cabin.cms",
+    "system": "cabin",
+    "label": "Gerenciamento de cabine",
+    "description": "Controla funções de conforto quando instalado",
+    "applicability": "check",
+    "subcomponents": [
+      "painel",
+      "unidade"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__cms"
+  },
+  {
+    "id": "cabin.oxygen",
+    "system": "cabin",
+    "label": "Oxigênio",
+    "description": "Oferece suprimento conforme instalação",
+    "applicability": "check",
+    "subcomponents": [
+      "cilindro",
+      "máscaras",
+      "distribuição"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__oxygen"
+  },
+  {
+    "id": "cabin.ecs",
+    "system": "cabin",
+    "label": "Climatização",
+    "description": "Controla ambiente térmico da cabine",
+    "applicability": "all",
+    "subcomponents": [
+      "dutos",
+      "saídas",
+      "módulos"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__ecs"
+  },
+  {
+    "id": "cabin.press",
+    "system": "cabin",
+    "label": "Pressurização",
+    "description": "Controla pressão de cabine em aeronave equipada",
+    "applicability": "jet",
+    "subcomponents": [
+      "controlador",
+      "válvulas",
+      "dutos"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__cabin__press"
+  },
+  {
+    "id": "safety.fire",
+    "system": "safety",
+    "label": "Detecção e proteção contra fogo",
+    "description": "Detecta ou mitiga fogo conforme sistema instalado",
+    "applicability": "check",
+    "subcomponents": [
+      "sensores",
+      "unidades"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__safety__fire"
+  },
+  {
+    "id": "safety.extinguisher",
+    "system": "safety",
+    "label": "Extintor",
+    "description": "Recurso de combate inicial a incêndio",
+    "applicability": "check",
+    "subcomponents": [
+      "cilindro",
+      "suporte"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__safety__extinguisher"
+  },
+  {
+    "id": "safety.deice",
+    "system": "safety",
+    "label": "Proteção contra gelo",
+    "description": "Mitiga gelo de acordo com equipamento e aprovação",
+    "applicability": "check",
+    "subcomponents": [
+      "elementos",
+      "controles"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__safety__deice"
+  },
+  {
+    "id": "safety.navlights",
+    "system": "safety",
+    "label": "Luzes de navegação",
+    "description": "Indicam posição e orientação da aeronave",
+    "applicability": "all",
+    "subcomponents": [
+      "luminárias",
+      "lentes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__safety__navlights"
+  },
+  {
+    "id": "safety.strobe",
+    "system": "safety",
+    "label": "Luzes anticolisão",
+    "description": "Aumentam conspicuidade",
+    "applicability": "check",
+    "subcomponents": [
+      "luminárias",
+      "lentes"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__safety__strobe"
+  },
+  {
+    "id": "safety.landinglight",
+    "system": "safety",
+    "label": "Luzes de pouso",
+    "description": "Iluminam região à frente quando utilizadas",
+    "applicability": "all",
+    "subcomponents": [
+      "luminária",
+      "suporte"
+    ],
+    "source": [
+      "S10",
+      "S11"
+    ],
+    "evidence": "generic-educational",
+    "geometryStatus": "not-built",
+    "requiredNode": "part__safety__landinglight"
+  }
+]

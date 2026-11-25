@@ -1,0 +1,5 @@
+# Contrato de referência para implementação
+
+`starter/fleet-core.ts` é código inicial puro, sem React ou Three, para mapear progresso, transições e CTAs. Copiar/adaptar somente após identificar a API de `director` existente. Não é patch aplicado nem uma seção funcional. `starter/fleet-core.test.mjs` não requer browser e testa o exemplo JS via TypeScript strip-types do Node moderno (ver comando README). O runtime do projeto pode usar o TypeScript normal.
+
+`data/asset-manifest.template.json`: copiar para manifesto real e preencher; nunca declarar `ready` só por criar arquivos. Para cada part `{id, asset, node, sourceRefs, fidelity, parentId, enabled}`. Asset deve apontar para chave `anatomy` ou `cabin`; `node` nome único. `fidelity` = `verified` ou `illustrative-approved`. Subpeças: adicionar IDs no manifesto e catálogo com fonte, parentId e geometria. Validar com script antes de liberar. As descrições de `data/component-catalog.json` são base educacional geral, não auditoria certificada.

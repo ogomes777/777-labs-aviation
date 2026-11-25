@@ -1,0 +1,4642 @@
+[
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__skin"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.frames",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__frames"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.stringers",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__stringers"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.bulkheads",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__bulkheads"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.pressure",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__pressure"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.floor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__floor"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.radome",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__radome"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.fairing",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__fairing"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.door",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__door"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.emergency",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__emergency"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.windshield",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windshield"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.windows",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windows"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "structure.access",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__access"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.spar",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spar"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.rib",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__rib"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__skin"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.root",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__root"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.tip",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__tip"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.winglet",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__winglet"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.aileron",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__aileron"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.flap",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__flap"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.slat",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__slat"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.spoiler",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spoiler"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.fuel",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__fuel"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "wing.antiice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__antiice"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "flight.actuator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__actuator"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "flight.fbw",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__fbw"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "flight.cables",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__cables"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "flight.trim",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__trim"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "flight.autopilot",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__autopilot"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "tail.fin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__fin"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "tail.rudder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__rudder"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "tail.horizontal",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__horizontal"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "tail.elevator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__elevator"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "tail.trim",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__trim"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.inlet",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__inlet"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.nacelle",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__nacelle"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.fan",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fan"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.compressor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__compressor"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.combustor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__combustor"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.turbine",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__turbine"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.shaft",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__shaft"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.exhaust",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__exhaust"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.accessory",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__accessory"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.fadec",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fadec"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.mount",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__mount"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "jet.reverser",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__reverser"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.cowling",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cowling"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.propeller",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__propeller"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.governor",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__governor"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.crankcase",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankcase"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.cylinders",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cylinders"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.pistons",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__pistons"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.crankshaft",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankshaft"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.valves",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__valves"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.ignition",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__ignition"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.turbo",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__turbo"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.intercooler",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__intercooler"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.exhaust",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__exhaust"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.oil",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__oil"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "piston.mount",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__mount"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.nose",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__nose"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.main",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__main"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.strut",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__strut"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.tire",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__tire"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.wheel",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__wheel"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.brake",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__brake"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.retract",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__retract"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.doors",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__doors"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "gear.sensor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__sensor"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "fuel.tank",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__tank"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "fuel.pump",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__pump"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "fuel.filter",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__filter"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "fuel.valve",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__valve"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "fuel.lines",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__lines"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "fuel.quantity",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__quantity"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "hyd.reservoir",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__reservoir"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "hyd.pump",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__pump"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "hyd.actuator",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__actuator"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "hyd.manifold",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__manifold"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "hyd.lines",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__lines"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "elec.battery",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__battery"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "elec.generator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__generator"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "elec.bus",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__bus"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "elec.protection",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__protection"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "elec.wiring",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__wiring"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "elec.apu",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__apu"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.displays",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__displays"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.fms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__fms"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.radio",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radio"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.nav",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__nav"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.transponder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__transponder"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.radar",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radar"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.airdata",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__airdata"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.pitot",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__pitot"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.aoa",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__aoa"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.controls",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__controls"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "avionics.elt",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__elt"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.seat",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__seat"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.rail",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__rail"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.table",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__table"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.galley",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__galley"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.lavatory",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lavatory"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.baggage",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__baggage"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.panels",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__panels"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.lights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lights"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.cms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__cms"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.oxygen",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__oxygen"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.ecs",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__ecs"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "cabin.press",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__press"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "safety.fire",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__fire"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "safety.extinguisher",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__extinguisher"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "safety.deice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__deice"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "safety.navlights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__navlights"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "safety.strobe",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__strobe"
+  },
+  {
+    "aircraft": "legacy-450",
+    "part": "safety.landinglight",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__landinglight"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__skin"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.frames",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__frames"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.stringers",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__stringers"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.bulkheads",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__bulkheads"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.pressure",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__pressure"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.floor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__floor"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.radome",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__radome"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.fairing",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__fairing"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.door",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__door"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.emergency",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__emergency"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.windshield",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windshield"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.windows",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windows"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "structure.access",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__access"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.spar",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spar"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.rib",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__rib"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__skin"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.root",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__root"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.tip",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__tip"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.winglet",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__winglet"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.aileron",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__aileron"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.flap",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__flap"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.slat",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__slat"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.spoiler",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spoiler"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.fuel",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__fuel"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "wing.antiice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__antiice"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "flight.actuator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__actuator"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "flight.fbw",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__fbw"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "flight.cables",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__cables"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "flight.trim",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__trim"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "flight.autopilot",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__autopilot"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "tail.fin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__fin"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "tail.rudder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__rudder"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "tail.horizontal",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__horizontal"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "tail.elevator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__elevator"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "tail.trim",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__trim"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.inlet",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__inlet"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.nacelle",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__nacelle"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.fan",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fan"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.compressor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__compressor"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.combustor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__combustor"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.turbine",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__turbine"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.shaft",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__shaft"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.exhaust",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__exhaust"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.accessory",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__accessory"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.fadec",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fadec"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.mount",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__mount"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "jet.reverser",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__reverser"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.cowling",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cowling"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.propeller",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__propeller"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.governor",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__governor"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.crankcase",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankcase"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.cylinders",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cylinders"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.pistons",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__pistons"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.crankshaft",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankshaft"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.valves",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__valves"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.ignition",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__ignition"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.turbo",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__turbo"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.intercooler",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__intercooler"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.exhaust",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__exhaust"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.oil",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__oil"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "piston.mount",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__mount"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.nose",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__nose"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.main",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__main"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.strut",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__strut"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.tire",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__tire"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.wheel",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__wheel"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.brake",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__brake"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.retract",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__retract"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.doors",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__doors"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "gear.sensor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__sensor"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "fuel.tank",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__tank"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "fuel.pump",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__pump"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "fuel.filter",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__filter"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "fuel.valve",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__valve"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "fuel.lines",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__lines"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "fuel.quantity",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__quantity"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "hyd.reservoir",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__reservoir"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "hyd.pump",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__pump"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "hyd.actuator",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__actuator"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "hyd.manifold",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__manifold"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "hyd.lines",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__lines"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "elec.battery",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__battery"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "elec.generator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__generator"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "elec.bus",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__bus"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "elec.protection",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__protection"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "elec.wiring",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__wiring"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "elec.apu",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__apu"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.displays",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__displays"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.fms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__fms"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.radio",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radio"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.nav",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__nav"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.transponder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__transponder"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.radar",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radar"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.airdata",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__airdata"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.pitot",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__pitot"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.aoa",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__aoa"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.controls",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__controls"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "avionics.elt",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__elt"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.seat",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__seat"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.rail",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__rail"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.table",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__table"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.galley",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__galley"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.lavatory",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lavatory"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.baggage",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__baggage"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.panels",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__panels"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.lights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lights"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.cms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__cms"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.oxygen",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__oxygen"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.ecs",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__ecs"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "cabin.press",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__press"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "safety.fire",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__fire"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "safety.extinguisher",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__extinguisher"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "safety.deice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__deice"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "safety.navlights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__navlights"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "safety.strobe",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__strobe"
+  },
+  {
+    "aircraft": "praetor-500",
+    "part": "safety.landinglight",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__landinglight"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__skin"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.frames",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__frames"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.stringers",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__stringers"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.bulkheads",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__bulkheads"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.pressure",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__pressure"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.floor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__floor"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.radome",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__radome"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.fairing",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__fairing"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.door",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__door"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.emergency",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__emergency"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.windshield",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windshield"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.windows",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windows"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "structure.access",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__access"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.spar",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spar"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.rib",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__rib"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__skin"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.root",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__root"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.tip",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__tip"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.winglet",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__winglet"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.aileron",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__aileron"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.flap",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__flap"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.slat",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__slat"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.spoiler",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spoiler"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.fuel",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__fuel"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "wing.antiice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__antiice"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "flight.actuator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__actuator"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "flight.fbw",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__fbw"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "flight.cables",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__cables"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "flight.trim",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__trim"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "flight.autopilot",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__autopilot"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "tail.fin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__fin"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "tail.rudder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__rudder"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "tail.horizontal",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__horizontal"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "tail.elevator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__elevator"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "tail.trim",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__trim"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.inlet",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__inlet"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.nacelle",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__nacelle"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.fan",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fan"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.compressor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__compressor"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.combustor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__combustor"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.turbine",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__turbine"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.shaft",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__shaft"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.exhaust",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__exhaust"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.accessory",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__accessory"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.fadec",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fadec"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.mount",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__mount"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "jet.reverser",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__reverser"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.cowling",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cowling"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.propeller",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__propeller"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.governor",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__governor"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.crankcase",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankcase"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.cylinders",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cylinders"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.pistons",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__pistons"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.crankshaft",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankshaft"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.valves",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__valves"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.ignition",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__ignition"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.turbo",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__turbo"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.intercooler",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__intercooler"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.exhaust",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__exhaust"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.oil",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__oil"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "piston.mount",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__mount"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.nose",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__nose"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.main",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__main"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.strut",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__strut"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.tire",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__tire"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.wheel",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__wheel"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.brake",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__brake"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.retract",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__retract"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.doors",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__doors"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "gear.sensor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__sensor"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "fuel.tank",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__tank"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "fuel.pump",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__pump"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "fuel.filter",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__filter"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "fuel.valve",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__valve"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "fuel.lines",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__lines"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "fuel.quantity",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__quantity"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "hyd.reservoir",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__reservoir"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "hyd.pump",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__pump"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "hyd.actuator",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__actuator"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "hyd.manifold",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__manifold"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "hyd.lines",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__lines"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "elec.battery",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__battery"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "elec.generator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__generator"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "elec.bus",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__bus"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "elec.protection",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__protection"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "elec.wiring",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__wiring"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "elec.apu",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__apu"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.displays",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__displays"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.fms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__fms"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.radio",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radio"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.nav",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__nav"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.transponder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__transponder"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.radar",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radar"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.airdata",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__airdata"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.pitot",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__pitot"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.aoa",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__aoa"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.controls",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__controls"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "avionics.elt",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__elt"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.seat",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__seat"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.rail",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__rail"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.table",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__table"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.galley",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__galley"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.lavatory",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lavatory"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.baggage",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__baggage"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.panels",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__panels"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.lights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lights"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.cms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__cms"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.oxygen",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__oxygen"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.ecs",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__ecs"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "cabin.press",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__press"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "safety.fire",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__fire"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "safety.extinguisher",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__extinguisher"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "safety.deice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__deice"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "safety.navlights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__navlights"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "safety.strobe",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__strobe"
+  },
+  {
+    "aircraft": "praetor-600",
+    "part": "safety.landinglight",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__landinglight"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__skin"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.frames",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__frames"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.stringers",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__stringers"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.bulkheads",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__bulkheads"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.pressure",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__structure__pressure"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.floor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__floor"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.radome",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__radome"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.fairing",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__fairing"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.door",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__door"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.emergency",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__emergency"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.windshield",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windshield"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.windows",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windows"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "structure.access",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__access"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.spar",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spar"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.rib",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__rib"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__skin"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.root",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__root"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.tip",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__tip"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.winglet",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__winglet"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.aileron",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__aileron"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.flap",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__flap"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.slat",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__slat"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.spoiler",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spoiler"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.fuel",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__fuel"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "wing.antiice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__antiice"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "flight.actuator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__actuator"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "flight.fbw",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__flight__fbw"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "flight.cables",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__cables"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "flight.trim",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__trim"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "flight.autopilot",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__autopilot"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "tail.fin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__fin"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "tail.rudder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__rudder"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "tail.horizontal",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__horizontal"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "tail.elevator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__elevator"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "tail.trim",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__trim"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.inlet",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__inlet"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.nacelle",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__nacelle"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.fan",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__fan"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.compressor",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__compressor"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.combustor",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__combustor"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.turbine",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__turbine"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.shaft",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__shaft"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.exhaust",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__exhaust"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.accessory",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__accessory"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.fadec",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__fadec"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.mount",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__mount"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "jet.reverser",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__jet__reverser"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.cowling",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__cowling"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.propeller",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__propeller"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.governor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__governor"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.crankcase",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__crankcase"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.cylinders",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__cylinders"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.pistons",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__pistons"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.crankshaft",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__crankshaft"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.valves",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__valves"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.ignition",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__ignition"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.turbo",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__turbo"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.intercooler",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__intercooler"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.exhaust",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__exhaust"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.oil",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__oil"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "piston.mount",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__piston__mount"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.nose",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__nose"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.main",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__main"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.strut",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__strut"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.tire",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__tire"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.wheel",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__wheel"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.brake",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__brake"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.retract",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__retract"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.doors",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__doors"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "gear.sensor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__sensor"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "fuel.tank",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__tank"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "fuel.pump",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__pump"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "fuel.filter",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__filter"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "fuel.valve",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__valve"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "fuel.lines",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__lines"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "fuel.quantity",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__quantity"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "hyd.reservoir",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__reservoir"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "hyd.pump",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__pump"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "hyd.actuator",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__actuator"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "hyd.manifold",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__manifold"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "hyd.lines",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__lines"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "elec.battery",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__battery"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "elec.generator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__generator"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "elec.bus",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__bus"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "elec.protection",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__protection"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "elec.wiring",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__wiring"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "elec.apu",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__apu"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.displays",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__displays"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.fms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__fms"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.radio",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radio"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.nav",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__nav"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.transponder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__transponder"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.radar",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radar"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.airdata",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__airdata"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.pitot",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__pitot"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.aoa",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__aoa"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.controls",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__controls"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "avionics.elt",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__elt"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.seat",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__seat"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.rail",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__rail"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.table",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__table"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.galley",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__galley"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.lavatory",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lavatory"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.baggage",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__baggage"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.panels",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__panels"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.lights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lights"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.cms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__cms"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.oxygen",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__oxygen"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.ecs",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__ecs"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "cabin.press",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__cabin__press"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "safety.fire",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__fire"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "safety.extinguisher",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__extinguisher"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "safety.deice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__deice"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "safety.navlights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__navlights"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "safety.strobe",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__strobe"
+  },
+  {
+    "aircraft": "matrix",
+    "part": "safety.landinglight",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__landinglight"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__skin"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.frames",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__frames"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.stringers",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__stringers"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.bulkheads",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__bulkheads"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.pressure",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__pressure"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.floor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__floor"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.radome",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__radome"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.fairing",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__fairing"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.door",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__door"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.emergency",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__emergency"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.windshield",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windshield"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.windows",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__windows"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "structure.access",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__structure__access"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.spar",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spar"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.rib",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__rib"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.skin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__skin"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.root",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__root"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.tip",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__tip"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.winglet",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__winglet"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.aileron",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__aileron"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.flap",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__flap"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.slat",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__slat"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.spoiler",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__spoiler"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.fuel",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__fuel"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "wing.antiice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__wing__antiice"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "flight.actuator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__actuator"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "flight.fbw",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__flight__fbw"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "flight.cables",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__cables"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "flight.trim",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__trim"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "flight.autopilot",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__flight__autopilot"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "tail.fin",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__fin"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "tail.rudder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__rudder"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "tail.horizontal",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__horizontal"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "tail.elevator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__elevator"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "tail.trim",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__tail__trim"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.inlet",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__inlet"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.nacelle",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__nacelle"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.fan",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fan"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.compressor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__compressor"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.combustor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__combustor"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.turbine",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__turbine"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.shaft",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__shaft"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.exhaust",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__exhaust"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.accessory",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__accessory"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.fadec",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__fadec"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.mount",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__mount"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "jet.reverser",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__jet__reverser"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.cowling",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cowling"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.propeller",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__propeller"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.governor",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__governor"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.crankcase",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankcase"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.cylinders",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__cylinders"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.pistons",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__pistons"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.crankshaft",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__crankshaft"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.valves",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__valves"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.ignition",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__ignition"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.turbo",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__turbo"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.intercooler",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__intercooler"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.exhaust",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__exhaust"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.oil",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__oil"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "piston.mount",
+    "status": "not-applicable",
+    "geometry": "none",
+    "evidence": "excluded by scope/type",
+    "node": "part__piston__mount"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.nose",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__nose"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.main",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__main"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.strut",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__strut"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.tire",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__tire"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.wheel",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__wheel"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.brake",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__brake"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.retract",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__retract"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.doors",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__doors"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "gear.sensor",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__gear__sensor"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "fuel.tank",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__tank"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "fuel.pump",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__pump"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "fuel.filter",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__filter"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "fuel.valve",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__valve"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "fuel.lines",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__lines"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "fuel.quantity",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__fuel__quantity"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "hyd.reservoir",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__reservoir"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "hyd.pump",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__pump"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "hyd.actuator",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__actuator"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "hyd.manifold",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__manifold"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "hyd.lines",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__hyd__lines"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "elec.battery",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__battery"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "elec.generator",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__generator"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "elec.bus",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__bus"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "elec.protection",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__protection"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "elec.wiring",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__wiring"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "elec.apu",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__elec__apu"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.displays",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__displays"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.fms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__fms"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.radio",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radio"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.nav",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__nav"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.transponder",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__transponder"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.radar",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__radar"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.airdata",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__airdata"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.pitot",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__pitot"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.aoa",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__aoa"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.controls",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__controls"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "avionics.elt",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__avionics__elt"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.seat",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__seat"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.rail",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__rail"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.table",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__table"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.galley",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__galley"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.lavatory",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lavatory"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.baggage",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__baggage"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.panels",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__panels"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.lights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__lights"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.cms",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__cms"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.oxygen",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__oxygen"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.ecs",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__ecs"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "cabin.press",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__cabin__press"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "safety.fire",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__fire"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "safety.extinguisher",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__extinguisher"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "safety.deice",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__deice"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "safety.navlights",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__navlights"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "safety.strobe",
+    "status": "verify",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__strobe"
+  },
+  {
+    "aircraft": "citation-cj2-plus",
+    "part": "safety.landinglight",
+    "status": "candidate",
+    "geometry": "pending",
+    "evidence": "general only; verify variant and serial before publication",
+    "node": "part__safety__landinglight"
+  }
+]

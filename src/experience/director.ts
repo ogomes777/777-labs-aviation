@@ -1,7 +1,7 @@
 import { createStore } from './store';
 import type { PartId, VariantId, ViewId } from '@/content/site';
 import type { RegionId } from '@/content/destinations';
-import type { FleetId } from '@/content/fleet';
+import type { FleetId, SystemId } from '@/content/fleet';
 
 export type Quality = 'high' | 'balanced' | 'lite';
 export type MotionMode = 'cinematic' | 'lite' | 'reduced';
@@ -71,6 +71,15 @@ export interface UIState {
   assembled: boolean;
   inspectPart: string | null;
   inspectMode: 'parts' | 'plan' | 'seat';
+  /** V6: sistema isolado no atlas da aeronave inspecionada (null = conjunto) */
+  inspectSystem: SystemId | null;
+  /** V6: raio-X (casca translúcida + estrutura interna ilustrativa) */
+  fleetXray: boolean;
+  /** V6: órbita 360° manual em volta da aeronave inspecionada (radianos, somada à pose base) */
+  fleetYaw: number;
+  fleetPitch: number;
+  /** V6: preview aberto (pré-seleção) — destaca o sistema em 3D sem desmontar */
+  fleetPreview: SystemId | null;
   seat: number | null;
   /** nível de qualidade adaptativo 0..3 (regulado pelo FPS real do dispositivo) */
   perf: number;
@@ -105,6 +114,11 @@ export const ui = createStore<UIState>({
   assembled: true,
   inspectPart: null,
   inspectMode: 'parts',
+  inspectSystem: null,
+  fleetXray: false,
+  fleetYaw: 0,
+  fleetPitch: 0,
+  fleetPreview: null,
   seat: null,
   perf: 2,
   dof: true,

@@ -1,0 +1,2 @@
+# Revisão V1 → V5
+V1 era briefing genérico com agentes/skills Markdown sem estrutura nativa. V5 substitui a orientação anterior, em especial sobre Matrix: não pressurizada, não jato, não preservar classificação errada na UI pública. A versão do anúncio 2019/2024 não equivale aos Praetor E de 2026. As peças do catálogo são candidatas gerais e não uma listagem IPC. A disponibilidade da SimFly deve ser confirmada antes da venda. Esta consolidação V5 não é cinco releases de código; é uma evolução editorial em camadas (pesquisa, arquitetura, integração, QA).

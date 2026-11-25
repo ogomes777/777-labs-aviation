@@ -1,0 +1,12 @@
+# Checklist de release
+- [ ] Branch e baseline confirmados, backup/commit separado, sem segredos.
+- [ ] Cinco modelos reais, nenhuma aeronave fictícia, Matrix corrigido.
+- [ ] Dados do anúncio revalidados, status/contato e direitos de imagem confirmados.
+- [ ] Cinco exteriores identificáveis e cinco presets de câmera; LODs, planos e assets licenciados.
+- [ ] Cobertura revisada por modelo e fonte: publicar somente nós realmente disponíveis; lista de lacunas entregue.
+- [ ] Planta/3D/cabine não inventados como exatos; material ilustrativo rotulado.
+- [ ] Todas as peças habilitadas testadas por clique e toque, incluindo motores/cabine, sem fallback para avião inteiro.
+- [ ] Transição cabine→hangar, seleção por scroll horizontal, X-ray, desmontagem, voltar, CTA.
+- [ ] Preservar hero 60fps, globo, cursor e anatomia anterior, sem novas barras ou cortes.
+- [ ] Build/typecheck/lint e testes de navegador com evidência; perf real em dispositivos.
+- [ ] Entrega local `localhost:7777`, lista de arquivos, manifesto e passos de rollback. Sem deploy automático.

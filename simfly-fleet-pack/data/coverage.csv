@@ -1,0 +1,581 @@
+﻿aircraft,part,status,geometry,evidence,node
+legacy-450,structure.skin,candidate,pending,general only; verify variant and serial before publication,part__structure__skin
+legacy-450,structure.frames,candidate,pending,general only; verify variant and serial before publication,part__structure__frames
+legacy-450,structure.stringers,candidate,pending,general only; verify variant and serial before publication,part__structure__stringers
+legacy-450,structure.bulkheads,candidate,pending,general only; verify variant and serial before publication,part__structure__bulkheads
+legacy-450,structure.pressure,candidate,pending,general only; verify variant and serial before publication,part__structure__pressure
+legacy-450,structure.floor,candidate,pending,general only; verify variant and serial before publication,part__structure__floor
+legacy-450,structure.radome,verify,pending,general only; verify variant and serial before publication,part__structure__radome
+legacy-450,structure.fairing,candidate,pending,general only; verify variant and serial before publication,part__structure__fairing
+legacy-450,structure.door,candidate,pending,general only; verify variant and serial before publication,part__structure__door
+legacy-450,structure.emergency,verify,pending,general only; verify variant and serial before publication,part__structure__emergency
+legacy-450,structure.windshield,candidate,pending,general only; verify variant and serial before publication,part__structure__windshield
+legacy-450,structure.windows,candidate,pending,general only; verify variant and serial before publication,part__structure__windows
+legacy-450,structure.access,candidate,pending,general only; verify variant and serial before publication,part__structure__access
+legacy-450,wing.spar,candidate,pending,general only; verify variant and serial before publication,part__wing__spar
+legacy-450,wing.rib,candidate,pending,general only; verify variant and serial before publication,part__wing__rib
+legacy-450,wing.skin,candidate,pending,general only; verify variant and serial before publication,part__wing__skin
+legacy-450,wing.root,candidate,pending,general only; verify variant and serial before publication,part__wing__root
+legacy-450,wing.tip,candidate,pending,general only; verify variant and serial before publication,part__wing__tip
+legacy-450,wing.winglet,verify,pending,general only; verify variant and serial before publication,part__wing__winglet
+legacy-450,wing.aileron,candidate,pending,general only; verify variant and serial before publication,part__wing__aileron
+legacy-450,wing.flap,candidate,pending,general only; verify variant and serial before publication,part__wing__flap
+legacy-450,wing.slat,verify,pending,general only; verify variant and serial before publication,part__wing__slat
+legacy-450,wing.spoiler,verify,pending,general only; verify variant and serial before publication,part__wing__spoiler
+legacy-450,wing.fuel,verify,pending,general only; verify variant and serial before publication,part__wing__fuel
+legacy-450,wing.antiice,verify,pending,general only; verify variant and serial before publication,part__wing__antiice
+legacy-450,flight.actuator,candidate,pending,general only; verify variant and serial before publication,part__flight__actuator
+legacy-450,flight.fbw,candidate,pending,general only; verify variant and serial before publication,part__flight__fbw
+legacy-450,flight.cables,verify,pending,general only; verify variant and serial before publication,part__flight__cables
+legacy-450,flight.trim,candidate,pending,general only; verify variant and serial before publication,part__flight__trim
+legacy-450,flight.autopilot,verify,pending,general only; verify variant and serial before publication,part__flight__autopilot
+legacy-450,tail.fin,candidate,pending,general only; verify variant and serial before publication,part__tail__fin
+legacy-450,tail.rudder,candidate,pending,general only; verify variant and serial before publication,part__tail__rudder
+legacy-450,tail.horizontal,candidate,pending,general only; verify variant and serial before publication,part__tail__horizontal
+legacy-450,tail.elevator,candidate,pending,general only; verify variant and serial before publication,part__tail__elevator
+legacy-450,tail.trim,verify,pending,general only; verify variant and serial before publication,part__tail__trim
+legacy-450,jet.inlet,candidate,pending,general only; verify variant and serial before publication,part__jet__inlet
+legacy-450,jet.nacelle,candidate,pending,general only; verify variant and serial before publication,part__jet__nacelle
+legacy-450,jet.fan,candidate,pending,general only; verify variant and serial before publication,part__jet__fan
+legacy-450,jet.compressor,candidate,pending,general only; verify variant and serial before publication,part__jet__compressor
+legacy-450,jet.combustor,candidate,pending,general only; verify variant and serial before publication,part__jet__combustor
+legacy-450,jet.turbine,candidate,pending,general only; verify variant and serial before publication,part__jet__turbine
+legacy-450,jet.shaft,candidate,pending,general only; verify variant and serial before publication,part__jet__shaft
+legacy-450,jet.exhaust,candidate,pending,general only; verify variant and serial before publication,part__jet__exhaust
+legacy-450,jet.accessory,candidate,pending,general only; verify variant and serial before publication,part__jet__accessory
+legacy-450,jet.fadec,candidate,pending,general only; verify variant and serial before publication,part__jet__fadec
+legacy-450,jet.mount,candidate,pending,general only; verify variant and serial before publication,part__jet__mount
+legacy-450,jet.reverser,verify,pending,general only; verify variant and serial before publication,part__jet__reverser
+legacy-450,piston.cowling,not-applicable,none,excluded by scope/type,part__piston__cowling
+legacy-450,piston.propeller,not-applicable,none,excluded by scope/type,part__piston__propeller
+legacy-450,piston.governor,not-applicable,none,excluded by scope/type,part__piston__governor
+legacy-450,piston.crankcase,not-applicable,none,excluded by scope/type,part__piston__crankcase
+legacy-450,piston.cylinders,not-applicable,none,excluded by scope/type,part__piston__cylinders
+legacy-450,piston.pistons,not-applicable,none,excluded by scope/type,part__piston__pistons
+legacy-450,piston.crankshaft,not-applicable,none,excluded by scope/type,part__piston__crankshaft
+legacy-450,piston.valves,not-applicable,none,excluded by scope/type,part__piston__valves
+legacy-450,piston.ignition,not-applicable,none,excluded by scope/type,part__piston__ignition
+legacy-450,piston.turbo,not-applicable,none,excluded by scope/type,part__piston__turbo
+legacy-450,piston.intercooler,not-applicable,none,excluded by scope/type,part__piston__intercooler
+legacy-450,piston.exhaust,not-applicable,none,excluded by scope/type,part__piston__exhaust
+legacy-450,piston.oil,not-applicable,none,excluded by scope/type,part__piston__oil
+legacy-450,piston.mount,not-applicable,none,excluded by scope/type,part__piston__mount
+legacy-450,gear.nose,candidate,pending,general only; verify variant and serial before publication,part__gear__nose
+legacy-450,gear.main,candidate,pending,general only; verify variant and serial before publication,part__gear__main
+legacy-450,gear.strut,candidate,pending,general only; verify variant and serial before publication,part__gear__strut
+legacy-450,gear.tire,candidate,pending,general only; verify variant and serial before publication,part__gear__tire
+legacy-450,gear.wheel,candidate,pending,general only; verify variant and serial before publication,part__gear__wheel
+legacy-450,gear.brake,candidate,pending,general only; verify variant and serial before publication,part__gear__brake
+legacy-450,gear.retract,candidate,pending,general only; verify variant and serial before publication,part__gear__retract
+legacy-450,gear.doors,verify,pending,general only; verify variant and serial before publication,part__gear__doors
+legacy-450,gear.sensor,candidate,pending,general only; verify variant and serial before publication,part__gear__sensor
+legacy-450,fuel.tank,candidate,pending,general only; verify variant and serial before publication,part__fuel__tank
+legacy-450,fuel.pump,candidate,pending,general only; verify variant and serial before publication,part__fuel__pump
+legacy-450,fuel.filter,candidate,pending,general only; verify variant and serial before publication,part__fuel__filter
+legacy-450,fuel.valve,candidate,pending,general only; verify variant and serial before publication,part__fuel__valve
+legacy-450,fuel.lines,candidate,pending,general only; verify variant and serial before publication,part__fuel__lines
+legacy-450,fuel.quantity,candidate,pending,general only; verify variant and serial before publication,part__fuel__quantity
+legacy-450,hyd.reservoir,verify,pending,general only; verify variant and serial before publication,part__hyd__reservoir
+legacy-450,hyd.pump,verify,pending,general only; verify variant and serial before publication,part__hyd__pump
+legacy-450,hyd.actuator,verify,pending,general only; verify variant and serial before publication,part__hyd__actuator
+legacy-450,hyd.manifold,verify,pending,general only; verify variant and serial before publication,part__hyd__manifold
+legacy-450,hyd.lines,verify,pending,general only; verify variant and serial before publication,part__hyd__lines
+legacy-450,elec.battery,candidate,pending,general only; verify variant and serial before publication,part__elec__battery
+legacy-450,elec.generator,candidate,pending,general only; verify variant and serial before publication,part__elec__generator
+legacy-450,elec.bus,candidate,pending,general only; verify variant and serial before publication,part__elec__bus
+legacy-450,elec.protection,candidate,pending,general only; verify variant and serial before publication,part__elec__protection
+legacy-450,elec.wiring,candidate,pending,general only; verify variant and serial before publication,part__elec__wiring
+legacy-450,elec.apu,verify,pending,general only; verify variant and serial before publication,part__elec__apu
+legacy-450,avionics.displays,candidate,pending,general only; verify variant and serial before publication,part__avionics__displays
+legacy-450,avionics.fms,verify,pending,general only; verify variant and serial before publication,part__avionics__fms
+legacy-450,avionics.radio,candidate,pending,general only; verify variant and serial before publication,part__avionics__radio
+legacy-450,avionics.nav,candidate,pending,general only; verify variant and serial before publication,part__avionics__nav
+legacy-450,avionics.transponder,candidate,pending,general only; verify variant and serial before publication,part__avionics__transponder
+legacy-450,avionics.radar,verify,pending,general only; verify variant and serial before publication,part__avionics__radar
+legacy-450,avionics.airdata,candidate,pending,general only; verify variant and serial before publication,part__avionics__airdata
+legacy-450,avionics.pitot,candidate,pending,general only; verify variant and serial before publication,part__avionics__pitot
+legacy-450,avionics.aoa,verify,pending,general only; verify variant and serial before publication,part__avionics__aoa
+legacy-450,avionics.controls,candidate,pending,general only; verify variant and serial before publication,part__avionics__controls
+legacy-450,avionics.elt,candidate,pending,general only; verify variant and serial before publication,part__avionics__elt
+legacy-450,cabin.seat,candidate,pending,general only; verify variant and serial before publication,part__cabin__seat
+legacy-450,cabin.rail,verify,pending,general only; verify variant and serial before publication,part__cabin__rail
+legacy-450,cabin.table,verify,pending,general only; verify variant and serial before publication,part__cabin__table
+legacy-450,cabin.galley,verify,pending,general only; verify variant and serial before publication,part__cabin__galley
+legacy-450,cabin.lavatory,verify,pending,general only; verify variant and serial before publication,part__cabin__lavatory
+legacy-450,cabin.baggage,candidate,pending,general only; verify variant and serial before publication,part__cabin__baggage
+legacy-450,cabin.panels,candidate,pending,general only; verify variant and serial before publication,part__cabin__panels
+legacy-450,cabin.lights,candidate,pending,general only; verify variant and serial before publication,part__cabin__lights
+legacy-450,cabin.cms,verify,pending,general only; verify variant and serial before publication,part__cabin__cms
+legacy-450,cabin.oxygen,verify,pending,general only; verify variant and serial before publication,part__cabin__oxygen
+legacy-450,cabin.ecs,candidate,pending,general only; verify variant and serial before publication,part__cabin__ecs
+legacy-450,cabin.press,candidate,pending,general only; verify variant and serial before publication,part__cabin__press
+legacy-450,safety.fire,verify,pending,general only; verify variant and serial before publication,part__safety__fire
+legacy-450,safety.extinguisher,verify,pending,general only; verify variant and serial before publication,part__safety__extinguisher
+legacy-450,safety.deice,verify,pending,general only; verify variant and serial before publication,part__safety__deice
+legacy-450,safety.navlights,candidate,pending,general only; verify variant and serial before publication,part__safety__navlights
+legacy-450,safety.strobe,verify,pending,general only; verify variant and serial before publication,part__safety__strobe
+legacy-450,safety.landinglight,candidate,pending,general only; verify variant and serial before publication,part__safety__landinglight
+praetor-500,structure.skin,candidate,pending,general only; verify variant and serial before publication,part__structure__skin
+praetor-500,structure.frames,candidate,pending,general only; verify variant and serial before publication,part__structure__frames
+praetor-500,structure.stringers,candidate,pending,general only; verify variant and serial before publication,part__structure__stringers
+praetor-500,structure.bulkheads,candidate,pending,general only; verify variant and serial before publication,part__structure__bulkheads
+praetor-500,structure.pressure,candidate,pending,general only; verify variant and serial before publication,part__structure__pressure
+praetor-500,structure.floor,candidate,pending,general only; verify variant and serial before publication,part__structure__floor
+praetor-500,structure.radome,verify,pending,general only; verify variant and serial before publication,part__structure__radome
+praetor-500,structure.fairing,candidate,pending,general only; verify variant and serial before publication,part__structure__fairing
+praetor-500,structure.door,candidate,pending,general only; verify variant and serial before publication,part__structure__door
+praetor-500,structure.emergency,verify,pending,general only; verify variant and serial before publication,part__structure__emergency
+praetor-500,structure.windshield,candidate,pending,general only; verify variant and serial before publication,part__structure__windshield
+praetor-500,structure.windows,candidate,pending,general only; verify variant and serial before publication,part__structure__windows
+praetor-500,structure.access,candidate,pending,general only; verify variant and serial before publication,part__structure__access
+praetor-500,wing.spar,candidate,pending,general only; verify variant and serial before publication,part__wing__spar
+praetor-500,wing.rib,candidate,pending,general only; verify variant and serial before publication,part__wing__rib
+praetor-500,wing.skin,candidate,pending,general only; verify variant and serial before publication,part__wing__skin
+praetor-500,wing.root,candidate,pending,general only; verify variant and serial before publication,part__wing__root
+praetor-500,wing.tip,candidate,pending,general only; verify variant and serial before publication,part__wing__tip
+praetor-500,wing.winglet,verify,pending,general only; verify variant and serial before publication,part__wing__winglet
+praetor-500,wing.aileron,candidate,pending,general only; verify variant and serial before publication,part__wing__aileron
+praetor-500,wing.flap,candidate,pending,general only; verify variant and serial before publication,part__wing__flap
+praetor-500,wing.slat,verify,pending,general only; verify variant and serial before publication,part__wing__slat
+praetor-500,wing.spoiler,verify,pending,general only; verify variant and serial before publication,part__wing__spoiler
+praetor-500,wing.fuel,verify,pending,general only; verify variant and serial before publication,part__wing__fuel
+praetor-500,wing.antiice,verify,pending,general only; verify variant and serial before publication,part__wing__antiice
+praetor-500,flight.actuator,candidate,pending,general only; verify variant and serial before publication,part__flight__actuator
+praetor-500,flight.fbw,candidate,pending,general only; verify variant and serial before publication,part__flight__fbw
+praetor-500,flight.cables,verify,pending,general only; verify variant and serial before publication,part__flight__cables
+praetor-500,flight.trim,candidate,pending,general only; verify variant and serial before publication,part__flight__trim
+praetor-500,flight.autopilot,verify,pending,general only; verify variant and serial before publication,part__flight__autopilot
+praetor-500,tail.fin,candidate,pending,general only; verify variant and serial before publication,part__tail__fin
+praetor-500,tail.rudder,candidate,pending,general only; verify variant and serial before publication,part__tail__rudder
+praetor-500,tail.horizontal,candidate,pending,general only; verify variant and serial before publication,part__tail__horizontal
+praetor-500,tail.elevator,candidate,pending,general only; verify variant and serial before publication,part__tail__elevator
+praetor-500,tail.trim,verify,pending,general only; verify variant and serial before publication,part__tail__trim
+praetor-500,jet.inlet,candidate,pending,general only; verify variant and serial before publication,part__jet__inlet
+praetor-500,jet.nacelle,candidate,pending,general only; verify variant and serial before publication,part__jet__nacelle
+praetor-500,jet.fan,candidate,pending,general only; verify variant and serial before publication,part__jet__fan
+praetor-500,jet.compressor,candidate,pending,general only; verify variant and serial before publication,part__jet__compressor
+praetor-500,jet.combustor,candidate,pending,general only; verify variant and serial before publication,part__jet__combustor
+praetor-500,jet.turbine,candidate,pending,general only; verify variant and serial before publication,part__jet__turbine
+praetor-500,jet.shaft,candidate,pending,general only; verify variant and serial before publication,part__jet__shaft
+praetor-500,jet.exhaust,candidate,pending,general only; verify variant and serial before publication,part__jet__exhaust
+praetor-500,jet.accessory,candidate,pending,general only; verify variant and serial before publication,part__jet__accessory
+praetor-500,jet.fadec,candidate,pending,general only; verify variant and serial before publication,part__jet__fadec
+praetor-500,jet.mount,candidate,pending,general only; verify variant and serial before publication,part__jet__mount
+praetor-500,jet.reverser,verify,pending,general only; verify variant and serial before publication,part__jet__reverser
+praetor-500,piston.cowling,not-applicable,none,excluded by scope/type,part__piston__cowling
+praetor-500,piston.propeller,not-applicable,none,excluded by scope/type,part__piston__propeller
+praetor-500,piston.governor,not-applicable,none,excluded by scope/type,part__piston__governor
+praetor-500,piston.crankcase,not-applicable,none,excluded by scope/type,part__piston__crankcase
+praetor-500,piston.cylinders,not-applicable,none,excluded by scope/type,part__piston__cylinders
+praetor-500,piston.pistons,not-applicable,none,excluded by scope/type,part__piston__pistons
+praetor-500,piston.crankshaft,not-applicable,none,excluded by scope/type,part__piston__crankshaft
+praetor-500,piston.valves,not-applicable,none,excluded by scope/type,part__piston__valves
+praetor-500,piston.ignition,not-applicable,none,excluded by scope/type,part__piston__ignition
+praetor-500,piston.turbo,not-applicable,none,excluded by scope/type,part__piston__turbo
+praetor-500,piston.intercooler,not-applicable,none,excluded by scope/type,part__piston__intercooler
+praetor-500,piston.exhaust,not-applicable,none,excluded by scope/type,part__piston__exhaust
+praetor-500,piston.oil,not-applicable,none,excluded by scope/type,part__piston__oil
+praetor-500,piston.mount,not-applicable,none,excluded by scope/type,part__piston__mount
+praetor-500,gear.nose,candidate,pending,general only; verify variant and serial before publication,part__gear__nose
+praetor-500,gear.main,candidate,pending,general only; verify variant and serial before publication,part__gear__main
+praetor-500,gear.strut,candidate,pending,general only; verify variant and serial before publication,part__gear__strut
+praetor-500,gear.tire,candidate,pending,general only; verify variant and serial before publication,part__gear__tire
+praetor-500,gear.wheel,candidate,pending,general only; verify variant and serial before publication,part__gear__wheel
+praetor-500,gear.brake,candidate,pending,general only; verify variant and serial before publication,part__gear__brake
+praetor-500,gear.retract,candidate,pending,general only; verify variant and serial before publication,part__gear__retract
+praetor-500,gear.doors,verify,pending,general only; verify variant and serial before publication,part__gear__doors
+praetor-500,gear.sensor,candidate,pending,general only; verify variant and serial before publication,part__gear__sensor
+praetor-500,fuel.tank,candidate,pending,general only; verify variant and serial before publication,part__fuel__tank
+praetor-500,fuel.pump,candidate,pending,general only; verify variant and serial before publication,part__fuel__pump
+praetor-500,fuel.filter,candidate,pending,general only; verify variant and serial before publication,part__fuel__filter
+praetor-500,fuel.valve,candidate,pending,general only; verify variant and serial before publication,part__fuel__valve
+praetor-500,fuel.lines,candidate,pending,general only; verify variant and serial before publication,part__fuel__lines
+praetor-500,fuel.quantity,candidate,pending,general only; verify variant and serial before publication,part__fuel__quantity
+praetor-500,hyd.reservoir,verify,pending,general only; verify variant and serial before publication,part__hyd__reservoir
+praetor-500,hyd.pump,verify,pending,general only; verify variant and serial before publication,part__hyd__pump
+praetor-500,hyd.actuator,verify,pending,general only; verify variant and serial before publication,part__hyd__actuator
+praetor-500,hyd.manifold,verify,pending,general only; verify variant and serial before publication,part__hyd__manifold
+praetor-500,hyd.lines,verify,pending,general only; verify variant and serial before publication,part__hyd__lines
+praetor-500,elec.battery,candidate,pending,general only; verify variant and serial before publication,part__elec__battery
+praetor-500,elec.generator,candidate,pending,general only; verify variant and serial before publication,part__elec__generator
+praetor-500,elec.bus,candidate,pending,general only; verify variant and serial before publication,part__elec__bus
+praetor-500,elec.protection,candidate,pending,general only; verify variant and serial before publication,part__elec__protection
+praetor-500,elec.wiring,candidate,pending,general only; verify variant and serial before publication,part__elec__wiring
+praetor-500,elec.apu,verify,pending,general only; verify variant and serial before publication,part__elec__apu
+praetor-500,avionics.displays,candidate,pending,general only; verify variant and serial before publication,part__avionics__displays
+praetor-500,avionics.fms,verify,pending,general only; verify variant and serial before publication,part__avionics__fms
+praetor-500,avionics.radio,candidate,pending,general only; verify variant and serial before publication,part__avionics__radio
+praetor-500,avionics.nav,candidate,pending,general only; verify variant and serial before publication,part__avionics__nav
+praetor-500,avionics.transponder,candidate,pending,general only; verify variant and serial before publication,part__avionics__transponder
+praetor-500,avionics.radar,verify,pending,general only; verify variant and serial before publication,part__avionics__radar
+praetor-500,avionics.airdata,candidate,pending,general only; verify variant and serial before publication,part__avionics__airdata
+praetor-500,avionics.pitot,candidate,pending,general only; verify variant and serial before publication,part__avionics__pitot
+praetor-500,avionics.aoa,verify,pending,general only; verify variant and serial before publication,part__avionics__aoa
+praetor-500,avionics.controls,candidate,pending,general only; verify variant and serial before publication,part__avionics__controls
+praetor-500,avionics.elt,candidate,pending,general only; verify variant and serial before publication,part__avionics__elt
+praetor-500,cabin.seat,candidate,pending,general only; verify variant and serial before publication,part__cabin__seat
+praetor-500,cabin.rail,verify,pending,general only; verify variant and serial before publication,part__cabin__rail
+praetor-500,cabin.table,verify,pending,general only; verify variant and serial before publication,part__cabin__table
+praetor-500,cabin.galley,verify,pending,general only; verify variant and serial before publication,part__cabin__galley
+praetor-500,cabin.lavatory,verify,pending,general only; verify variant and serial before publication,part__cabin__lavatory
+praetor-500,cabin.baggage,candidate,pending,general only; verify variant and serial before publication,part__cabin__baggage
+praetor-500,cabin.panels,candidate,pending,general only; verify variant and serial before publication,part__cabin__panels
+praetor-500,cabin.lights,candidate,pending,general only; verify variant and serial before publication,part__cabin__lights
+praetor-500,cabin.cms,verify,pending,general only; verify variant and serial before publication,part__cabin__cms
+praetor-500,cabin.oxygen,verify,pending,general only; verify variant and serial before publication,part__cabin__oxygen
+praetor-500,cabin.ecs,candidate,pending,general only; verify variant and serial before publication,part__cabin__ecs
+praetor-500,cabin.press,candidate,pending,general only; verify variant and serial before publication,part__cabin__press
+praetor-500,safety.fire,verify,pending,general only; verify variant and serial before publication,part__safety__fire
+praetor-500,safety.extinguisher,verify,pending,general only; verify variant and serial before publication,part__safety__extinguisher
+praetor-500,safety.deice,verify,pending,general only; verify variant and serial before publication,part__safety__deice
+praetor-500,safety.navlights,candidate,pending,general only; verify variant and serial before publication,part__safety__navlights
+praetor-500,safety.strobe,verify,pending,general only; verify variant and serial before publication,part__safety__strobe
+praetor-500,safety.landinglight,candidate,pending,general only; verify variant and serial before publication,part__safety__landinglight
+praetor-600,structure.skin,candidate,pending,general only; verify variant and serial before publication,part__structure__skin
+praetor-600,structure.frames,candidate,pending,general only; verify variant and serial before publication,part__structure__frames
+praetor-600,structure.stringers,candidate,pending,general only; verify variant and serial before publication,part__structure__stringers
+praetor-600,structure.bulkheads,candidate,pending,general only; verify variant and serial before publication,part__structure__bulkheads
+praetor-600,structure.pressure,candidate,pending,general only; verify variant and serial before publication,part__structure__pressure
+praetor-600,structure.floor,candidate,pending,general only; verify variant and serial before publication,part__structure__floor
+praetor-600,structure.radome,verify,pending,general only; verify variant and serial before publication,part__structure__radome
+praetor-600,structure.fairing,candidate,pending,general only; verify variant and serial before publication,part__structure__fairing
+praetor-600,structure.door,candidate,pending,general only; verify variant and serial before publication,part__structure__door
+praetor-600,structure.emergency,verify,pending,general only; verify variant and serial before publication,part__structure__emergency
+praetor-600,structure.windshield,candidate,pending,general only; verify variant and serial before publication,part__structure__windshield
+praetor-600,structure.windows,candidate,pending,general only; verify variant and serial before publication,part__structure__windows
+praetor-600,structure.access,candidate,pending,general only; verify variant and serial before publication,part__structure__access
+praetor-600,wing.spar,candidate,pending,general only; verify variant and serial before publication,part__wing__spar
+praetor-600,wing.rib,candidate,pending,general only; verify variant and serial before publication,part__wing__rib
+praetor-600,wing.skin,candidate,pending,general only; verify variant and serial before publication,part__wing__skin
+praetor-600,wing.root,candidate,pending,general only; verify variant and serial before publication,part__wing__root
+praetor-600,wing.tip,candidate,pending,general only; verify variant and serial before publication,part__wing__tip
+praetor-600,wing.winglet,verify,pending,general only; verify variant and serial before publication,part__wing__winglet
+praetor-600,wing.aileron,candidate,pending,general only; verify variant and serial before publication,part__wing__aileron
+praetor-600,wing.flap,candidate,pending,general only; verify variant and serial before publication,part__wing__flap
+praetor-600,wing.slat,verify,pending,general only; verify variant and serial before publication,part__wing__slat
+praetor-600,wing.spoiler,verify,pending,general only; verify variant and serial before publication,part__wing__spoiler
+praetor-600,wing.fuel,verify,pending,general only; verify variant and serial before publication,part__wing__fuel
+praetor-600,wing.antiice,verify,pending,general only; verify variant and serial before publication,part__wing__antiice
+praetor-600,flight.actuator,candidate,pending,general only; verify variant and serial before publication,part__flight__actuator
+praetor-600,flight.fbw,candidate,pending,general only; verify variant and serial before publication,part__flight__fbw
+praetor-600,flight.cables,verify,pending,general only; verify variant and serial before publication,part__flight__cables
+praetor-600,flight.trim,candidate,pending,general only; verify variant and serial before publication,part__flight__trim
+praetor-600,flight.autopilot,verify,pending,general only; verify variant and serial before publication,part__flight__autopilot
+praetor-600,tail.fin,candidate,pending,general only; verify variant and serial before publication,part__tail__fin
+praetor-600,tail.rudder,candidate,pending,general only; verify variant and serial before publication,part__tail__rudder
+praetor-600,tail.horizontal,candidate,pending,general only; verify variant and serial before publication,part__tail__horizontal
+praetor-600,tail.elevator,candidate,pending,general only; verify variant and serial before publication,part__tail__elevator
+praetor-600,tail.trim,verify,pending,general only; verify variant and serial before publication,part__tail__trim
+praetor-600,jet.inlet,candidate,pending,general only; verify variant and serial before publication,part__jet__inlet
+praetor-600,jet.nacelle,candidate,pending,general only; verify variant and serial before publication,part__jet__nacelle
+praetor-600,jet.fan,candidate,pending,general only; verify variant and serial before publication,part__jet__fan
+praetor-600,jet.compressor,candidate,pending,general only; verify variant and serial before publication,part__jet__compressor
+praetor-600,jet.combustor,candidate,pending,general only; verify variant and serial before publication,part__jet__combustor
+praetor-600,jet.turbine,candidate,pending,general only; verify variant and serial before publication,part__jet__turbine
+praetor-600,jet.shaft,candidate,pending,general only; verify variant and serial before publication,part__jet__shaft
+praetor-600,jet.exhaust,candidate,pending,general only; verify variant and serial before publication,part__jet__exhaust
+praetor-600,jet.accessory,candidate,pending,general only; verify variant and serial before publication,part__jet__accessory
+praetor-600,jet.fadec,candidate,pending,general only; verify variant and serial before publication,part__jet__fadec
+praetor-600,jet.mount,candidate,pending,general only; verify variant and serial before publication,part__jet__mount
+praetor-600,jet.reverser,verify,pending,general only; verify variant and serial before publication,part__jet__reverser
+praetor-600,piston.cowling,not-applicable,none,excluded by scope/type,part__piston__cowling
+praetor-600,piston.propeller,not-applicable,none,excluded by scope/type,part__piston__propeller
+praetor-600,piston.governor,not-applicable,none,excluded by scope/type,part__piston__governor
+praetor-600,piston.crankcase,not-applicable,none,excluded by scope/type,part__piston__crankcase
+praetor-600,piston.cylinders,not-applicable,none,excluded by scope/type,part__piston__cylinders
+praetor-600,piston.pistons,not-applicable,none,excluded by scope/type,part__piston__pistons
+praetor-600,piston.crankshaft,not-applicable,none,excluded by scope/type,part__piston__crankshaft
+praetor-600,piston.valves,not-applicable,none,excluded by scope/type,part__piston__valves
+praetor-600,piston.ignition,not-applicable,none,excluded by scope/type,part__piston__ignition
+praetor-600,piston.turbo,not-applicable,none,excluded by scope/type,part__piston__turbo
+praetor-600,piston.intercooler,not-applicable,none,excluded by scope/type,part__piston__intercooler
+praetor-600,piston.exhaust,not-applicable,none,excluded by scope/type,part__piston__exhaust
+praetor-600,piston.oil,not-applicable,none,excluded by scope/type,part__piston__oil
+praetor-600,piston.mount,not-applicable,none,excluded by scope/type,part__piston__mount
+praetor-600,gear.nose,candidate,pending,general only; verify variant and serial before publication,part__gear__nose
+praetor-600,gear.main,candidate,pending,general only; verify variant and serial before publication,part__gear__main
+praetor-600,gear.strut,candidate,pending,general only; verify variant and serial before publication,part__gear__strut
+praetor-600,gear.tire,candidate,pending,general only; verify variant and serial before publication,part__gear__tire
+praetor-600,gear.wheel,candidate,pending,general only; verify variant and serial before publication,part__gear__wheel
+praetor-600,gear.brake,candidate,pending,general only; verify variant and serial before publication,part__gear__brake
+praetor-600,gear.retract,candidate,pending,general only; verify variant and serial before publication,part__gear__retract
+praetor-600,gear.doors,verify,pending,general only; verify variant and serial before publication,part__gear__doors
+praetor-600,gear.sensor,candidate,pending,general only; verify variant and serial before publication,part__gear__sensor
+praetor-600,fuel.tank,candidate,pending,general only; verify variant and serial before publication,part__fuel__tank
+praetor-600,fuel.pump,candidate,pending,general only; verify variant and serial before publication,part__fuel__pump
+praetor-600,fuel.filter,candidate,pending,general only; verify variant and serial before publication,part__fuel__filter
+praetor-600,fuel.valve,candidate,pending,general only; verify variant and serial before publication,part__fuel__valve
+praetor-600,fuel.lines,candidate,pending,general only; verify variant and serial before publication,part__fuel__lines
+praetor-600,fuel.quantity,candidate,pending,general only; verify variant and serial before publication,part__fuel__quantity
+praetor-600,hyd.reservoir,verify,pending,general only; verify variant and serial before publication,part__hyd__reservoir
+praetor-600,hyd.pump,verify,pending,general only; verify variant and serial before publication,part__hyd__pump
+praetor-600,hyd.actuator,verify,pending,general only; verify variant and serial before publication,part__hyd__actuator
+praetor-600,hyd.manifold,verify,pending,general only; verify variant and serial before publication,part__hyd__manifold
+praetor-600,hyd.lines,verify,pending,general only; verify variant and serial before publication,part__hyd__lines
+praetor-600,elec.battery,candidate,pending,general only; verify variant and serial before publication,part__elec__battery
+praetor-600,elec.generator,candidate,pending,general only; verify variant and serial before publication,part__elec__generator
+praetor-600,elec.bus,candidate,pending,general only; verify variant and serial before publication,part__elec__bus
+praetor-600,elec.protection,candidate,pending,general only; verify variant and serial before publication,part__elec__protection
+praetor-600,elec.wiring,candidate,pending,general only; verify variant and serial before publication,part__elec__wiring
+praetor-600,elec.apu,verify,pending,general only; verify variant and serial before publication,part__elec__apu
+praetor-600,avionics.displays,candidate,pending,general only; verify variant and serial before publication,part__avionics__displays
+praetor-600,avionics.fms,verify,pending,general only; verify variant and serial before publication,part__avionics__fms
+praetor-600,avionics.radio,candidate,pending,general only; verify variant and serial before publication,part__avionics__radio
+praetor-600,avionics.nav,candidate,pending,general only; verify variant and serial before publication,part__avionics__nav
+praetor-600,avionics.transponder,candidate,pending,general only; verify variant and serial before publication,part__avionics__transponder
+praetor-600,avionics.radar,verify,pending,general only; verify variant and serial before publication,part__avionics__radar
+praetor-600,avionics.airdata,candidate,pending,general only; verify variant and serial before publication,part__avionics__airdata
+praetor-600,avionics.pitot,candidate,pending,general only; verify variant and serial before publication,part__avionics__pitot
+praetor-600,avionics.aoa,verify,pending,general only; verify variant and serial before publication,part__avionics__aoa
+praetor-600,avionics.controls,candidate,pending,general only; verify variant and serial before publication,part__avionics__controls
+praetor-600,avionics.elt,candidate,pending,general only; verify variant and serial before publication,part__avionics__elt
+praetor-600,cabin.seat,candidate,pending,general only; verify variant and serial before publication,part__cabin__seat
+praetor-600,cabin.rail,verify,pending,general only; verify variant and serial before publication,part__cabin__rail
+praetor-600,cabin.table,verify,pending,general only; verify variant and serial before publication,part__cabin__table
+praetor-600,cabin.galley,verify,pending,general only; verify variant and serial before publication,part__cabin__galley
+praetor-600,cabin.lavatory,verify,pending,general only; verify variant and serial before publication,part__cabin__lavatory
+praetor-600,cabin.baggage,candidate,pending,general only; verify variant and serial before publication,part__cabin__baggage
+praetor-600,cabin.panels,candidate,pending,general only; verify variant and serial before publication,part__cabin__panels
+praetor-600,cabin.lights,candidate,pending,general only; verify variant and serial before publication,part__cabin__lights
+praetor-600,cabin.cms,verify,pending,general only; verify variant and serial before publication,part__cabin__cms
+praetor-600,cabin.oxygen,verify,pending,general only; verify variant and serial before publication,part__cabin__oxygen
+praetor-600,cabin.ecs,candidate,pending,general only; verify variant and serial before publication,part__cabin__ecs
+praetor-600,cabin.press,candidate,pending,general only; verify variant and serial before publication,part__cabin__press
+praetor-600,safety.fire,verify,pending,general only; verify variant and serial before publication,part__safety__fire
+praetor-600,safety.extinguisher,verify,pending,general only; verify variant and serial before publication,part__safety__extinguisher
+praetor-600,safety.deice,verify,pending,general only; verify variant and serial before publication,part__safety__deice
+praetor-600,safety.navlights,candidate,pending,general only; verify variant and serial before publication,part__safety__navlights
+praetor-600,safety.strobe,verify,pending,general only; verify variant and serial before publication,part__safety__strobe
+praetor-600,safety.landinglight,candidate,pending,general only; verify variant and serial before publication,part__safety__landinglight
+matrix,structure.skin,candidate,pending,general only; verify variant and serial before publication,part__structure__skin
+matrix,structure.frames,candidate,pending,general only; verify variant and serial before publication,part__structure__frames
+matrix,structure.stringers,candidate,pending,general only; verify variant and serial before publication,part__structure__stringers
+matrix,structure.bulkheads,candidate,pending,general only; verify variant and serial before publication,part__structure__bulkheads
+matrix,structure.pressure,not-applicable,none,excluded by scope/type,part__structure__pressure
+matrix,structure.floor,candidate,pending,general only; verify variant and serial before publication,part__structure__floor
+matrix,structure.radome,verify,pending,general only; verify variant and serial before publication,part__structure__radome
+matrix,structure.fairing,candidate,pending,general only; verify variant and serial before publication,part__structure__fairing
+matrix,structure.door,candidate,pending,general only; verify variant and serial before publication,part__structure__door
+matrix,structure.emergency,verify,pending,general only; verify variant and serial before publication,part__structure__emergency
+matrix,structure.windshield,candidate,pending,general only; verify variant and serial before publication,part__structure__windshield
+matrix,structure.windows,candidate,pending,general only; verify variant and serial before publication,part__structure__windows
+matrix,structure.access,candidate,pending,general only; verify variant and serial before publication,part__structure__access
+matrix,wing.spar,candidate,pending,general only; verify variant and serial before publication,part__wing__spar
+matrix,wing.rib,candidate,pending,general only; verify variant and serial before publication,part__wing__rib
+matrix,wing.skin,candidate,pending,general only; verify variant and serial before publication,part__wing__skin
+matrix,wing.root,candidate,pending,general only; verify variant and serial before publication,part__wing__root
+matrix,wing.tip,candidate,pending,general only; verify variant and serial before publication,part__wing__tip
+matrix,wing.winglet,verify,pending,general only; verify variant and serial before publication,part__wing__winglet
+matrix,wing.aileron,candidate,pending,general only; verify variant and serial before publication,part__wing__aileron
+matrix,wing.flap,candidate,pending,general only; verify variant and serial before publication,part__wing__flap
+matrix,wing.slat,verify,pending,general only; verify variant and serial before publication,part__wing__slat
+matrix,wing.spoiler,verify,pending,general only; verify variant and serial before publication,part__wing__spoiler
+matrix,wing.fuel,verify,pending,general only; verify variant and serial before publication,part__wing__fuel
+matrix,wing.antiice,verify,pending,general only; verify variant and serial before publication,part__wing__antiice
+matrix,flight.actuator,candidate,pending,general only; verify variant and serial before publication,part__flight__actuator
+matrix,flight.fbw,not-applicable,none,excluded by scope/type,part__flight__fbw
+matrix,flight.cables,verify,pending,general only; verify variant and serial before publication,part__flight__cables
+matrix,flight.trim,candidate,pending,general only; verify variant and serial before publication,part__flight__trim
+matrix,flight.autopilot,verify,pending,general only; verify variant and serial before publication,part__flight__autopilot
+matrix,tail.fin,candidate,pending,general only; verify variant and serial before publication,part__tail__fin
+matrix,tail.rudder,candidate,pending,general only; verify variant and serial before publication,part__tail__rudder
+matrix,tail.horizontal,candidate,pending,general only; verify variant and serial before publication,part__tail__horizontal
+matrix,tail.elevator,candidate,pending,general only; verify variant and serial before publication,part__tail__elevator
+matrix,tail.trim,verify,pending,general only; verify variant and serial before publication,part__tail__trim
+matrix,jet.inlet,not-applicable,none,excluded by scope/type,part__jet__inlet
+matrix,jet.nacelle,not-applicable,none,excluded by scope/type,part__jet__nacelle
+matrix,jet.fan,not-applicable,none,excluded by scope/type,part__jet__fan
+matrix,jet.compressor,not-applicable,none,excluded by scope/type,part__jet__compressor
+matrix,jet.combustor,not-applicable,none,excluded by scope/type,part__jet__combustor
+matrix,jet.turbine,not-applicable,none,excluded by scope/type,part__jet__turbine
+matrix,jet.shaft,not-applicable,none,excluded by scope/type,part__jet__shaft
+matrix,jet.exhaust,not-applicable,none,excluded by scope/type,part__jet__exhaust
+matrix,jet.accessory,not-applicable,none,excluded by scope/type,part__jet__accessory
+matrix,jet.fadec,not-applicable,none,excluded by scope/type,part__jet__fadec
+matrix,jet.mount,not-applicable,none,excluded by scope/type,part__jet__mount
+matrix,jet.reverser,not-applicable,none,excluded by scope/type,part__jet__reverser
+matrix,piston.cowling,candidate,pending,general only; verify variant and serial before publication,part__piston__cowling
+matrix,piston.propeller,candidate,pending,general only; verify variant and serial before publication,part__piston__propeller
+matrix,piston.governor,candidate,pending,general only; verify variant and serial before publication,part__piston__governor
+matrix,piston.crankcase,candidate,pending,general only; verify variant and serial before publication,part__piston__crankcase
+matrix,piston.cylinders,candidate,pending,general only; verify variant and serial before publication,part__piston__cylinders
+matrix,piston.pistons,candidate,pending,general only; verify variant and serial before publication,part__piston__pistons
+matrix,piston.crankshaft,candidate,pending,general only; verify variant and serial before publication,part__piston__crankshaft
+matrix,piston.valves,candidate,pending,general only; verify variant and serial before publication,part__piston__valves
+matrix,piston.ignition,candidate,pending,general only; verify variant and serial before publication,part__piston__ignition
+matrix,piston.turbo,candidate,pending,general only; verify variant and serial before publication,part__piston__turbo
+matrix,piston.intercooler,candidate,pending,general only; verify variant and serial before publication,part__piston__intercooler
+matrix,piston.exhaust,candidate,pending,general only; verify variant and serial before publication,part__piston__exhaust
+matrix,piston.oil,candidate,pending,general only; verify variant and serial before publication,part__piston__oil
+matrix,piston.mount,candidate,pending,general only; verify variant and serial before publication,part__piston__mount
+matrix,gear.nose,candidate,pending,general only; verify variant and serial before publication,part__gear__nose
+matrix,gear.main,candidate,pending,general only; verify variant and serial before publication,part__gear__main
+matrix,gear.strut,candidate,pending,general only; verify variant and serial before publication,part__gear__strut
+matrix,gear.tire,candidate,pending,general only; verify variant and serial before publication,part__gear__tire
+matrix,gear.wheel,candidate,pending,general only; verify variant and serial before publication,part__gear__wheel
+matrix,gear.brake,candidate,pending,general only; verify variant and serial before publication,part__gear__brake
+matrix,gear.retract,candidate,pending,general only; verify variant and serial before publication,part__gear__retract
+matrix,gear.doors,verify,pending,general only; verify variant and serial before publication,part__gear__doors
+matrix,gear.sensor,candidate,pending,general only; verify variant and serial before publication,part__gear__sensor
+matrix,fuel.tank,candidate,pending,general only; verify variant and serial before publication,part__fuel__tank
+matrix,fuel.pump,candidate,pending,general only; verify variant and serial before publication,part__fuel__pump
+matrix,fuel.filter,candidate,pending,general only; verify variant and serial before publication,part__fuel__filter
+matrix,fuel.valve,candidate,pending,general only; verify variant and serial before publication,part__fuel__valve
+matrix,fuel.lines,candidate,pending,general only; verify variant and serial before publication,part__fuel__lines
+matrix,fuel.quantity,candidate,pending,general only; verify variant and serial before publication,part__fuel__quantity
+matrix,hyd.reservoir,verify,pending,general only; verify variant and serial before publication,part__hyd__reservoir
+matrix,hyd.pump,verify,pending,general only; verify variant and serial before publication,part__hyd__pump
+matrix,hyd.actuator,verify,pending,general only; verify variant and serial before publication,part__hyd__actuator
+matrix,hyd.manifold,verify,pending,general only; verify variant and serial before publication,part__hyd__manifold
+matrix,hyd.lines,verify,pending,general only; verify variant and serial before publication,part__hyd__lines
+matrix,elec.battery,candidate,pending,general only; verify variant and serial before publication,part__elec__battery
+matrix,elec.generator,candidate,pending,general only; verify variant and serial before publication,part__elec__generator
+matrix,elec.bus,candidate,pending,general only; verify variant and serial before publication,part__elec__bus
+matrix,elec.protection,candidate,pending,general only; verify variant and serial before publication,part__elec__protection
+matrix,elec.wiring,candidate,pending,general only; verify variant and serial before publication,part__elec__wiring
+matrix,elec.apu,verify,pending,general only; verify variant and serial before publication,part__elec__apu
+matrix,avionics.displays,candidate,pending,general only; verify variant and serial before publication,part__avionics__displays
+matrix,avionics.fms,verify,pending,general only; verify variant and serial before publication,part__avionics__fms
+matrix,avionics.radio,candidate,pending,general only; verify variant and serial before publication,part__avionics__radio
+matrix,avionics.nav,candidate,pending,general only; verify variant and serial before publication,part__avionics__nav
+matrix,avionics.transponder,candidate,pending,general only; verify variant and serial before publication,part__avionics__transponder
+matrix,avionics.radar,verify,pending,general only; verify variant and serial before publication,part__avionics__radar
+matrix,avionics.airdata,candidate,pending,general only; verify variant and serial before publication,part__avionics__airdata
+matrix,avionics.pitot,candidate,pending,general only; verify variant and serial before publication,part__avionics__pitot
+matrix,avionics.aoa,verify,pending,general only; verify variant and serial before publication,part__avionics__aoa
+matrix,avionics.controls,candidate,pending,general only; verify variant and serial before publication,part__avionics__controls
+matrix,avionics.elt,candidate,pending,general only; verify variant and serial before publication,part__avionics__elt
+matrix,cabin.seat,candidate,pending,general only; verify variant and serial before publication,part__cabin__seat
+matrix,cabin.rail,verify,pending,general only; verify variant and serial before publication,part__cabin__rail
+matrix,cabin.table,verify,pending,general only; verify variant and serial before publication,part__cabin__table
+matrix,cabin.galley,verify,pending,general only; verify variant and serial before publication,part__cabin__galley
+matrix,cabin.lavatory,verify,pending,general only; verify variant and serial before publication,part__cabin__lavatory
+matrix,cabin.baggage,candidate,pending,general only; verify variant and serial before publication,part__cabin__baggage
+matrix,cabin.panels,candidate,pending,general only; verify variant and serial before publication,part__cabin__panels
+matrix,cabin.lights,candidate,pending,general only; verify variant and serial before publication,part__cabin__lights
+matrix,cabin.cms,verify,pending,general only; verify variant and serial before publication,part__cabin__cms
+matrix,cabin.oxygen,verify,pending,general only; verify variant and serial before publication,part__cabin__oxygen
+matrix,cabin.ecs,candidate,pending,general only; verify variant and serial before publication,part__cabin__ecs
+matrix,cabin.press,not-applicable,none,excluded by scope/type,part__cabin__press
+matrix,safety.fire,verify,pending,general only; verify variant and serial before publication,part__safety__fire
+matrix,safety.extinguisher,verify,pending,general only; verify variant and serial before publication,part__safety__extinguisher
+matrix,safety.deice,verify,pending,general only; verify variant and serial before publication,part__safety__deice
+matrix,safety.navlights,candidate,pending,general only; verify variant and serial before publication,part__safety__navlights
+matrix,safety.strobe,verify,pending,general only; verify variant and serial before publication,part__safety__strobe
+matrix,safety.landinglight,candidate,pending,general only; verify variant and serial before publication,part__safety__landinglight
+citation-cj2-plus,structure.skin,candidate,pending,general only; verify variant and serial before publication,part__structure__skin
+citation-cj2-plus,structure.frames,candidate,pending,general only; verify variant and serial before publication,part__structure__frames
+citation-cj2-plus,structure.stringers,candidate,pending,general only; verify variant and serial before publication,part__structure__stringers
+citation-cj2-plus,structure.bulkheads,candidate,pending,general only; verify variant and serial before publication,part__structure__bulkheads
+citation-cj2-plus,structure.pressure,candidate,pending,general only; verify variant and serial before publication,part__structure__pressure
+citation-cj2-plus,structure.floor,candidate,pending,general only; verify variant and serial before publication,part__structure__floor
+citation-cj2-plus,structure.radome,verify,pending,general only; verify variant and serial before publication,part__structure__radome
+citation-cj2-plus,structure.fairing,candidate,pending,general only; verify variant and serial before publication,part__structure__fairing
+citation-cj2-plus,structure.door,candidate,pending,general only; verify variant and serial before publication,part__structure__door
+citation-cj2-plus,structure.emergency,verify,pending,general only; verify variant and serial before publication,part__structure__emergency
+citation-cj2-plus,structure.windshield,candidate,pending,general only; verify variant and serial before publication,part__structure__windshield
+citation-cj2-plus,structure.windows,candidate,pending,general only; verify variant and serial before publication,part__structure__windows
+citation-cj2-plus,structure.access,candidate,pending,general only; verify variant and serial before publication,part__structure__access
+citation-cj2-plus,wing.spar,candidate,pending,general only; verify variant and serial before publication,part__wing__spar
+citation-cj2-plus,wing.rib,candidate,pending,general only; verify variant and serial before publication,part__wing__rib
+citation-cj2-plus,wing.skin,candidate,pending,general only; verify variant and serial before publication,part__wing__skin
+citation-cj2-plus,wing.root,candidate,pending,general only; verify variant and serial before publication,part__wing__root
+citation-cj2-plus,wing.tip,candidate,pending,general only; verify variant and serial before publication,part__wing__tip
+citation-cj2-plus,wing.winglet,verify,pending,general only; verify variant and serial before publication,part__wing__winglet
+citation-cj2-plus,wing.aileron,candidate,pending,general only; verify variant and serial before publication,part__wing__aileron
+citation-cj2-plus,wing.flap,candidate,pending,general only; verify variant and serial before publication,part__wing__flap
+citation-cj2-plus,wing.slat,verify,pending,general only; verify variant and serial before publication,part__wing__slat
+citation-cj2-plus,wing.spoiler,verify,pending,general only; verify variant and serial before publication,part__wing__spoiler
+citation-cj2-plus,wing.fuel,verify,pending,general only; verify variant and serial before publication,part__wing__fuel
+citation-cj2-plus,wing.antiice,verify,pending,general only; verify variant and serial before publication,part__wing__antiice
+citation-cj2-plus,flight.actuator,candidate,pending,general only; verify variant and serial before publication,part__flight__actuator
+citation-cj2-plus,flight.fbw,not-applicable,none,excluded by scope/type,part__flight__fbw
+citation-cj2-plus,flight.cables,verify,pending,general only; verify variant and serial before publication,part__flight__cables
+citation-cj2-plus,flight.trim,candidate,pending,general only; verify variant and serial before publication,part__flight__trim
+citation-cj2-plus,flight.autopilot,verify,pending,general only; verify variant and serial before publication,part__flight__autopilot
+citation-cj2-plus,tail.fin,candidate,pending,general only; verify variant and serial before publication,part__tail__fin
+citation-cj2-plus,tail.rudder,candidate,pending,general only; verify variant and serial before publication,part__tail__rudder
+citation-cj2-plus,tail.horizontal,candidate,pending,general only; verify variant and serial before publication,part__tail__horizontal
+citation-cj2-plus,tail.elevator,candidate,pending,general only; verify variant and serial before publication,part__tail__elevator
+citation-cj2-plus,tail.trim,verify,pending,general only; verify variant and serial before publication,part__tail__trim
+citation-cj2-plus,jet.inlet,candidate,pending,general only; verify variant and serial before publication,part__jet__inlet
+citation-cj2-plus,jet.nacelle,candidate,pending,general only; verify variant and serial before publication,part__jet__nacelle
+citation-cj2-plus,jet.fan,candidate,pending,general only; verify variant and serial before publication,part__jet__fan
+citation-cj2-plus,jet.compressor,candidate,pending,general only; verify variant and serial before publication,part__jet__compressor
+citation-cj2-plus,jet.combustor,candidate,pending,general only; verify variant and serial before publication,part__jet__combustor
+citation-cj2-plus,jet.turbine,candidate,pending,general only; verify variant and serial before publication,part__jet__turbine
+citation-cj2-plus,jet.shaft,candidate,pending,general only; verify variant and serial before publication,part__jet__shaft
+citation-cj2-plus,jet.exhaust,candidate,pending,general only; verify variant and serial before publication,part__jet__exhaust
+citation-cj2-plus,jet.accessory,candidate,pending,general only; verify variant and serial before publication,part__jet__accessory
+citation-cj2-plus,jet.fadec,candidate,pending,general only; verify variant and serial before publication,part__jet__fadec
+citation-cj2-plus,jet.mount,candidate,pending,general only; verify variant and serial before publication,part__jet__mount
+citation-cj2-plus,jet.reverser,verify,pending,general only; verify variant and serial before publication,part__jet__reverser
+citation-cj2-plus,piston.cowling,not-applicable,none,excluded by scope/type,part__piston__cowling
+citation-cj2-plus,piston.propeller,not-applicable,none,excluded by scope/type,part__piston__propeller
+citation-cj2-plus,piston.governor,not-applicable,none,excluded by scope/type,part__piston__governor
+citation-cj2-plus,piston.crankcase,not-applicable,none,excluded by scope/type,part__piston__crankcase
+citation-cj2-plus,piston.cylinders,not-applicable,none,excluded by scope/type,part__piston__cylinders
+citation-cj2-plus,piston.pistons,not-applicable,none,excluded by scope/type,part__piston__pistons
+citation-cj2-plus,piston.crankshaft,not-applicable,none,excluded by scope/type,part__piston__crankshaft
+citation-cj2-plus,piston.valves,not-applicable,none,excluded by scope/type,part__piston__valves
+citation-cj2-plus,piston.ignition,not-applicable,none,excluded by scope/type,part__piston__ignition
+citation-cj2-plus,piston.turbo,not-applicable,none,excluded by scope/type,part__piston__turbo
+citation-cj2-plus,piston.intercooler,not-applicable,none,excluded by scope/type,part__piston__intercooler
+citation-cj2-plus,piston.exhaust,not-applicable,none,excluded by scope/type,part__piston__exhaust
+citation-cj2-plus,piston.oil,not-applicable,none,excluded by scope/type,part__piston__oil
+citation-cj2-plus,piston.mount,not-applicable,none,excluded by scope/type,part__piston__mount
+citation-cj2-plus,gear.nose,candidate,pending,general only; verify variant and serial before publication,part__gear__nose
+citation-cj2-plus,gear.main,candidate,pending,general only; verify variant and serial before publication,part__gear__main
+citation-cj2-plus,gear.strut,candidate,pending,general only; verify variant and serial before publication,part__gear__strut
+citation-cj2-plus,gear.tire,candidate,pending,general only; verify variant and serial before publication,part__gear__tire
+citation-cj2-plus,gear.wheel,candidate,pending,general only; verify variant and serial before publication,part__gear__wheel
+citation-cj2-plus,gear.brake,candidate,pending,general only; verify variant and serial before publication,part__gear__brake
+citation-cj2-plus,gear.retract,candidate,pending,general only; verify variant and serial before publication,part__gear__retract
+citation-cj2-plus,gear.doors,verify,pending,general only; verify variant and serial before publication,part__gear__doors
+citation-cj2-plus,gear.sensor,candidate,pending,general only; verify variant and serial before publication,part__gear__sensor
+citation-cj2-plus,fuel.tank,candidate,pending,general only; verify variant and serial before publication,part__fuel__tank
+citation-cj2-plus,fuel.pump,candidate,pending,general only; verify variant and serial before publication,part__fuel__pump
+citation-cj2-plus,fuel.filter,candidate,pending,general only; verify variant and serial before publication,part__fuel__filter
+citation-cj2-plus,fuel.valve,candidate,pending,general only; verify variant and serial before publication,part__fuel__valve
+citation-cj2-plus,fuel.lines,candidate,pending,general only; verify variant and serial before publication,part__fuel__lines
+citation-cj2-plus,fuel.quantity,candidate,pending,general only; verify variant and serial before publication,part__fuel__quantity
+citation-cj2-plus,hyd.reservoir,verify,pending,general only; verify variant and serial before publication,part__hyd__reservoir
+citation-cj2-plus,hyd.pump,verify,pending,general only; verify variant and serial before publication,part__hyd__pump
+citation-cj2-plus,hyd.actuator,verify,pending,general only; verify variant and serial before publication,part__hyd__actuator
+citation-cj2-plus,hyd.manifold,verify,pending,general only; verify variant and serial before publication,part__hyd__manifold
+citation-cj2-plus,hyd.lines,verify,pending,general only; verify variant and serial before publication,part__hyd__lines
+citation-cj2-plus,elec.battery,candidate,pending,general only; verify variant and serial before publication,part__elec__battery
+citation-cj2-plus,elec.generator,candidate,pending,general only; verify variant and serial before publication,part__elec__generator
+citation-cj2-plus,elec.bus,candidate,pending,general only; verify variant and serial before publication,part__elec__bus
+citation-cj2-plus,elec.protection,candidate,pending,general only; verify variant and serial before publication,part__elec__protection
+citation-cj2-plus,elec.wiring,candidate,pending,general only; verify variant and serial before publication,part__elec__wiring
+citation-cj2-plus,elec.apu,verify,pending,general only; verify variant and serial before publication,part__elec__apu
+citation-cj2-plus,avionics.displays,candidate,pending,general only; verify variant and serial before publication,part__avionics__displays
+citation-cj2-plus,avionics.fms,verify,pending,general only; verify variant and serial before publication,part__avionics__fms
+citation-cj2-plus,avionics.radio,candidate,pending,general only; verify variant and serial before publication,part__avionics__radio
+citation-cj2-plus,avionics.nav,candidate,pending,general only; verify variant and serial before publication,part__avionics__nav
+citation-cj2-plus,avionics.transponder,candidate,pending,general only; verify variant and serial before publication,part__avionics__transponder
+citation-cj2-plus,avionics.radar,verify,pending,general only; verify variant and serial before publication,part__avionics__radar
+citation-cj2-plus,avionics.airdata,candidate,pending,general only; verify variant and serial before publication,part__avionics__airdata
+citation-cj2-plus,avionics.pitot,candidate,pending,general only; verify variant and serial before publication,part__avionics__pitot
+citation-cj2-plus,avionics.aoa,verify,pending,general only; verify variant and serial before publication,part__avionics__aoa
+citation-cj2-plus,avionics.controls,candidate,pending,general only; verify variant and serial before publication,part__avionics__controls
+citation-cj2-plus,avionics.elt,candidate,pending,general only; verify variant and serial before publication,part__avionics__elt
+citation-cj2-plus,cabin.seat,candidate,pending,general only; verify variant and serial before publication,part__cabin__seat
+citation-cj2-plus,cabin.rail,verify,pending,general only; verify variant and serial before publication,part__cabin__rail
+citation-cj2-plus,cabin.table,verify,pending,general only; verify variant and serial before publication,part__cabin__table
+citation-cj2-plus,cabin.galley,verify,pending,general only; verify variant and serial before publication,part__cabin__galley
+citation-cj2-plus,cabin.lavatory,verify,pending,general only; verify variant and serial before publication,part__cabin__lavatory
+citation-cj2-plus,cabin.baggage,candidate,pending,general only; verify variant and serial before publication,part__cabin__baggage
+citation-cj2-plus,cabin.panels,candidate,pending,general only; verify variant and serial before publication,part__cabin__panels
+citation-cj2-plus,cabin.lights,candidate,pending,general only; verify variant and serial before publication,part__cabin__lights
+citation-cj2-plus,cabin.cms,verify,pending,general only; verify variant and serial before publication,part__cabin__cms
+citation-cj2-plus,cabin.oxygen,verify,pending,general only; verify variant and serial before publication,part__cabin__oxygen
+citation-cj2-plus,cabin.ecs,candidate,pending,general only; verify variant and serial before publication,part__cabin__ecs
+citation-cj2-plus,cabin.press,candidate,pending,general only; verify variant and serial before publication,part__cabin__press
+citation-cj2-plus,safety.fire,verify,pending,general only; verify variant and serial before publication,part__safety__fire
+citation-cj2-plus,safety.extinguisher,verify,pending,general only; verify variant and serial before publication,part__safety__extinguisher
+citation-cj2-plus,safety.deice,verify,pending,general only; verify variant and serial before publication,part__safety__deice
+citation-cj2-plus,safety.navlights,candidate,pending,general only; verify variant and serial before publication,part__safety__navlights
+citation-cj2-plus,safety.strobe,verify,pending,general only; verify variant and serial before publication,part__safety__strobe
+citation-cj2-plus,safety.landinglight,candidate,pending,general only; verify variant and serial before publication,part__safety__landinglight

@@ -12,3 +12,4 @@ playwright-report
 qa/tmp
 qa/e2e-results.json
 scripts/_*.mjs
+simfly-fleet-pack/references/*.png

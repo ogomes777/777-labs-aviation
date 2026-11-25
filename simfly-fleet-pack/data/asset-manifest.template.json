@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "coordinateSystem": {
+    "unit": "meter",
+    "up": "+Y",
+    "nose": "+Z"
+  },
+  "aircraft": [
+    {
+      "id": "legacy-450",
+      "license": null,
+      "sourceRefs": [
+        "S01",
+        "S02",
+        "S03",
+        "S19"
+      ],
+      "status": "pending",
+      "files": {
+        "lod0": "public/media/fleet/legacy-450/exterior-lod0.glb",
+        "lod1": "public/media/fleet/legacy-450/exterior-lod1.glb",
+        "lod2": "public/media/fleet/legacy-450/exterior-lod2.glb",
+        "anatomy": "public/media/fleet/legacy-450/anatomy.glb",
+        "cabin": "public/media/fleet/legacy-450/cabin.glb",
+        "floorplan": "public/media/fleet/legacy-450/floorplan.svg",
+        "poster": "public/media/fleet/legacy-450/poster.webp"
+      },
+      "parts": [],
+      "dimensions": null,
+      "groundY": null
+    },
+    {
+      "id": "praetor-500",
+      "license": null,
+      "sourceRefs": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S20",
+        "S13"
+      ],
+      "status": "pending",
+      "files": {
+        "lod0": "public/media/fleet/praetor-500/exterior-lod0.glb",
+        "lod1": "public/media/fleet/praetor-500/exterior-lod1.glb",
+        "lod2": "public/media/fleet/praetor-500/exterior-lod2.glb",
+        "anatomy": "public/media/fleet/praetor-500/anatomy.glb",
+        "cabin": "public/media/fleet/praetor-500/cabin.glb",
+        "floorplan": "public/media/fleet/praetor-500/floorplan.svg",
+        "poster": "public/media/fleet/praetor-500/poster.webp"
+      },
+      "parts": [],
+      "dimensions": null,
+      "groundY": null
+    },
+    {
+      "id": "praetor-600",
+      "license": null,
+      "sourceRefs": [
+        "S01",
+        "S02",
+        "S03",
+        "S05",
+        "S14",
+        "S13"
+      ],
+      "status": "pending",
+      "files": {
+        "lod0": "public/media/fleet/praetor-600/exterior-lod0.glb",
+        "lod1": "public/media/fleet/praetor-600/exterior-lod1.glb",
+        "lod2": "public/media/fleet/praetor-600/exterior-lod2.glb",
+        "anatomy": "public/media/fleet/praetor-600/anatomy.glb",
+        "cabin": "public/media/fleet/praetor-600/cabin.glb",
+        "floorplan": "public/media/fleet/praetor-600/floorplan.svg",
+        "poster": "public/media/fleet/praetor-600/poster.webp"
+      },
+      "parts": [],
+      "dimensions": null,
+      "groundY": null
+    },
+    {
+      "id": "matrix",
+      "license": null,
+      "sourceRefs": [
+        "S01",
+        "S06",
+        "S07",
+        "S08",
+        "S15"
+      ],
+      "status": "pending",
+      "files": {
+        "lod0": "public/media/fleet/matrix/exterior-lod0.glb",
+        "lod1": "public/media/fleet/matrix/exterior-lod1.glb",
+        "lod2": "public/media/fleet/matrix/exterior-lod2.glb",
+        "anatomy": "public/media/fleet/matrix/anatomy.glb",
+        "cabin": "public/media/fleet/matrix/cabin.glb",
+        "floorplan": "public/media/fleet/matrix/floorplan.svg",
+        "poster": "public/media/fleet/matrix/poster.webp"
+      },
+      "parts": [],
+      "dimensions": null,
+      "groundY": null
+    },
+    {
+      "id": "citation-cj2-plus",
+      "license": null,
+      "sourceRefs": [
+        "S01",
+        "S09",
+        "S12",
+        "S18"
+      ],
+      "status": "pending",
+      "files": {
+        "lod0": "public/media/fleet/citation-cj2-plus/exterior-lod0.glb",
+        "lod1": "public/media/fleet/citation-cj2-plus/exterior-lod1.glb",
+        "lod2": "public/media/fleet/citation-cj2-plus/exterior-lod2.glb",
+        "anatomy": "public/media/fleet/citation-cj2-plus/anatomy.glb",
+        "cabin": "public/media/fleet/citation-cj2-plus/cabin.glb",
+        "floorplan": "public/media/fleet/citation-cj2-plus/floorplan.svg",
+        "poster": "public/media/fleet/citation-cj2-plus/poster.webp"
+      },
+      "parts": [],
+      "dimensions": null,
+      "groundY": null
+    }
+  ]
+}

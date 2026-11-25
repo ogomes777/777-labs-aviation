@@ -104,7 +104,7 @@ export default function ExperienceRoot() {
           const active = order[slot];
           if (active !== lastChapter) {
             lastChapter = active; ui.set({ activeChapter: active });
-            if (active !== 3 && ui.get().inspect) ui.set({ inspect: null, assembled: true, inspectPart: null });
+            if (active !== 3 && ui.get().inspect) ui.set({ inspect: null, assembled: true, inspectPart: null, inspectSystem: null, fleetXray: false, fleetYaw: 0, fleetPitch: 0, fleetPreview: null });
           }
           const formOver = document.documentElement.dataset.form === 'over';
           const scene = formOver ? 'light' : sceneFor(active + (t - Math.floor(t)));

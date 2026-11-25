@@ -28,3 +28,11 @@ Next.js + TypeScript + CSS variables, GSAP/ScrollTrigger, React Three Fiber + Dr
 
 ## Diretriz de qualidade
 Referência é padrão de movimento e composição, NÃO cópia de marca. Tom audiovisual: elegância silenciosa, passagem de escala, continuidade de câmera, iluminação crível. Meta de 60 FPS em aparelho-alvo realista, degradando com graça em mobile sem WebGL.
+
+## Extensão SimFly MASTER V6 (mesclada de `simfly-fleet-pack/CLAUDE.md`)
+- Pacote de execução em `simfly-fleet-pack/` (docs, data, starter, scripts, referências). Ler `simfly-fleet-pack/docs/00_EXECUTION.md` antes de alterar a Frota.
+- A seção de anatomia mantém **um único avião conceitual** (o atual); recebe apenas a camada de preview por hover/foco/toque. As cinco aeronaves reais vivem **somente** no capítulo Frota/Hangar.
+- Fonte comercial: `simfly-fleet-pack/data/fleet.json` → `src/content/fleet.ts`. Matrix é monomotor a pistão turboalimentado, não pressurizado, não é jato.
+- Modelos 3D das cinco aeronaves são ilustrações paramétricas calibradas por dimensões públicas do tipo, sempre rotuladas; o Asset Gate de GLB licenciado por exemplar continua bloqueado até recebermos material/licença.
+- Preview é pré-seleção (hover/focus abre, click confirma; toque 1 arma, toque 2 ou CTA confirma). Nenhum hotspot morto; sem asset visual → fallback explícito.
+- Progresso persistente em `FLEET_PROGRESS.md`. Não publicar em produção sem autorização expressa do usuário.

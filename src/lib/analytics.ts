@@ -6,7 +6,8 @@
 export type EventName =
   | 'hero_view' | 'aircraft_explore_start' | 'aircraft_variant' | 'anatomy_part' | 'gallery_card_view'
   | 'destinations_interact' | 'destination_use' | 'quote_form_start' | 'quote_form_validation_error'
-  | 'quote_form_submit' | 'quote_form_success' | 'quote_form_demo' | 'contact_click' | 'motion_mode';
+  | 'quote_form_submit' | 'quote_form_success' | 'quote_form_demo' | 'contact_click' | 'motion_mode'
+  | 'fleet_system' | 'fleet_quote' | 'preview_open';
 
 type Params = Record<string, string | number | boolean | undefined>;
 declare global {

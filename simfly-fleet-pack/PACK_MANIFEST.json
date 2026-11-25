@@ -1,0 +1,429 @@
+{
+  "files": [
+    {
+      "path": ".claude/agents/asset-director.md",
+      "bytes": 568,
+      "sha256": "aa67376f8a779624f46b4a4f4bee154509430ff9a9a5fcfd4fca202f13699e10"
+    },
+    {
+      "path": ".claude/agents/atlas-engineer.md",
+      "bytes": 598,
+      "sha256": "9976ad3a3c54cea684001bd1850d59357ad617ba96e11bb672279dad32f0b306"
+    },
+    {
+      "path": ".claude/agents/aviation-researcher.md",
+      "bytes": 601,
+      "sha256": "61b7ca123e8232841922f5adf51e13bd0bc030a6edfed547b1dd70dd06ba85f4"
+    },
+    {
+      "path": ".claude/agents/citation-specialist.md",
+      "bytes": 572,
+      "sha256": "e3128dbd26ce184a3a4409bacdcd2c868eb86a8869a4cb7e30daeee461d457b8"
+    },
+    {
+      "path": ".claude/agents/commercial-auditor.md",
+      "bytes": 549,
+      "sha256": "60a28b43b5fa16b362d8b1055107c7efb54958ff237a89110bbeb4ee30722590"
+    },
+    {
+      "path": ".claude/agents/fleet-orchestrator.md",
+      "bytes": 565,
+      "sha256": "55a056fc372332794df3cecf80cb18e1f3489a5aa4e890760a6a817a9ae2cd02"
+    },
+    {
+      "path": ".claude/agents/hangar-cinematographer.md",
+      "bytes": 591,
+      "sha256": "b9f86fe21f8adda46fc36e4523996870e512cefadcb34e035b45fd1450f6e230"
+    },
+    {
+      "path": ".claude/agents/legacy-praetor-specialist.md",
+      "bytes": 607,
+      "sha256": "6be5f114269a408b7ba5cf4476fc0633b3a303887d91b8326b78d0433733a541"
+    },
+    {
+      "path": ".claude/agents/matrix-specialist.md",
+      "bytes": 578,
+      "sha256": "8ee39de4194cbb01f32f83af9de17c8bec71cb23f74c3b2c7f6b97333a09a551"
+    },
+    {
+      "path": ".claude/agents/motion-ui-director.md",
+      "bytes": 562,
+      "sha256": "0f061aec6e018e43448b8f0c392293bf16b128c9d0a87beb66db9cfd436b3ee7"
+    },
+    {
+      "path": ".claude/agents/performance-qa.md",
+      "bytes": 570,
+      "sha256": "9d01f97f69e1861a22660f076523df8ec34dcbef8fb5d8e8b52a2693954a4284"
+    },
+    {
+      "path": ".claude/agents/preview-interaction-director.md",
+      "bytes": 676,
+      "sha256": "0fe1e145071a9577b23c1e1bd50e2df2ff59d7a762a2402e999e2c125c67448f"
+    },
+    {
+      "path": ".claude/agents/release-reviewer.md",
+      "bytes": 565,
+      "sha256": "3ab22146d3991e9381059c9350c4818701eabf233a9046f6878c2e515b5ac2cf"
+    },
+    {
+      "path": ".claude/agents/repo-integrator.md",
+      "bytes": 577,
+      "sha256": "e23199af85c68b7d83fb7ebb1e24bd7fb84f918caa54be258d5c139ff5a1a8eb"
+    },
+    {
+      "path": ".claude/skills/airframe-modeling/SKILL.md",
+      "bytes": 482,
+      "sha256": "4bca15d9782cfe6f5ca38089faa5903368538468138dc01f7545b9de2bd8c46e"
+    },
+    {
+      "path": ".claude/skills/atlas-navigation/SKILL.md",
+      "bytes": 479,
+      "sha256": "b54b0484fee39f0e5c6fbf27b89e3a54e613ab5d98a0c90df2cdd612e060d830"
+    },
+    {
+      "path": ".claude/skills/aviation-evidence/SKILL.md",
+      "bytes": 508,
+      "sha256": "a20d826c851d392b7271232fda29ca48846d767bd3e01fdc8ca4859fc888161b"
+    },
+    {
+      "path": ".claude/skills/cabin-floorplan/SKILL.md",
+      "bytes": 468,
+      "sha256": "52f32af945c13e068e904243fd49e1305f098e62b70ad99c41bbf58c25e899a3"
+    },
+    {
+      "path": ".claude/skills/fleet-audit/SKILL.md",
+      "bytes": 500,
+      "sha256": "511078f7acdb3b37b584ab08418ec482ac083d5d5441eff8e9be7838a4bf0985"
+    },
+    {
+      "path": ".claude/skills/fleet-data/SKILL.md",
+      "bytes": 485,
+      "sha256": "d53c3223270470b6350fd20b70bd8aacb42d5d8a00064da56dd65511fcda1d66"
+    },
+    {
+      "path": ".claude/skills/glass-motion/SKILL.md",
+      "bytes": 478,
+      "sha256": "3a1bcb1030f763c5d7db794f0119cdba8b60500c4a4bcdbcd9fcf43c0af098f7"
+    },
+    {
+      "path": ".claude/skills/glb-validation/SKILL.md",
+      "bytes": 467,
+      "sha256": "ec87b212f1064f8c66c52071eb3c03402af90af473c0d615f537836c77c7d452"
+    },
+    {
+      "path": ".claude/skills/hotspot-previews/SKILL.md",
+      "bytes": 735,
+      "sha256": "4e0f5ed9d996d915179d547715d1bf8abf32117736167b791d43f78ae04181f5"
+    },
+    {
+      "path": ".claude/skills/pbr-hangar/SKILL.md",
+      "bytes": 490,
+      "sha256": "2bc81401d93fd70bcdfa23de6437410f7f68c02a48f587540e8df7e22aa03af8"
+    },
+    {
+      "path": ".claude/skills/performance-budget/SKILL.md",
+      "bytes": 480,
+      "sha256": "b2e92d974d4748dd8e52db72f6ecfc1de8ec13dfdec7d746f4d08a73b4cb9d6e"
+    },
+    {
+      "path": ".claude/skills/release-qa/SKILL.md",
+      "bytes": 498,
+      "sha256": "67fbab4f80edb3eb2e260a588209be8fa13f63add8b9fe07dee95cbe467712e6"
+    },
+    {
+      "path": ".claude/skills/scroll-choreography/SKILL.md",
+      "bytes": 502,
+      "sha256": "8879c75f289c9d18df2a510b458c4caaa22c794812419e25b6d2c268f5124b75"
+    },
+    {
+      "path": ".claude/skills/xray-explode/SKILL.md",
+      "bytes": 484,
+      "sha256": "690ae00a929ffa9e43a466b64018735fc7d004354ebc02d3b6ee811b03285af3"
+    },
+    {
+      "path": "CLAUDE.md",
+      "bytes": 2082,
+      "sha256": "538b395553b4bc82d3759b3909977b0a5595fefa4e1058c06333e1be4ec5d1dd"
+    },
+    {
+      "path": "FLEET_PROGRESS_TEMPLATE.md",
+      "bytes": 544,
+      "sha256": "721844b4e809d8f304eb817db73948be7b915f857a7ce559358a8ac76e0ee8cf"
+    },
+    {
+      "path": "PACK_MANIFEST.json",
+      "bytes": 14130,
+      "sha256": "0d975f736b2417a2ef5beae589494ecff67e8bee26924c984652eaebcff0cb37"
+    },
+    {
+      "path": "PROMPT_EXECUTAR.md",
+      "bytes": 1735,
+      "sha256": "19b5796bf0848ce85edae2282a6c9697a74cfd6d812240219c0a5a2d38af2ef2"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4317,
+      "sha256": "a30308dd33fc5700e219ddf2ecd0e6c9e2263af3325af6cc493233fb5e04131d"
+    },
+    {
+      "path": "VALIDATION_REPORT.md",
+      "bytes": 579,
+      "sha256": "a2a2568ead1a671a0f2d397745d6f4858d4ea6b084dc0d2460adb5945703fbf9"
+    },
+    {
+      "path": "baseline/LOCAL_7777_README.txt",
+      "bytes": 1811,
+      "sha256": "18a5de20f1bda36a5da56305c54885b5b7b31ede06db871c00dd38c0b113475f"
+    },
+    {
+      "path": "baseline/V23/ExperienceRoot.tsx",
+      "bytes": 12362,
+      "sha256": "fcdaf041892402a795e42e207eb3097392faf2a4906df558c38ed107188d7e7d"
+    },
+    {
+      "path": "baseline/patches/SIMFLY_V24_LOCAL.zip",
+      "bytes": 15377,
+      "sha256": "b6080eba9f84d5199ba63aa41347d9cb33b111bf1c253a49d316cc282157e477"
+    },
+    {
+      "path": "baseline/patches/SIMFLY_V25_LOCAL.zip",
+      "bytes": 17116,
+      "sha256": "469f1588941741978395df694e5b9986c852a2262de0d31d1108a4bbf10d767f"
+    },
+    {
+      "path": "baseline/patches/SIMFLY_V26_LOCAL.zip",
+      "bytes": 17278,
+      "sha256": "f009ce3d711976107202afabf8e07c6d5bb5578d6923164538619641a2e3a692"
+    },
+    {
+      "path": "baseline/patches/SIMFLY_V27_LOCAL.zip",
+      "bytes": 22145,
+      "sha256": "faebab8d2a3e038b16165ea93861337c0d94909259e02ef07c01eee526b6bf25"
+    },
+    {
+      "path": "baseline/patches/SIMFLY_V28_LOCAL.zip",
+      "bytes": 7453,
+      "sha256": "b429e672cc01bba106e82dc4d55628d1fc920c2c1757d8621ecb8d277bf261e5"
+    },
+    {
+      "path": "data/asset-manifest.template.json",
+      "bytes": 3872,
+      "sha256": "c10de259435ca2ae68821ea45be18192880198611a5ad08791e8ce1ea44ef064"
+    },
+    {
+      "path": "data/component-catalog.json",
+      "bytes": 48688,
+      "sha256": "5ae6f4e15b96ea941ab03d190db4ca43a690cd36646f77be2711ef573d33c5a3"
+    },
+    {
+      "path": "data/coverage.csv",
+      "bytes": 69038,
+      "sha256": "07eeac79e43fcb7780c62f38312301ef2ff0441d26ca8742cf8a247d1df650dc"
+    },
+    {
+      "path": "data/coverage.json",
+      "bytes": 133373,
+      "sha256": "3a360a0c0d0333db9e0e8ac55cf4f25a0d449281f861cba2be954cde7042af7e"
+    },
+    {
+      "path": "data/fleet.json",
+      "bytes": 7002,
+      "sha256": "90fe77f7e2ef532367b8766d407da873af289661f2abb8fd05b73ffe5f6c09a5"
+    },
+    {
+      "path": "data/preview-catalog.json",
+      "bytes": 8576,
+      "sha256": "cf8063914f06054f60c95f08c4b068053d68e592951857d7113c9284344dfb93"
+    },
+    {
+      "path": "data/reference-acquisition.csv",
+      "bytes": 2640,
+      "sha256": "83be085d28b0e24d72d94108b6e0b19574d5a347eda72a13e966cc7a8f500d12"
+    },
+    {
+      "path": "data/sources.json",
+      "bytes": 3549,
+      "sha256": "7d36060d53b98f15be7d3a27cc55020ff5d6db5b2a06e5268a1b156c240f9ccf"
+    },
+    {
+      "path": "docs/00_EXECUTION.md",
+      "bytes": 2943,
+      "sha256": "103a48141eec4625f6861c657ecb736f920d01176353649321aa1b6b895a826d"
+    },
+    {
+      "path": "docs/01_EXISTING_REPO.md",
+      "bytes": 3004,
+      "sha256": "da0720acf7075729466a6bbcb9cce5225e0cc0876e57b29533caf3a92cf64055"
+    },
+    {
+      "path": "docs/02_CINEMATIC_DIRECTION.md",
+      "bytes": 3468,
+      "sha256": "239ba0d4788de879bc859b6450edbf25de45a4a8b83319f0e6aed8c1e0ac0828"
+    },
+    {
+      "path": "docs/03_ATLAS_INTERACTION.md",
+      "bytes": 3430,
+      "sha256": "97862a328686591c8508fa811a8d436b9145010b2db630a3a7282090025ce916"
+    },
+    {
+      "path": "docs/04_ASSET_PIPELINE.md",
+      "bytes": 2859,
+      "sha256": "df711e332104a2cdc28cc24153421be1c7c57f6d50e6a317bd00d81fd90b4dc5"
+    },
+    {
+      "path": "docs/05_PERFORMANCE_QA.md",
+      "bytes": 2951,
+      "sha256": "447dc457643043c8b56058ae6f006f80d64dc3bfdaeb183eadf1cc16994a84cf"
+    },
+    {
+      "path": "docs/06_COMMERCIAL_FLOW.md",
+      "bytes": 1241,
+      "sha256": "bc2627bdafa06ccedcb107ae0f034b9b89c14ead19f4ab6bc024deb3dfc4b6eb"
+    },
+    {
+      "path": "docs/07_RELEASE_CHECKLIST.md",
+      "bytes": 1080,
+      "sha256": "49ae2af1e8c79ea7685d195968ecbea5c2c8b64f05eade11d5315f124f18567d"
+    },
+    {
+      "path": "docs/08_SAMPLE_IMPLEMENTATION.md",
+      "bytes": 1023,
+      "sha256": "16fb25034635897bc6a1c09f3448b25ba183b46e0d60cdecaca9a29615eaafe8"
+    },
+    {
+      "path": "docs/09_AUDIT_V1.md",
+      "bytes": 589,
+      "sha256": "ddcde7160f2dfc0758e34067bf0cf85d2b4bf849f40c693393ee2694ae9a9366"
+    },
+    {
+      "path": "docs/10_MODEL_WORK_ORDERS.md",
+      "bytes": 2206,
+      "sha256": "20513a10bf35cc89df9e624ef45fa577d581b775a33cc98d0e59b7f30f3501f7"
+    },
+    {
+      "path": "docs/11_HOVER_TOUCH_PREVIEWS.md",
+      "bytes": 4700,
+      "sha256": "0c50a02d44ede0b453bc3c9e3c49e05e0b984a0f0bc4a6b1ba5551dcf38de54d"
+    },
+    {
+      "path": "docs/CATALOG_RULES.md",
+      "bytes": 1811,
+      "sha256": "dc13688f024cdc4a8076cc678e938fe6f36e4a941e807a623289b87f4030f3c1"
+    },
+    {
+      "path": "docs/RESEARCH_SOURCES.md",
+      "bytes": 3738,
+      "sha256": "fd7782d11b2099d89656024033ff988b64bcae44df5233423946168377f4fa43"
+    },
+    {
+      "path": "docs/aircraft/citation-cj2-plus.md",
+      "bytes": 2636,
+      "sha256": "6e2ef795c51816aa99f29b4232317485057171b96f4ea07ebafafee6802651ef"
+    },
+    {
+      "path": "docs/aircraft/legacy-450.md",
+      "bytes": 2794,
+      "sha256": "4c7189b64e2bb5e562f4cb416fa085a4ba38e262f3a189159ac7e9d7904fd59c"
+    },
+    {
+      "path": "docs/aircraft/matrix.md",
+      "bytes": 2750,
+      "sha256": "7c6a0824ef8ed3dbb9723312c49449960015eaf351594064862a7674f1cb3996"
+    },
+    {
+      "path": "docs/aircraft/praetor-500.md",
+      "bytes": 2932,
+      "sha256": "1f89d7a550ab184c5dc07e5633804ad15df6e389b675f011cf0885cd7cd86299"
+    },
+    {
+      "path": "docs/aircraft/praetor-600.md",
+      "bytes": 2938,
+      "sha256": "23af78ebd2cd490cdf330dff57dee16318c90ede6092e79d9cdace28b16883dd"
+    },
+    {
+      "path": "references/01_simfly_portfolio_1.png",
+      "bytes": 644671,
+      "sha256": "387b86c89ae9f8f93027ca993be83a96c28ccbabd69046d96b3cc1dfd57a6ee9"
+    },
+    {
+      "path": "references/02_simfly_portfolio_2.png",
+      "bytes": 804806,
+      "sha256": "ffa5258c540aeea1c85474bc119b8bd51f7efcd079d0194cf452c339fbe97a48"
+    },
+    {
+      "path": "references/03_simfly_portfolio_3.png",
+      "bytes": 422805,
+      "sha256": "6afb452c8d66afb5f8229925e9c07d94a8dcf1c15aa9b845dc68bed4acf253bc"
+    },
+    {
+      "path": "references/04_hangar_atual.png",
+      "bytes": 1966142,
+      "sha256": "3116438df9590753d98884a878c170e3df12f9b9506c08c346ef70ac49712c05"
+    },
+    {
+      "path": "references/05_atlas_ref.png",
+      "bytes": 278808,
+      "sha256": "9c6ab10567dd9a16536e2fecdc339da80e70e6a76e79335797fdc291055c28dc"
+    },
+    {
+      "path": "references/06_atlas_ref.png",
+      "bytes": 286985,
+      "sha256": "9302a03ec615f8596836a496c9ddb63bde7a29191862075b8ad19d6480583fd7"
+    },
+    {
+      "path": "references/README.md",
+      "bytes": 447,
+      "sha256": "632fdc0ed7c16f1eecdc617f97a4e26ba009aa56f21b65d2d153f4d7a5739dc7"
+    },
+    {
+      "path": "references/approved-assets/simfly-cursor-v11.png",
+      "bytes": 3207,
+      "sha256": "68ffd764ddb42382ea7f799ea8bff500435bda755e22766a6e7b03554eac5a40"
+    },
+    {
+      "path": "references/approved-assets/simfly-plane-approach-3840.png",
+      "bytes": 2311559,
+      "sha256": "3c8aa30cbf9b0b77226c05e4592274c52a1bf6b00ffb474c8b5e8c6e62da11e2"
+    },
+    {
+      "path": "references/approved-assets/simfly-plane-cutout.png",
+      "bytes": 501109,
+      "sha256": "8b1dfcd0672849587d94644aec500f855169e06ed3aa2d6e5b0ded7b769da259"
+    },
+    {
+      "path": "references/approved-assets/simfly-plane-dorsal.png",
+      "bytes": 939253,
+      "sha256": "f07f59dbde445e9538240d1c4bafbb7731c9ad825caf9231e3a57232e7faef2b"
+    },
+    {
+      "path": "scripts/validate_assets.py",
+      "bytes": 2595,
+      "sha256": "bbe04b50069e7ba1436e25b529251270a640f86072709ff72b7591aafe3e8c6b"
+    },
+    {
+      "path": "scripts/validate_pack.py",
+      "bytes": 1075,
+      "sha256": "8f2bb27d7b9c752430697d584904a64d1fe3ee9db1e8495ee269492a8b905c67"
+    },
+    {
+      "path": "starter/fleet-core.test.mjs",
+      "bytes": 872,
+      "sha256": "500249ed11ec7669a941c16653f7badfe5fa7f7c2016712296c38d1728412797"
+    },
+    {
+      "path": "starter/fleet-core.ts",
+      "bytes": 1695,
+      "sha256": "7c3ae9dbe01252f294adb22cb6889391e82c7ea108c8d03cf35681413c85f0af"
+    },
+    {
+      "path": "starter/preview-state.test.mjs",
+      "bytes": 822,
+      "sha256": "d70828f1576a479054de8d1a38b9da57bbce9d711df7c5e8393bb56cbc6d90c4"
+    },
+    {
+      "path": "starter/preview-state.ts",
+      "bytes": 1062,
+      "sha256": "a65aa0d2fefe6bb3da0f4006f05b5e697ceb8047ab0f86f8d039453d2b3f3392"
+    }
+  ]
+}
