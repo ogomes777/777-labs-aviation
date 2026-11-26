@@ -124,7 +124,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     return { group: g, carts, spr, dispose: () => { glow.dispose(); body.dispose(); dark.dispose(); } };
   }, []);
   useEffect(() => () => life.dispose(), [life]);
-  type Traffic = FleetCraftBuild & { off: number; mode: 'land' | 'takeoff' | 'over'; land: THREE.Sprite; strobes: THREE.Sprite[]; beacon: THREE.Sprite; smoke: THREE.Sprite[] };
+  type Traffic = FleetCraftBuild & { off: number; mode: 'land' | 'takeoff' | 'over' | 'parked'; land: THREE.Sprite; strobes: THREE.Sprite[]; beacon: THREE.Sprite; smoke: THREE.Sprite[] };
   const traffic2 = useRef<Traffic[]>([]);
   useEffect(() => {
     let cancelled = false;
@@ -140,6 +140,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const item = todo.shift();
       if (!item) {
         // depois da frota: dois jatos de tráfego em ciclo de pouso (ilustração do mesmo gerador, sem rótulo comercial)
+        if (!cancelled) {
+          // aeronave real estacionada dentro do hangar de portão aberto (nariz para o portão)
+          const hb = buildFleetCraft('praetor-500', { textureSize: 1024, detail: 0.6 });
+          hb.group.position.set(-193, env.gy + hb.axisH, 61); hb.group.rotation.y = 0.95;
+          life.group.add(hb.group);
+          traffic2.current.push(Object.assign(hb, { off: 0, mode: 'parked' as const, land: life.spr('#000000', 0.01), strobes: [], beacon: life.spr('#000000', 0.01), smoke: [] }));
+        }
         ([['praetor-600', 'land', 0], ['citation-cj2-plus', 'takeoff', 0.35], ['legacy-450', 'over', 0.6]] as const).forEach(([id, mode, off]) => {
           if (cancelled) return;
           const tb = buildFleetCraft(id, { textureSize: 512, detail: 0.45 });
@@ -646,6 +653,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // tráfego vivo: pouso (3°, arredondamento, toque com fumaça, frenagem), decolagem (espera, rolagem acelerada,
       // rotação, subida, recolhimento do trem) e sobrevoo alto com inclinação; anticolisão, navegação e strobes
       traffic2.current.forEach((tr) => {
+        if (tr.mode === 'parked') return;
         const D3 = Math.tan(THREE.MathUtils.degToRad(3));
         let x = 0, y = tr.axisH, z = 122, pitch = 0, roll = 0, yaw = Math.PI, gear = true, landOn = 1;
         let smokeT = -1;

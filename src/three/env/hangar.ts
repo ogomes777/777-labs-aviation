@@ -159,15 +159,7 @@ export function createHangar(groundY: number) {
     const lights: THREE.BufferGeometry[] = []; for (let z = 6; z < D; z += 8) for (const x of [-18, 0, 18]) { const g = new THREE.BoxGeometry(10, 0.12, 0.5); g.translate(x, H - 0.5, z); lights.push(g); }
     merge(lights, M(new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 2.8, 2.5) })), 'hangar-lights', hg);
     const spill = new THREE.Mesh(T(flat(W, 36, 0, -16, 0.015).translate(0, -gy, 0)), M(new THREE.MeshBasicMaterial({ map: glowTex('rgba(255,210,150,0.55)', 'rgba(255,190,120,0.25)'), blending: THREE.AdditiveBlending, depthWrite: false }))); spill.scale.set(1, 1, 1); hg.add(spill);
-    // jato estacionado lá dentro (silhueta simples, ilustrativa)
-    const jetMat = M(new THREE.MeshStandardMaterial({ color: '#f2f1ee', roughness: 0.3, metalness: 0.2 }));
-    const jg: THREE.BufferGeometry[] = [];
-    { const f = new THREE.CapsuleGeometry(1.1, 16, 6, 16); f.rotateZ(Math.PI / 2); f.translate(0, 2.6, 26); jg.push(f); }
-    { const w = new THREE.BoxGeometry(5, 0.25, 19); w.translate(1, 1.9, 26); jg.push(w); }
-    { const fin = new THREE.BoxGeometry(3, 4.2, 0.25); fin.translate(-8, 5.2, 26); jg.push(fin); }
-    { const st = new THREE.BoxGeometry(2.2, 0.2, 7); st.translate(-8.8, 7.3, 26); jg.push(st); }
-    for (const s of [-1, 1]) { const n = new THREE.CylinderGeometry(0.62, 0.62, 3, 14); n.rotateZ(Math.PI / 2); n.translate(-5.2, 3.3, 26 + s * 2); jg.push(n); }
-    merge(jg, jetMat, 'hangar-jet', hg);
+    // a aeronave dentro do hangar é posicionada pela cena (mesmo gerador da frota)
   }
   // ---------- torres de holofote: cabeça inclinada, feixe volumétrico e poça de luz ----------
   const bars = new THREE.Group(); bars.name = 'apron-floodlights'; group.add(bars);
@@ -200,6 +192,18 @@ export function createHangar(groundY: number) {
     const sg = new THREE.CylinderGeometry(0.22, 0.45, 3.4, 16, 1, true); sg.rotateZ(Math.PI / 2); sg.translate(-1.7, 0, 0);
     const sm = new THREE.Mesh(T(sg), M(new THREE.MeshStandardMaterial({ map: stripes, side: THREE.DoubleSide, roughness: 0.8 }))); sock.add(sm);
     updaters.push((t) => { sock.rotation.y = 0.35 + Math.sin(t * 0.7) * 0.12; sock.rotation.z = -0.12 + Math.sin(t * 1.9) * 0.04; });
+  }
+  // ---------- marcas de pneu na zona de toque (borracha acumulada dos pousos) ----------
+  {
+    const skid = canvasTex(512, 64, (g) => { g.clearRect(0, 0, 512, 64); for (let k = 0; k < 26; k++) { const y = 8 + Math.random() * 48, x0 = Math.random() * 120, len = 160 + Math.random() * 300; const gr = g.createLinearGradient(x0, 0, x0 + len, 0); gr.addColorStop(0, 'rgba(12,12,12,0)'); gr.addColorStop(0.15, `rgba(12,12,12,${0.35 + Math.random() * 0.35})`); gr.addColorStop(1, 'rgba(12,12,12,0)'); g.strokeStyle = gr; g.lineWidth = 1.5 + Math.random() * 2.5; g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + len, y + (Math.random() - 0.5) * 3); g.stroke(); } });
+    const sm = M(new THREE.MeshBasicMaterial({ map: skid, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+    for (const zc of [RW_Z - 3.2, RW_Z + 3.2]) { const m = new THREE.Mesh(T(flat(520, 5.5, RW_X0 - 420, zc, 0.015)), sm); m.name = 'tyre-marks'; group.add(m); }
+  }
+  // ---------- anel de nuvens em volta de todo o 360° ----------
+  {
+    const cloud = canvasTex(256, 128, (g) => { g.clearRect(0, 0, 256, 128); for (let k = 0; k < 14; k++) { const x = 40 + Math.random() * 176, y = 50 + Math.random() * 40, r = 22 + Math.random() * 38; const c = g.createRadialGradient(x, y, 0, x, y, r); c.addColorStop(0, 'rgba(255,236,214,0.55)'); c.addColorStop(0.6, 'rgba(250,214,186,0.25)'); c.addColorStop(1, 'rgba(240,200,170,0)'); g.fillStyle = c; g.fillRect(x - r, y - r, r * 2, r * 2); } });
+    const cm2 = M(new THREE.SpriteMaterial({ map: cloud, fog: false, depthWrite: false, opacity: 0.85 }));
+    for (let k = 0; k < 28; k++) { const a = (k / 28) * Math.PI * 2 + Math.random() * 0.15; const r = 2300 + Math.random() * 500; const sp = new THREE.Sprite(cm2); sp.scale.set(900 + Math.random() * 700, 260 + Math.random() * 160, 1); sp.position.set(-40 + Math.cos(a) * r, gy + 260 + Math.random() * 260, Math.sin(a) * r); sp.renderOrder = -9; group.add(sp); }
   }
   // ---------- céu ao entardecer, nuvens rasas, serra e luzes da cidade no horizonte ----------
   {

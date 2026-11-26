@@ -105,3 +105,4 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - 360: sem seleção de texto ao arrastar; aviso "Arraste · 360°" minimalista no canto, sem caixa; "Redefinir vista" volta ângulo, sistema, peça, montagem e raio-X.
 - Cenário em 360°: domo de céu completo, serra em anel com tom atmosférico, chão de campo em todas as direções (sem fundo preto); marquise do terminal com forro iluminado.
 - "A frota." e PNG SimFly menores; o PNG não some mais ao abrir o atlas. Planta com entrada premium e posicionada fora do painel. Desmontagem com deslocamentos maiores.
+- (4ª) Peça isolada: camadas de raio-X ocultas durante o foco (causavam a peça aparecer "fantasma"/como outra). Cenário: marcas de pneu na zona de toque da pista, anel de nuvens em todo o 360°, jato real (gerador da frota) estacionado no hangar de portão aberto no lugar da silhueta.

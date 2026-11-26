@@ -760,6 +760,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     const p = part && partIds.has(part) ? part : null;
     if (p === focused) return;
     focused = p; partCache.clear();
+    overlays.forEach((o) => { o.visible = !p && xrOn; });
     (xray.uniforms.uAlpha as { value: number }).value = p ? 0.55 : xrOn ? 1 : 0;
     refresh();
   };
