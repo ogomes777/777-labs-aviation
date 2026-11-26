@@ -27,7 +27,7 @@ test.describe('frota SimFly', () => {
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog', { name: /Atlas do Embraer Legacy 450/ });
     await expect(dialog).toBeVisible();
-    await expect(dialog).toContainText('Ilustração 3D paramétrica');
+    await expect(dialog).toContainText('Ilustração 3D calibrada');
     await expect(dialog.getByRole('button', { name: 'Fuselagem' })).toBeVisible();
     await dialog.getByRole('button', { name: 'Propulsão' }).click();
     await expect(dialog.getByRole('button', { name: 'Compressor' })).toBeVisible();

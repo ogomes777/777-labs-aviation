@@ -328,7 +328,7 @@ html[data-theme='night'] #engenharia h2 em, html[data-theme='night'] .sf-service
 .sf-foot__row, .sfm__foot { border-top: 0 !important; }
 .part-card, #engenharia .anatomy24-panel[data-focused=true] .part-card { border-top: 0 !important; }
 .card__kicker, .sf27-cinema-line > span, .hp-card__kicker b, .hp-card__hint, .fleet-orbit span, .anatomy25-orbit span,
-.fcard__status i, .anatomy26-eyebrow, .anatomy24-panel > .micro, .inspect__micro, .fcard__kind { display: none !important; }
+.fcard__status i, .anatomy26-eyebrow, .fcard__kind { display: none !important; }
 .hp-card__media { border-bottom: 0 !important; border-right: 0 !important; }
 .sf-wanted__kind { font-size: .8rem !important; letter-spacing: 0 !important; text-transform: none !important; opacity: .8; }
 .chapter, .chapter__sticky, .finale, .sf-wanted, .sf-contact, .epilogue { border: 0 !important; box-shadow: none !important; outline: 0 !important; }
@@ -350,3 +350,5 @@ html[data-theme='night'] #engenharia h2 em, html[data-theme='night'] .sf-service
 html[data-theme='night'] #engenharia .anatomy24-detail, html[data-theme='night'] #engenharia .chip, html[data-theme='night'] #engenharia .btn { background: rgba(8, 20, 40, .45) !important; color: var(--sf-ink) !important; border-color: rgba(160, 210, 255, .28) !important; }
 html[data-theme='night'] #engenharia .part-card p, html[data-theme='night'] #engenharia .anatomy26-atlas p, html[data-theme='night'] .sf-services span { color: var(--sf-ink-soft) !important; }
 html[data-theme='night'] .panel { --panel-glass: rgba(4, 12, 28, 0.55); }
+.sf-wanted, .sf-contact, .sf-foot { text-shadow: 0 2px 22px rgba(2, 8, 20, .55); }
+dialog.sfm, dialog.sfm * { pointer-events: auto; }

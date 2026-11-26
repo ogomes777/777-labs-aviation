@@ -107,3 +107,22 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - "A frota." e PNG SimFly menores; o PNG não some mais ao abrir o atlas. Planta com entrada premium e posicionada fora do painel. Desmontagem com deslocamentos maiores.
 - (4ª) Peça isolada: camadas de raio-X ocultas durante o foco (causavam a peça aparecer "fantasma"/como outra). Cenário: marcas de pneu na zona de toque da pista, anel de nuvens em todo o 360°, jato real (gerador da frota) estacionado no hangar de portão aberto no lugar da silhueta.
 - Publicado em produção (autorizado): deploy `dpl_4rHiJTyJyH9LTnXKC2ucqoCQtWRt` de `simfly/v6-master` @ `b011a5c` — READY e com alias em https://777-labs-aviation.vercel.app (confirmado pela Vercel). Antes: regressão do atlas (fechava ao abrir aeronave não destacada) encontrada pelos E2E e corrigida; E2E da frota 12/12 em build limpa. Observação de QA: `pkill -f "next start"` não encerra o `next-server` filho — encerrar pelo PID para não testar contra build antiga. Rollback: promover `dpl_2HK2FPLhAuBCs9KEGU6XUhpuRrZC`.
+
+## Rodada V7 — 2026-11-26 (header, idiomas, temas, copy SimFly, test drive)
+
+Pedido do usuário (manhã de 26/11): header estilo Araras/Apple glass, idiomas e temas funcionais, copy no contexto real da SimFly (intermediação de compra e venda BR/EUA), limpeza de microcopy, correções de seção, globo final, test drive jogável e desempenho.
+
+Feito e verificado localmente:
+- Header de vidro em cápsula: tema (Céu/Noite) e idiomas à esquerda, logo SimFly vetorizada (traçada da marca do site oficial, sem a frase) no centro com o jato da marca cruzando a barra, "Fale conosco" (WhatsApp) e menu à direita. Menu em folha de vidro com os capítulos do site comercial (Sobre, Serviços, Portfólio, Procuramos, Contato), girando como dado no hover/toque.
+- 9 idiomas com troca ao vivo (pt, en, es, it, fr, de, ja, zh, ko): catálogo `src/i18n/messages/*`, carregamento sob demanda, detecção do navegador, `?lang=`. Tudo traduzido, inclusive frota, atlas, anatomia, planta e voo.
+- Tema Noite na mesma paleta azul (branco → marinho, marinho → gelo, azul → céu); 3D com gradação de luar em espaço linear; mídia com leve ajuste noturno.
+- Copy reescrita a partir de simfly.site; seções novas Serviços (em "Entre partir e chegar"), Procuramos (R66, King Air C90 GTX 2018, Citation Sovereign — dados do site) e Contato. Sem preços ou dados inventados.
+- Removidos: cards de cidades do globo, "03 / DESTINOS" e demais rótulos, índice de capítulo, barra de scroll do hero, contagens, ícones/setas, divisórias entre seções. Rótulo de ilustração 3D mantido (regra do projeto).
+- Nuvens após o hero dissolvem durante a travessia (fim da placa parada).
+- Anatomia: o ponto da cauda ficava sob o painel (prévia não abria) — corrigido com camada acima.
+- "Entre partir e chegar": sem borrão escuro e sem dourado; brilho azul mais presente.
+- Globos: atmosfera e borda de luz mais fortes, rotas em azul-gelo aditivo; o globo final mantém o lado das rotas e gira por arraste (mouse 2 eixos, toque horizontal). Cards da frota saem antes do globo entrar.
+- Test drive (botão único na Planta): mesma aeronave e mesmo aeródromo da Frota; partida de motores com som sintetizado (Web Audio, sem arquivos), decolagem, voo livre (piloto automático cênico sobre o litoral, o mar e acima das nuvens), pouso automático na pista com arredondamento e frenagem, decolar de novo; WASD/setas, Shift/Ctrl, Espaço, L, F, C, M, Esc; manche virtual no toque; 360° arrastando; no celular em pé a cena gira sozinha para paisagem. Mundo procedural (talhões, praia, oceano com reflexo do sol, nuvens volumétricas em mosaico), sem imagens chapadas. Teste unitário `tests/unit/flight.test.ts` (Legacy 450, Matrix, CJ2+ decolam, sobem e pousam dentro da pista).
+- Desempenho: o WebGL pausa quando o canvas está 100% coberto (hero em vídeo, jornada/globo opacos, nuvens) — antes renderizava 3D invisível em ~1/3 da rolagem.
+
+Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo traçada de um raster de 360 px (se a SimFly enviar SVG/PNG 4K original, trocar `src/components/SimFlyLogo.tsx`).

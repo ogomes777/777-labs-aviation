@@ -144,12 +144,12 @@ test.describe('interações reais', () => {
 });
 
 test.describe('frota', () => {
-  test('carrossel da frota e inspeção: desmontar, planta e poltrona', async ({ page }) => {
+  test('carrossel da frota e inspeção: sistemas e planta', async ({ page }) => {
     await page.goto('/?motion=reduced');
     await page.locator('#frota').scrollIntoViewIfNeeded();
     await expect(page.locator('.fcard')).toHaveCount(5);
     await page.getByRole('button', { name: 'Próxima', exact: true }).first().click();
-    await expect(page.locator('.fleet__nav [aria-live]')).toHaveText(/02 \/ 05/);
+    await expect(page.locator('.fcard[data-active="true"]')).toHaveCount(1);
     await page.locator('.fcard').first().getByRole('button', { name: 'Ver por dentro' }).click();
     // V6: frota real; o atlas substitui a lista conceitual (Meridian…)
     const dlg = page.getByRole('dialog', { name: /Atlas do Embraer Legacy 450/ });
@@ -158,7 +158,7 @@ test.describe('frota', () => {
     await dlg.getByRole('button', { name: 'Fan' }).click();
     await expect(dlg.locator('.inspect__text')).toContainText('empuxo');
     await dlg.getByRole('tab', { name: 'Planta' }).click();
-    await expect(dlg.locator('.inspect__text')).toContainText('poltrona');
+    await expect(dlg.locator('.inspect__text')).toContainText('lugares');
     await page.keyboard.press('Escape');
     await expect(dlg).toBeHidden();
   });
