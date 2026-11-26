@@ -255,7 +255,7 @@ html.intro .sfh { animation: introFade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.45s bo
 /* ---------- test drive ---------- */
 html[data-flight='true'] main, html[data-flight='true'] .sfh, html[data-flight='true'] .cursor, html[data-flight='true'] .route-layer, html[data-flight='true'] .hp-card { visibility: hidden !important; }
 html[data-flight='true'] .stage__veil, html[data-flight='true'] .stage__grain { opacity: 0 !important; }
-html[data-flight-rotate='true'] .stage, html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100dvh !important; height: 100vw !important; inset: auto !important; top: 0 !important; left: 100vw !important; transform-origin: top left; transform: rotate(90deg); }
+html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100dvh !important; height: 100vw !important; inset: auto !important; top: 0 !important; left: 100vw !important; transform-origin: top left; transform: rotate(90deg); }
 .sf-flight { position: fixed; inset: 0; z-index: 80; color: #fff; font-family: var(--font-sans); user-select: none; -webkit-user-select: none; animation: sfFlightIn 700ms var(--ease-ui) both; }
 @keyframes sfFlightIn { from { opacity: 0; } to { opacity: 1; } }
 .sf-flight__look { position: absolute; inset: 0; cursor: grab; touch-action: none; }
@@ -306,7 +306,7 @@ html[data-flight-rotate='true'] .stage, html[data-flight-rotate='true'] .sf-flig
 @media (max-width: 700px) { .sfh__logo { height: 19px; } }
 
 /* ---------- frota → globo: os cards saem antes, a noite sobe, o globo assume ---------- */
-.fleet .fleet__viewport, .fleet .fleet__nav, .fleet .fhots { opacity: calc(1 - var(--fleet-out, 0)); transform: translate3d(0, calc(var(--fleet-out, 0) * -24px), 0); }
+.fleet .fleet__viewport:not([data-inspecting='true']), .fleet .fleet__nav:not([data-inspecting='true']), .fleet .fhots { opacity: calc(1 - var(--fleet-out, 0)); transform: translate3d(0, calc(var(--fleet-out, 0) * -24px), 0); }
 .finale { cursor: grab; touch-action: pan-y; }
 .finale[data-grab='true'] { cursor: grabbing; }
 .finale a, .finale button { cursor: pointer; }
@@ -352,3 +352,5 @@ html[data-theme='night'] #engenharia .part-card p, html[data-theme='night'] #eng
 html[data-theme='night'] .panel { --panel-glass: rgba(4, 12, 28, 0.55); }
 .sf-wanted, .sf-contact, .sf-foot { text-shadow: 0 2px 22px rgba(2, 8, 20, .55); }
 dialog.sfm, dialog.sfm * { pointer-events: auto; }
+
+@media (max-width: 760px) { .fplan-wrap { left: 10px !important; right: 10px !important; } }

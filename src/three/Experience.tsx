@@ -844,7 +844,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         flightWorld.group.visible = false;
       }
       if (sim.id && craft) {
-        const portrait = size.width < size.height;
+        // celular em pé: a câmera gira 90° com lente de paisagem (o canvas não é girado — medição e custo intactos)
+        const rot = flightUi.get().rotate && size.width < size.height;
+        const portrait = size.width < size.height && !rot;
         const fx2 = Number(new URLSearchParams(location.search).get('flightx')) || 1;
         const sdt = Math.min(rawDt, 0.1) * fx2; const n = Math.ceil(sdt / 0.05);
         for (let i = 0; i < n; i++) sim.step(sdt / n, time, env.gy, portrait);
@@ -856,7 +858,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const shake = (sim.phase === 'roll' || sim.phase === 'rollout' ? 0.0022 * vk : 0) + 0.0016 * inCloud * vk + 0.0005 * vk * vk;
         if (st.motion !== 'reduced' && shake > 0) { cam.rotateX(Math.sin(time * 31.7) * shake + Math.sin(time * 17.3) * shake * 0.6); cam.rotateY(Math.sin(time * 23.1 + 1.3) * shake * 0.7); }
         const baseFov = flightUi.get().view === 'cockpit' ? 64 : portrait ? 58 : 46;
-        const wantFov = Math.round((baseFov + vk * vk * 9) * 10) / 10;
+        let wantFov = Math.round((baseFov + vk * vk * 9) * 10) / 10;
+        if (rot) {
+          // fov vertical do canvas em pé = fov horizontal da paisagem equivalente
+          const land = size.height / size.width;
+          wantFov = Math.round(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(wantFov) / 2) * land)) * 10) / 10;
+          cam.rotateZ(Math.PI / 2);
+        }
         if (Math.abs(cam.fov - wantFov) > 0.01 || cam.near !== 0.5 || cam.far !== 60000) { cam.fov = wantFov; cam.near = 0.5; cam.far = 60000; cam.updateProjectionMatrix(); }
         focus.copy(sim.target);
         // cena: aeródromo da Frota + mundo do voo + o céu da janela da cabine (cúpula e mar de nuvens)
