@@ -399,25 +399,21 @@ export class FlightSim {
         this.camUp.copy(this.upL); this.inside = true; this.camInit = true;
       };
       const seatEye = (i: number) => {
-        const se = I.seats[i];
-        const F = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0);
-        const eye = se.pos.clone().addScaledVector(F, -0.1); eye.y += this.id === 'matrix' ? 0.86 : s.R < 1 ? 0.98 : 1.08;
-        if (se.facing === 0) eye.z -= se.side * 0.12;
-        return eye;
+        return I.seats[i].eye.clone();
       };
       if (view === 'walk') {
         // primeira pessoa: levanta da poltrona (ou do assento do piloto) e caminha pelo corredor
         if (this.lastView !== 'walk') {
-          this.walkPos.copy(seat !== null && I.seats[seat] ? seatEye(seat) : I.pilotEye);
+          this.walkPos.copy(seat !== null && I.seats[seat] ? seatEye(seat) : I.pilotEye); this.walkPos.z = 0; // levanta para o corredor
           const se = seat !== null ? I.seats[seat] : null;
-          if (this.lastView === 'seat' && se) { IN.lookYaw += se.facing === 0 ? Math.atan2(se.side * 0.94, 0.34) : se.facing === 1 ? -se.side * 0.64 : Math.PI + se.side * 0.64; }
+          if (this.lastView === 'seat' && se) { const F0 = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0); const tw = se.win.clone().sub(se.eye); const d0 = new THREE.Vector3(Math.max(-0.7, Math.min(0.7, tw.x / 0.55)) + F0.x * 0.25, 0, Math.sign(tw.z) || se.side); IN.lookYaw += Math.atan2(-d0.z, d0.x); }
           else if (this.lastView !== 'cockpit') IN.lookYaw = Math.PI;
         }
         const yawW = IN.lookYaw;
         const fwd = this.tmp.set(Math.cos(yawW), 0, -Math.sin(yawW)), rgt = this.tmp2.set(Math.sin(yawW), 0, Math.cos(yawW));
         this.walkPos.addScaledVector(fwd, IN.walkF * 1.25 * dt).addScaledVector(rgt, IN.walkS * 0.9 * dt);
         this.walkPos.y = damp(this.walkPos.y, I.walk.eyeY, 5, dt);
-        const yNow = this.walkPos.y; I.walk.clamp(this.walkPos); this.walkPos.y = yNow;
+        const yNow = this.walkPos.y; I.walk.clamp(this.walkPos); this.walkPos.y = Math.min(yNow, this.walkPos.y); // nunca acima do teto
         // passada: leve balanço da cabeça
         const bob = (Math.abs(IN.walkF) + Math.abs(IN.walkS)) > 0.1 ? Math.sin(this.simT * 7.5) * 0.012 : 0;
         this.lastView = view;
@@ -432,10 +428,14 @@ export class FlightSim {
         const se = I.seats[seat];
         const F = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0);
         const eye = seatEye(seat);
-        const dir = se.facing === 0 ? F.clone().multiplyScalar(0.94).add(new THREE.Vector3(0.34, -0.06, 0)).normalize() : F.clone().multiplyScalar(0.8).add(new THREE.Vector3(0, -0.07, se.side * 0.6)).normalize();
+        // olhar abre direto na janela ao lado (a vista é o ponto), com um pouco da cabine à frente
+        const toWin = se.win.clone().sub(eye);
+        const wSide = Math.sign(toWin.z) || se.side;
+        const along = Math.max(-0.7, Math.min(0.7, toWin.x / 0.55));
+        const dir = new THREE.Vector3(along * 0.5 + F.x * 0.18, -0.12, wSide).normalize();
         look(eye, dir);
       } else {
-        look(I.pilotEye.clone(), new THREE.Vector3(1, -0.12, 0.02).normalize());
+        look(I.pilotEye.clone(), new THREE.Vector3(1, -0.03, 0.02).normalize());
       }
       if ((this.panelT += dt) > 0.08) { this.panelT = 0; I.updatePanel({ pitch: this.pitch, roll: this.roll, speed: this.V, alt: TEL.alt, hdg: TEL.hdg, vs: TEL.vs }); }
       return;

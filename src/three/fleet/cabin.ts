@@ -14,7 +14,7 @@ import type { FleetSpec, CabinZone } from './specs';
 export interface CabinBuild {
   group: THREE.Group;
   /** poltronas de passageiro na ordem de `spec.cabin.seats` */
-  seats: { pos: THREE.Vector3; facing: 1 | -1 | 0; side: -1 | 1 }[];
+  seats: { pos: THREE.Vector3; facing: 1 | -1 | 0; side: -1 | 1; eye: THREE.Vector3; win: THREE.Vector3 }[];
   /** olho do piloto (assento esquerdo) */
   pilotEye: THREE.Vector3;
   /** caminhar pela cabine (primeira pessoa): altura dos olhos em pé e limites do piso livre */
@@ -64,6 +64,21 @@ const carpetTex = () => canvasTex(256, 256, (g) => {
   g.putImageData(im, 0, 0);
   g.strokeStyle = 'rgba(60,50,40,0.18)'; g.lineWidth = 1;
   for (let x = 0; x < 256; x += 32) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 256); g.stroke(); }
+});
+
+/** couro matelassê: grão fino + losangos costurados (pesponto) */
+const leatherTex = () => canvasTex(512, 512, (g) => {
+  g.fillStyle = '#d4bf9f'; g.fillRect(0, 0, 512, 512);
+  const im = g.getImageData(0, 0, 512, 512); const d = im.data;
+  for (let i = 0; i < d.length; i += 4) { const n = (rnd() - 0.5) * 12; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+  g.putImageData(im, 0, 0);
+  const step = 64;
+  for (let k = -512; k < 1024; k += step) {
+    for (const dir of [1, -1]) {
+      g.strokeStyle = 'rgba(70,48,28,0.32)'; g.lineWidth = 3; g.beginPath(); g.moveTo(k, 0); g.lineTo(k + dir * 512, 512); g.stroke();
+      g.strokeStyle = 'rgba(255,240,215,0.35)'; g.lineWidth = 1; g.setLineDash([4, 5]); g.beginPath(); g.moveTo(k + 3, 0); g.lineTo(k + 3 + dir * 512, 512); g.stroke(); g.setLineDash([]);
+    }
+  }
 });
 
 /** poltrona executiva (giratória), ocupante olhando para +x; encosto em −x */
@@ -209,22 +224,26 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     const k = Math.min(1, Math.abs((y - cy) / Math.max(0.01, ry)));
     return w * Math.sqrt(1 - k * k);
   };
+  /** altura do forro (teto) numa posição — a cabeça fica sempre abaixo dele */
+  const topY = (d: number, z: number) => { const p = f.profile(d); const cy = (p.top + p.bot) / 2, ry = (p.top - p.bot) / 2 - inset, w = p.w - inset; const k = Math.min(0.98, Math.abs(z) / Math.max(0.05, w)); return cy + ry * Math.sqrt(1 - k * k); };
+  const safeEye = (d: number, z: number, want: number) => Math.min(want, topY(d, z) - (prop ? 0.1 : 0.16));
   seedN = 3 + s.R * 1000;
   const clip = opts.clip ?? null;
   // por dentro, o sol não ilumina tudo (sem sombras): luz direta atenuada, interior vive de luz indireta e das sancas
-  const INSIDE = '#include <lights_fragment_end>\n reflectedLight.directDiffuse *= 0.16; reflectedLight.directSpecular *= 0.2; reflectedLight.indirectSpecular *= 0.55;';
+  const INSIDE = '#include <lights_fragment_end>\n reflectedLight.directDiffuse *= 0.26; reflectedLight.directSpecular *= 0.22; reflectedLight.indirectDiffuse *= vec3(1.08, 0.94, 0.78); reflectedLight.indirectSpecular *= vec3(0.5, 0.44, 0.36);';
   const dim = (m: THREE.Material) => { if (opts.lux) m.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_end>', INSIDE); }; return m; };
   const std = (p: THREE.MeshPhysicalMaterialParameters) => { const m = tr(new THREE.MeshPhysicalMaterial(p)); if (clip) m.clippingPlanes = clip; return dim(m) as THREE.MeshPhysicalMaterial; };
-  const wTex = opts.lux ? tr(walnutTex()) : null, mTex = opts.lux ? tr(marbleTex()) : null, cTex = opts.lux ? tr(carpetTex()) : null;
+  const wTex = opts.lux ? tr(walnutTex()) : null, mTex = opts.lux ? tr(marbleTex()) : null, cTex = opts.lux ? tr(carpetTex()) : null, lTex = opts.lux ? tr(leatherTex()) : null;
   const M = {
-    leather: std({ color: '#cdb594', roughness: 0.48, sheen: 0.6, sheenColor: new THREE.Color('#f3dfc2'), sheenRoughness: 0.55 }),
+    leather: std({ color: lTex ? '#ffffff' : '#cdb594', map: lTex, roughness: 0.48, sheen: 0.6, sheenColor: new THREE.Color('#f3dfc2'), sheenRoughness: 0.55 }),
     crew: std({ color: '#2b2928', roughness: 0.55, sheen: 0.4, sheenColor: new THREE.Color('#8a8580') }),
-    trim: std({ color: '#d9d3c9', roughness: 0.3, metalness: 0.7, envMapIntensity: 0.35 }),
+    trim: std({ color: '#cdb38a', roughness: 0.28, metalness: 0.85, envMapIntensity: 0.4 }),
     walnut: std({ color: wTex ? '#ffffff' : '#5a3a26', map: wTex, roughness: 0.34, clearcoat: 0.8, clearcoatRoughness: 0.12, envMapIntensity: 0.4 }),
     marble: std({ color: mTex ? '#ffffff' : '#ece8e1', map: mTex, roughness: 0.18, clearcoat: 0.6 }),
     carpet: std({ color: cTex ? '#ffffff' : '#857766', map: cTex, roughness: 0.96 }),
     lining: std({ color: '#f2ede5', roughness: 0.86, emissive: new THREE.Color('#3a2e22'), emissiveIntensity: opts.lux ? 0.9 : 0, side: THREE.DoubleSide }),
-    led: std({ color: '#fff3dc', emissive: new THREE.Color('#ffe2b0'), emissiveIntensity: 2.4, roughness: 0.4 }),
+    led: std({ color: '#fff3dc', emissive: new THREE.Color('#ffe2b0'), emissiveIntensity: 1.3, roughness: 0.4 }),
+    glow: std({ color: '#fbf3e6', emissive: new THREE.Color('#ffe9c8'), emissiveIntensity: 0.32, roughness: 0.9 }),
     panel: std({ color: '#1b1e22', roughness: 0.6, metalness: 0.3 }),
     suede: std({ color: '#121315', roughness: 0.95 }),
   };
@@ -272,16 +291,16 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
           float sd = rbox(q, uWinS * 0.5, min(uWinS.x, uWinS.y) * 0.45);
           if (d > uCab.x - 0.05) {
             if (sd < 0.0) { if (q.y > uWinS.y * 0.5 - 0.05) diffuseColor.rgb = vec3(0.86, 0.83, 0.78); else discard; }
-            else if (sd < 0.022) diffuseColor.rgb = vec3(0.22, 0.2, 0.19);
+            else if (sd < 0.03) diffuseColor.rgb = vec3(0.42, 0.29, 0.19) * (0.8 + 0.4 * smoothstep(0.0, 0.03, sd));
             else if (sd < 0.075) diffuseColor.rgb *= 0.86 + 0.14 * smoothstep(0.022, 0.075, sd);
           }
           // cockpit: para-brisa e janelas laterais
           if (d < uGeo.z && d > uGeo.w + 0.05) {
             float post = abs(th - 1.5708);
-            if (th > 0.3 && post > 0.03) discard;
+            if (th > (uCab.y > 0.5 ? 0.1 : 0.16) && post > 0.025) discard;
           }
           if (d >= uGeo.z + 0.06 && d < uGeo.z + 0.66 && th > 0.12 && th < 0.62) discard;
-          if (d < uGeo.z + 0.7) diffuseColor.rgb *= 0.32; // cockpit em tons escuros (antirreflexo)
+          if (d < uGeo.z + 0.7) diffuseColor.rgb = vec3(0.16, 0.165, 0.17); // cockpit em cinza antirreflexo
         }`);
     };
     const sm = mesh(g, shellMat, 'lining'); sm.renderOrder = 0;
@@ -318,6 +337,9 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     mesh(g, M.carpet, 'floor');
   }
 
+  // obstáculos para caminhar (poltronas e móveis): a câmera em primeira pessoa contorna, não atravessa
+  const obst: { x: number; z: number; r: number }[] = [];
+  const blocks: { d0: number; d1: number; side: number; inner: number }[] = [];
   // ---------- poltronas ----------
   const sg = seatGeometries(sc); tr(sg.leather); tr(sg.trim);
   const seats: CabinBuild['seats'] = [];
@@ -329,18 +351,41 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     g.position.set(fx(st.d), floorY, z);
     g.rotation.y = st.facing === 1 ? 0 : st.facing === -1 ? Math.PI : st.side * (Math.PI / 2);
     const onDivan = st.facing === 0 && C.zones.some((z) => z.kind === 'divan' && z.side === st.side && st.d > z.d0 && st.d < z.d1);
+    if (!onDivan) obst.push({ x: fx(st.d), z, r: 0.34 * sc });
     if (!onDivan) {
       const a = new THREE.Mesh(sg.leather, M.leather); a.name = `seat-${i + 1}`; a.userData.xray = 'solid';
       const b = new THREE.Mesh(sg.trim, M.trim); b.name = `seat-${i + 1}`; b.userData.xray = 'solid';
       g.add(a, b);
     }
     group.add(g);
-    seats.push({ pos: V(fx(st.d), floorY, z), facing: st.facing, side: st.side });
+    // olhos de quem está sentado: um pouco à frente do encosto, para dentro, abaixo do teto
+    const F = st.facing === 0 ? V(0, 0, -st.side) : V(st.facing, 0, 0);
+    const e = V(fx(st.d), 0, z).addScaledVector(F, -0.08);
+    if (st.facing === 0) e.z *= 0.82; else e.z += st.side * (prop ? 0.0 : 0.03);
+    e.y = safeEye(L / 2 - e.x, e.z, floorY + (prop ? 0.8 : s.R < 1 ? 0.98 : 1.08));
+    // janela mais próxima do lado da poltrona (divã: a janela do lado oposto, à frente de quem senta)
+    // janela à frente do encosto (no sentido em que a pessoa olha); sem nenhuma, a mais próxima
+    const wn = s.windows, de = L / 2 - e.x; let best = -1, bestAny = wn.d0;
+    for (let k = 0; k < wn.n; k++) {
+      const dk = wn.d0 + k * wn.pitch, ahead = st.facing === 1 ? de - dk : st.facing === -1 ? dk - de : 1 - Math.abs(dk - de);
+      if (Math.abs(dk - de) < Math.abs(bestAny - de)) bestAny = dk;
+      if (ahead > -0.05 && ahead < 1.3 && (best < 0 || Math.abs(dk - de) < Math.abs(best - de))) best = dk;
+    }
+    if (best < 0) best = bestAny;
+    // olhos ao lado da janela: o assento gira/desliza até alinhar o rosto com ela (sem encosto na frente)
+    if (st.facing !== 0) { const shift = Math.max(-0.42, Math.min(0.42, best - de)); e.x = fx(de + shift); e.z = z + st.side * (prop ? 0.02 : 0.12); e.y = safeEye(de + shift, e.z, floorY + (prop ? 0.8 : s.R < 1 ? 0.98 : 1.08)); }
+    const wSide = st.facing === 0 ? -st.side : st.side;
+    const win = f.point(best, wSide > 0 ? (wn.th ?? 0.2) : Math.PI - (wn.th ?? 0.2), inset);
+    seats.push({ pos: V(fx(st.d), floorY, z), facing: st.facing, side: st.side, eye: e, win });
   });
 
   // ---------- móveis da planta ----------
   const furn = (z: CabinZone) => {
     const dm = (z.d0 + z.d1) / 2, len = z.d1 - z.d0;
+    if (z.side !== 0 && z.kind !== 'entry' && z.kind !== 'exit') {
+      const depth = z.kind === 'table' ? 0.52 * sc + ledge : z.kind === 'credenza' ? 0.4 : z.kind === 'refresh' ? 0.34 : z.kind === 'divan' ? 0.68 * sc : 0.6;
+      blocks.push({ d0: z.d0, d1: z.d1, side: z.side, inner: wallZ(dm, floorY + 0.5) - depth });
+    }
     if (z.kind === 'table') {
       const tz = z.side * (wallZ(dm, floorY + 0.72) - ledge - 0.26 * sc);
       const top = mesh(box(len, 0.03, 0.52 * sc, 0.012), M.walnut, 'table'); top.position.set(fx(dm), floorY + 0.7 * (prop ? 0.85 : 1), tz);
@@ -400,11 +445,26 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     }
   }
 
+  // ---------- acabamento: painéis de nogueira abaixo do aparador e luz indireta no teto ----------
+  if (opts.lux) {
+    const d0 = C.start + 0.05, d1 = (lav ? lav.d0 : C.end) - 0.05;
+    for (const side of [-1, 1]) {
+      const dm = (d0 + d1) / 2, yTop = floorY + 0.6;
+      const z0 = wallZ(dm, floorY + 0.3) - 0.012;
+      const panel = mesh(box(d1 - d0, yTop - floorY - 0.02, 0.022, 0.006), M.walnut, 'dado'); panel.position.set(fx(dm), (yTop + floorY) / 2, side * z0);
+      const inlay = mesh(new THREE.BoxGeometry(d1 - d0, 0.008, 0.026), M.trim, 'dado'); inlay.position.set(fx(dm), floorY + 0.09, side * (z0 + 0.002));
+    }
+    const cy = topY((d0 + d1) / 2, 0) - 0.02;
+    const ceil = mesh(box(d1 - d0 - 0.2, 0.012, prop ? 0.3 : s.R < 1 ? 0.4 : 0.62, 0.006), M.glow, 'ceiling'); ceil.position.set(fx((d0 + d1) / 2), cy, 0);
+    // spots de leitura acima de cada poltrona
+    for (const st of C.seats) { const z = seatZ(st.d, st.side) * 0.9; const sp = mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.01, 16), M.led, 'ceiling'); sp.position.set(fx(st.d), topY(st.d, z) - 0.012, z); }
+  }
+
   // ---------- cockpit ----------
   const ck = new THREE.Group(); ck.name = 'cockpit-lux'; group.add(ck);
   let updatePanel: CabinBuild['updatePanel'] = () => {};
   const pilotZ = -(prop ? 0.29 : s.R < 1 ? 0.36 : 0.44);
-  const pilotEye = V(fx(crewD) + 0.08, floorY + (prop ? 0.86 : 1.06), pilotZ);
+  const pilotEye = V(fx(crewD) + 0.08, 0, pilotZ); pilotEye.y = safeEye(crewD - 0.08, pilotZ, floorY + (prop ? 0.86 : 1.16));
   {
     const cp = s.cabin.cockpit;
     // assentos de tripulação
@@ -412,9 +472,9 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     for (const side of [-1, 1]) { const m = new THREE.Mesh(cg.leather, M.crew); m.name = 'crew-seat'; m.userData.xray = 'solid'; m.position.set(fx(crewD), floorY, side * Math.abs(pilotZ)); ck.add(m); const t = new THREE.Mesh(cg.trim, M.trim); t.name = 'crew-seat'; t.position.copy(m.position); ck.add(t); }
     // painel principal, glareshield e console central
     const pw = wallZ(panelD, floorY + 0.7) * 2 * 0.96;
-    const ph = prop ? 0.42 : 0.5, py = floorY + (prop ? 0.62 : 0.74);
+    const ph = prop ? 0.34 : 0.38, py = floorY + (prop ? 0.46 : 0.58); // topo do glareshield ~25 cm abaixo dos olhos: o para-brisa domina a vista
     const pan = mesh(box(0.1, ph, pw, 0.02), M.panel, 'panel', ck); pan.position.set(fx(panelD), py, 0);
-    const gl = mesh(box(0.32, 0.05, pw * 0.98, 0.02), M.suede, 'panel', ck); gl.position.set(fx(panelD) - 0.1, py + ph / 2 + 0.02, 0);
+    const gl = mesh(box(0.32, 0.12, pw * 0.98, 0.02), M.suede, 'panel', ck); gl.position.set(fx(panelD) - 0.1, py + ph / 2 + 0.06, 0);
     const ped = mesh(box(0.75, 0.42, prop ? 0.18 : 0.3, 0.03), M.panel, 'panel', ck); ped.position.set(fx(panelD) - 0.42, floorY + 0.36, 0); ped.rotation.z = 0.25;
     if (opts.lux) {
       const D = makeDisplays(); tr(D.pfd); tr(D.mfd);
@@ -460,8 +520,8 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       const suite = cp.suite.includes('Fusion') ? 'fusion' : cp.suite.includes('21') ? 'pl21' : 'g1000';
       const tm = (t: THREE.Texture) => dim(tr(new THREE.MeshStandardMaterial({ map: t, roughness: 0.55, metalness: 0.2, emissive: new THREE.Color('#ffffff'), emissiveMap: t, emissiveIntensity: 0.32 })));
       const fgp = tr(switchPanelTex('fgp', suite)), low = tr(switchPanelTex('lower', suite)), pedT = tr(switchPanelTex('pedestal', suite));
-      const fg = new THREE.PlaneGeometry(pw * 0.62, pw * 0.62 / 8); fg.rotateY(-Math.PI / 2); fg.rotateZ(-0.5);
-      const fm = mesh(fg, tm(fgp), 'panel', ck); fm.position.set(fx(panelD) - 0.2, py + ph / 2 + 0.065, 0);
+      const fg = new THREE.PlaneGeometry(pw * 0.56, Math.min(0.1, pw * 0.56 / 8)); fg.rotateY(-Math.PI / 2);
+      const fm = mesh(fg, tm(fgp), 'panel', ck); fm.position.set(fx(panelD) - 0.262, py + ph / 2 + 0.06, 0); // painel de guiagem na face da aba do glareshield (acima das telas)
       const lg = new THREE.PlaneGeometry(pw * 0.9, pw * 0.9 / 4); lg.rotateY(-Math.PI / 2);
       const lm2 = mesh(lg, tm(low), 'panel', ck); lm2.position.set(fx(panelD) - 0.052, py - ph / 2 + pw * 0.9 / 8 - 0.02, 0); lm2.scale.set(1, 0.6, 1);
       const pg = new THREE.PlaneGeometry(prop ? 0.16 : 0.27, prop ? 0.1 : 0.2); pg.rotateX(-Math.PI / 2); pg.rotateY(-Math.PI / 2);
@@ -471,7 +531,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       // standby e luzes de alerta principais
       for (const side of [-1, 1]) { const ma = mesh(box(0.012, 0.03, 0.05, 0.004), M.led, 'panel', ck); ma.position.set(fx(panelD) - 0.21, py + ph / 2 + 0.03, side * Math.abs(pilotZ) * 0.9); }
       // HUD do piloto (Embraer: HGS-3500 + EVS, opcional) — vidro combinador
-      if (cp.control === 'sidestick') { const hg = new THREE.PlaneGeometry(0.16, 0.12); hg.rotateY(-Math.PI / 2); const hm = new THREE.Mesh(tr(hg), tr(new THREE.MeshBasicMaterial({ color: '#9dffc4', transparent: true, opacity: 0.025, depthWrite: false }))); hm.name = 'panel'; hm.position.set(pilotEye.x + 0.28, pilotEye.y + 0.02, pilotZ); ck.add(hm); }
+      // (HUD combinador omitido: atrapalhava a vista)
       // manete de flaps e speedbrake (jatos)
       if (!prop) { const fl = mesh(box(0.05, 0.08, 0.025, 0.008), M.trim, 'panel', ck); fl.position.set(fx(panelD) - 0.48, floorY + 0.68, 0.11); const sb = mesh(box(0.04, 0.06, 0.02, 0.008), M.suede, 'panel', ck); sb.position.set(fx(panelD) - 0.48, floorY + 0.68, -0.11); }
     }
@@ -522,14 +582,20 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     }
   }
   // primeira pessoa: em pé onde a cabine permite (Embraer 1,83 m; CJ2+ 1,45 m curvado; Matrix 1,19 m agachado)
-  const eyeY = floorY + (prop ? 0.92 : s.R < 1 ? 1.2 : 1.5);
+  const eyeY = safeEye((C.start + (lav ? lav.d0 : C.end)) / 2, 0, floorY + (prop ? 0.92 : s.R < 1 ? 1.2 : 1.5));
   const wd0 = prop ? C.start + 0.85 : crewD + 0.2, wd1 = (lav ? lav.d0 : C.end) - 0.28;
   const walk = {
     eyeY,
     clamp: (q: THREE.Vector3) => {
       const d = Math.min(wd1, Math.max(wd0, L / 2 - q.x));
-      const hw = Math.max(0.04, Math.min(wallZ(d, eyeY + 0.1) - 0.12, wallZ(d, eyeY - 0.35) - 0.3)); // a cabeça não atravessa a curva do teto
-      q.x = L / 2 - d; q.z = Math.max(-hw, Math.min(hw, q.z)); q.y = eyeY;
+      const hw = Math.max(0.04, Math.min(wallZ(d, Math.min(eyeY + 0.1, topY(d, 0) - 0.05)) - 0.12, wallZ(d, eyeY - 0.35) - 0.3)); // a cabeça não atravessa a curva do teto
+      q.x = L / 2 - d; q.z = Math.max(-hw, Math.min(hw, q.z));
+      // passagem da antepara do cockpit (vão da porta)
+      if (!prop && d < C.start + 0.12) q.z = Math.max(-0.2, Math.min(0.2, q.z));
+      for (const b of blocks) if (d > b.d0 - 0.18 && d < b.d1 + 0.18 && b.side * q.z > b.inner - 0.2) q.z = b.side * Math.max(0, b.inner - 0.2);
+      for (const o of obst) { const dx = q.x - o.x, dz = q.z - o.z, r = o.r + 0.16, l = Math.hypot(dx, dz); if (l < r && l > 1e-4) { q.x = o.x + (dx / l) * r; q.z = o.z + (dz / l) * r; } }
+      q.z = Math.max(-hw, Math.min(hw, q.z));
+      q.y = Math.min(eyeY, safeEye(L / 2 - q.x, q.z, eyeY));
       return q;
     },
   };

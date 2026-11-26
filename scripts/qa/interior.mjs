@@ -10,7 +10,7 @@ await p.goto('http://localhost:7777/?qa=1&quality=balanced&perf=lock&lang=pt&fli
 await p.waitForTimeout(2500);
 await p.evaluate(() => { const el = document.getElementById('frota'); window.scrollTo(0, el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * 0.06); });
 await p.waitForTimeout(8000);
-for (let i = 0; i < card; i++) { await p.keyboard.press('ArrowRight'); await p.waitForTimeout(1500); }
+for (let i = 0; i < card; i++) { await p.evaluate(() => document.querySelectorAll('.fleet__nav .textbtn')[1].click()); await p.waitForTimeout(2500); }
 await p.evaluate(() => document.querySelector('.fcard[data-active="true"] .fcard__cta').click());
 await p.waitForTimeout(2500);
 await p.evaluate(() => [...document.querySelectorAll('[role=tab]')].find((t) => t.textContent.includes('Planta')).click());
