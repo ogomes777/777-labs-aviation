@@ -97,3 +97,4 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - Cards: ano e "Detalhes" não cortam mais. Aeronaves em resolução maior (textura 2048, detalhe 0,85–1).
 - Removidos a seção Destinos (globo de baixo) e o formulário de viagem; contato direto SimFly (WhatsApp/e-mail) mantém #planejar; testes dos recursos removidos excluídos.
 - Testes: tsc OK, vitest 19/19, build OK; E2E subset 12 passaram; "menu abre/fecha" no mobile é instável (2/3 passam isolado; menu não foi alterado).
+- Publicado em produção (autorizado pelo usuário): deploy `dpl_2HK2FPLhAuBCs9KEGU6XUhpuRrZC` de `simfly/v6-master` @ `2214c8c`. Verificado em https://777-labs-aviation.vercel.app: contato direto presente, seção Destinos e formulário de viagem ausentes, frota real, `/lab/preview` = 404. Rollback: promover `dpl_49ZcMZNhrKGdUPCiB2i22KW2b4bA` (versão anterior da V6).
