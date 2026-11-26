@@ -81,6 +81,8 @@ export default function FleetShowroom() {
     opener.current = from;
     preview.close();
     frame.orbitYaw = 0; frame.orbitPitch = 0;
+    // o avião aberto passa a ser o destacado (senão a regra 'trocar de avião pelo scroll fecha o atlas' fecharia na hora)
+    const k = FLEET.findIndex((f) => f.id === id); if (k >= 0 && k !== ui.get().fleetIndex) ui.set({ fleetIndex: k });
     // raio-X automático de apresentação ao entrar; depois volta ao normal e a pessoa escolhe sistema/peça
     ui.set({ inspect: id, assembled: true, inspectPart: null, inspectMode: 'parts', seat: null, inspectSystem: sys, fleetXray: !sys && motion !== 'reduced', fleetPreview: null });
     if (xrayTimer.current) window.clearTimeout(xrayTimer.current);
