@@ -11,7 +11,7 @@ import * as THREE from 'three';
 class GradeEffect extends Effect {
   constructor() {
     super('GradeEffect', /* glsl */ `
-      uniform float uContrast; uniform float uSat; uniform float uWarm; uniform float uLift; uniform float uExposure; uniform vec3 uShadow; uniform vec3 uHigh;
+      uniform float uContrast; uniform float uSat; uniform float uWarm; uniform float uLift; uniform float uExposure; uniform vec3 uShadow; uniform vec3 uHigh; uniform float uTheme;
       void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor){
         vec3 c = max(inputColor.rgb, 0.0) * uExposure;
         float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
@@ -22,11 +22,21 @@ class GradeEffect extends Effect {
         vec3 s = c / (c + 0.18);
         c = mix(c, c * (1.0 + uContrast * (s - 0.5) * 1.4), 1.0);
         c = c + uLift * (1.0 - c);
+        if (uTheme > 0.001) {
+          // mesma matriz do CSS do tema Âmbar: hue-rotate(180deg) sepia(.24) saturate(.88)
+          vec3 h = clamp(c, 0.0, 1.0);
+          h = vec3(dot(h, vec3(-0.574, 1.430, 0.144)), dot(h, vec3(0.426, 0.430, 0.144)), dot(h, vec3(0.426, 1.430, -0.856)));
+          vec3 sp = vec3(dot(h, vec3(0.393, 0.769, 0.189)), dot(h, vec3(0.349, 0.686, 0.168)), dot(h, vec3(0.272, 0.534, 0.131)));
+          h = mix(h, sp, 0.24);
+          float lh = dot(h, vec3(0.2126, 0.7152, 0.0722));
+          h = mix(vec3(lh), h, 0.88) * 1.02;
+          c = mix(c, h, uTheme);
+        }
         outputColor = vec4(c, inputColor.a);
       }`, {
       blendFunction: BlendFunction.NORMAL,
       uniforms: new Map<string, THREE.Uniform>([
-        ['uContrast', new THREE.Uniform(0.18)], ['uExposure', new THREE.Uniform(1)], ['uSat', new THREE.Uniform(1.08)], ['uWarm', new THREE.Uniform(0.3)], ['uLift', new THREE.Uniform(0.012)],
+        ['uContrast', new THREE.Uniform(0.18)], ['uExposure', new THREE.Uniform(1)], ['uSat', new THREE.Uniform(1.08)], ['uWarm', new THREE.Uniform(0.3)], ['uLift', new THREE.Uniform(0.012)], ['uTheme', new THREE.Uniform(0)],
         ['uShadow', new THREE.Uniform(new THREE.Color(0.92, 0.97, 1.07))], ['uHigh', new THREE.Uniform(new THREE.Color(1.05, 1.0, 0.93))],
       ]),
     });

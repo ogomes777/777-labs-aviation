@@ -9,16 +9,19 @@ import { track } from '@/lib/analytics';
 import { usePreview } from './preview/usePreview';
 import HotspotPreview from './preview/HotspotPreview';
 import FloorPlan from './FloorPlan';
+import { fmt as tf, useM } from '@/i18n';
 
 const SYSTEM_ORDER: SystemId[] = ['fuselagem', 'asas', 'propulsao', 'empenagem', 'trem', 'cabine', 'portas'];
-const fmt = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /**
  * Frota SimFly: galeria horizontal ligada ao scroll (desktop) ou swipe nativo (mobile), com as cinco
  * aeronaves anunciadas. Hotspots do exemplar ativo abrem PREVIEW antes da seleção; a seleção abre o atlas
  * (sistema isolado, raio-X, desmontagem, órbita 360° e planta ilustrativa).
  */
+function startFlight(id: FleetId) { ui.set({ flight: id }); track('flight_start', { aircraft: id }); }
+
 export default function FleetShowroom() {
+  const m = useM(), F = m.fleet;
   const index = ui.useStore((s) => s.fleetIndex);
   const inspect = ui.useStore((s) => s.inspect);
   const assembled = ui.useStore((s) => s.assembled);
@@ -138,7 +141,7 @@ export default function FleetShowroom() {
   const active = FLEET[index] ?? FLEET[0];
   const hotAircraft: FleetId = inspect ?? active.id;
   const item = FLEET.find((f) => f.id === inspect);
-  const systems = inspect ? systemsFor(inspect) : [];
+  const systems = inspect ? systemsFor(inspect, m) : [];
   const selSys = systems.find((s) => s.id === system) ?? null;
   const selPart = selSys?.parts.find((p) => p.id === part) ?? null;
   const spec = inspect ? FLEET_SPECS[inspect] : null;
@@ -163,37 +166,37 @@ export default function FleetShowroom() {
 
   return (
     <>
-      <div className="fleet__viewport" ref={vp} data-inspecting={inspect ? 'true' : 'false'} data-fleet-viewport role="region" aria-roledescription="carrossel" aria-label="Frota SimFly — aeronaves anunciadas" tabIndex={0}
+      <div className="fleet__viewport" ref={vp} data-inspecting={inspect ? 'true' : 'false'} data-fleet-viewport role="region" aria-roledescription="carrossel" aria-label={F.region} tabIndex={0}
         onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); } }}>
         <div className="fleet__track" data-fleet-track>
           {FLEET.map((f, i) => (
-            <article key={f.id} className="fcard" data-active={i === index ? 'true' : 'false'} data-exclusive={f.exclusive ? 'true' : 'false'} data-expanded={expanded === f.id ? 'true' : 'false'} aria-label={`${f.make} ${f.name} ${f.year}, ${f.category}`}>
+            <article key={f.id} className="fcard" data-active={i === index ? 'true' : 'false'} data-exclusive={f.exclusive ? 'true' : 'false'} data-expanded={expanded === f.id ? 'true' : 'false'} aria-label={`${f.make} ${f.name} ${f.year}, ${F.items[f.id].category}`}>
               <div className="fcard__top"><span className="fcard__kind">{f.make} · {f.type}</span><span className="fcard__year">{f.year}</span></div>
               <h3 className="fcard__name">{f.name}</h3>
-              <p className="fcard__cat">{f.category} · {f.condition}</p>
-              <ul className="fcard__facts">{(expanded === f.id ? [...f.facts, ...f.more] : f.facts).map((x) => <li key={x}>{x}</li>)}</ul>
-              <p className="fcard__status"><i aria-hidden="true" />{f.status} · disponibilidade sob confirmação</p>
+              <p className="fcard__cat">{F.items[f.id].category} · {F.items[f.id].condition}</p>
+              <ul className="fcard__facts">{(expanded === f.id ? [...F.items[f.id].facts, ...F.items[f.id].more] : F.items[f.id].facts).map((x) => <li key={x}>{x}</li>)}</ul>
+              <p className="fcard__status"><i aria-hidden="true" />{F.items[f.id].status} · {F.availability}</p>
               <div className="fcard__actions">
-                <button type="button" className="fcard__cta" data-cursor="Abrir" onClick={(e) => open(f.id, e.currentTarget)} aria-haspopup="dialog">Ver por dentro</button>
-                <a className="fcard__quote" href={quoteUrl(f)} target="_blank" rel="noopener noreferrer" onClick={() => track('fleet_quote', { aircraft: f.id })}>Consultar <span aria-hidden="true">↗</span></a>
-                <button type="button" className="fcard__more" aria-expanded={expanded === f.id} onClick={() => setExpanded((x) => (x === f.id ? null : f.id))}>{expanded === f.id ? 'Menos' : 'Detalhes'}</button>
+                <button type="button" className="fcard__cta" data-cursor={F.open} onClick={(e) => open(f.id, e.currentTarget)} aria-haspopup="dialog">{F.inside}</button>
+                <a className="fcard__quote" href={quoteUrl(f, undefined, m)} target="_blank" rel="noopener noreferrer" onClick={() => track('fleet_quote', { aircraft: f.id })}>{F.consult}</a>
+                <button type="button" className="fcard__more" aria-expanded={expanded === f.id} onClick={() => setExpanded((x) => (x === f.id ? null : f.id))}>{expanded === f.id ? F.less : F.details}</button>
               </div>
             </article>
           ))}
         </div>
       </div>
       <div className="fleet__nav" data-inspecting={inspect ? 'true' : 'false'}>
-        <button type="button" className="textbtn" onClick={() => goTo(index - 1)} disabled={index === 0}>Anterior</button>
+        <button type="button" className="textbtn" onClick={() => goTo(index - 1)} disabled={index === 0}>{F.prev}</button>
         <span aria-live="polite">{String(index + 1).padStart(2, '0')} / {String(FLEET.length).padStart(2, '0')}</span>
-        <button type="button" className="textbtn" onClick={() => goTo(index + 1)} disabled={index === FLEET.length - 1}>Próxima</button>
+        <button type="button" className="textbtn" onClick={() => goTo(index + 1)} disabled={index === FLEET.length - 1}>{F.next}</button>
       </div>
 
       {/* hotspots do exemplar ativo (projetados pelo canvas); preview antes da seleção */}
-      {live && <div ref={hotLayer} className="fhots" data-visible="false" aria-label={`Sistemas do ${FLEET.find((f) => f.id === hotAircraft)?.name}`} role="group">
+      {live && <div ref={hotLayer} className="fhots" data-visible="false" aria-label={tf(F.systemsOf, { name: FLEET.find((f) => f.id === hotAircraft)?.name ?? '' })} role="group">
         {SYSTEM_ORDER.map((sid) => {
-          const pv = fleetSystemPreview(hotAircraft, sid);
+          const pv = fleetSystemPreview(hotAircraft, sid, m);
           return (
-            <button key={sid} type="button" className="fhot" data-cursor="Ver" aria-label={`${pv.title} — prévia`} aria-describedby={preview.state.item?.key === pv.key ? 'fleet-preview' : undefined}
+            <button key={sid} type="button" className="fhot" data-cursor={F.open} aria-label={tf(F.previewOf, { name: pv.title })} aria-describedby={preview.state.item?.key === pv.key ? 'fleet-preview' : undefined}
               ref={(el) => { if (el) domRefs.fleetHotspots.set(sid, el); else domRefs.fleetHotspots.delete(sid); }}
               data-open={preview.state.item?.key === pv.key}
               {...preview.bind(pv, () => (inspect ? selectSystem(sid) : open(hotAircraft, null, sid)))}>
@@ -204,57 +207,53 @@ export default function FleetShowroom() {
       </div>}
       <HotspotPreview id="fleet-preview" state={preview.state} cardRef={preview.cardRef} onConfirm={preview.confirm} onEnter={preview.cancelClose} onLeave={preview.scheduleClose} />
 
-      {live && inspect && mode === 'parts' && <div className="fleet-orbit" role="application" aria-label="Arraste para girar a aeronave em 360°; teclado: setas" tabIndex={0} {...orbitHandlers}><span aria-hidden="true">Arraste · 360°</span></div>}
+      {live && inspect && mode === 'parts' && <div className="fleet-orbit" role="application" aria-label={F.orbitAria} tabIndex={0} {...orbitHandlers}><span aria-hidden="true">{F.orbit}</span></div>}
 
-      {item && mode === 'plan' && <div className="fplan-wrap"><FloorPlan id={item.id} seat={seat} onSeat={(i) => ui.set({ inspectMode: 'seat', seat: i })} /></div>}
+      {item && mode === 'plan' && <div className="fplan-wrap"><FloorPlan id={item.id} /></div>}
       <div ref={seatLayer} className="seats" data-visible="false" aria-hidden="true" hidden />
 
-      <div ref={panel} className="inspect" role="dialog" aria-modal="false" aria-label={item ? `Atlas do ${item.make} ${item.name}` : 'Atlas'} data-open={inspect ? 'true' : 'false'} tabIndex={-1} hidden={!inspect}>
+      <div ref={panel} className="inspect" role="dialog" aria-modal="false" aria-label={item ? tf(F.atlasOf, { name: `${item.make} ${item.name}` }) : F.atlas} data-open={inspect ? 'true' : 'false'} tabIndex={-1} hidden={!inspect}>
         {item && spec && (
           <>
-            <nav className="inspect__crumbs" aria-label="Navegação do atlas">
-              <button type="button" onClick={close}>Frota</button><span aria-hidden="true">›</span>
+            <nav className="inspect__crumbs" aria-label={F.crumbs}>
+              <button type="button" onClick={close}>{F.fleet}</button><span aria-hidden="true">›</span>
               <button type="button" onClick={() => selectSystem(null)} aria-current={!selSys ? 'page' : undefined}>{item.name}</button>
               {selSys && <><span aria-hidden="true">›</span><button type="button" onClick={() => ui.set({ inspectPart: null })} aria-current={!selPart ? 'page' : undefined}>{selSys.label}</button></>}
               {selPart && <><span aria-hidden="true">›</span><span aria-current="page">{selPart.label}</span></>}
             </nav>
             <span className="fcard__kind">{item.make} · {item.type} · {item.year}</span>
             <h3 className="inspect__name">{item.name}</h3>
-            <div className="inspect__tabs" role="tablist" aria-label="Modo do atlas">
-              <button type="button" role="tab" aria-selected={mode === 'parts'} className="textbtn" onClick={() => ui.set({ inspectMode: 'parts', seat: null })}>Atlas 3D</button>
-              <button type="button" role="tab" aria-selected={mode !== 'parts'} className="textbtn" onClick={() => { preview.close(); ui.set({ inspectMode: 'plan', assembled: true, seat: null, fleetXray: false, inspectSystem: null, inspectPart: null }); }}>Planta</button>
-              <button type="button" className="textbtn inspect__close" onClick={close}>Fechar</button>
+            <div className="inspect__tabs" role="tablist" aria-label={F.atlas}>
+              <button type="button" role="tab" aria-selected={mode === 'parts'} className="textbtn" onClick={() => ui.set({ inspectMode: 'parts', seat: null })}>{F.atlas}</button>
+              <button type="button" role="tab" aria-selected={mode !== 'parts'} className="textbtn" onClick={() => { preview.close(); ui.set({ inspectMode: 'plan', assembled: true, seat: null, fleetXray: false, inspectSystem: null, inspectPart: null }); }}>{F.plan}</button>
+              <button type="button" className="textbtn inspect__close" onClick={close} aria-label={F.close}><span aria-hidden="true" className="inspect__x" /></button>
             </div>
             {mode === 'parts' ? (<>
-              <div className="inspect__systems" role="group" aria-label="Sistemas">
+              <div className="inspect__systems" role="group" aria-label={F.systems}>
                 {systems.map((s) => <button key={s.id} type="button" className="pill" aria-pressed={system === s.id} onClick={() => selectSystem(system === s.id ? null : s.id)}>{s.label}</button>)}
               </div>
-              {live && <div className="inspect__actions" role="group" aria-label="Visualização">
-                <button type="button" className="pill pill--tool" aria-pressed={xray} onClick={() => ui.set({ fleetXray: !xray })}>Raio-X</button>
-                <button type="button" className="pill pill--tool" aria-pressed={!assembled} onClick={() => ui.set({ assembled: !assembled })}>{assembled ? 'Abrir em camadas' : 'Montar aeronave'}</button>
-                <button type="button" className="pill pill--tool" onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; preview.close(); ui.set({ inspectSystem: null, inspectPart: null, assembled: true, fleetXray: false }); }}>Redefinir vista</button>
+              {live && <div className="inspect__actions" role="group" aria-label={F.tools}>
+                <button type="button" className="pill pill--tool" aria-pressed={xray} onClick={() => ui.set({ fleetXray: !xray })}>{F.xray}</button>
+                <button type="button" className="pill pill--tool" aria-pressed={!assembled} onClick={() => ui.set({ assembled: !assembled })}>{assembled ? F.explode : F.assemble}</button>
+                <button type="button" className="pill pill--tool" onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; preview.close(); ui.set({ inspectSystem: null, inspectPart: null, assembled: true, fleetXray: false }); }}>{F.reset}</button>
               </div>}
               {selSys && <ul className="inspect__parts">
                 {selSys.parts.map((p) => (
                   <li key={p.id}><button type="button" aria-pressed={part === p.id} onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; ui.set({ inspectPart: part === p.id ? null : p.id }); }}>{p.label}</button></li>
                 ))}
               </ul>}
-              <p className="inspect__text" aria-live="polite">{selPart ? selPart.text : selSys ? selSys.text : `${item.category}. ${item.engine}. Passe pelos pontos da aeronave para pré-visualizar cada sistema; clique para isolar.`}</p>
+              <p className="inspect__text" aria-live="polite">{selPart ? selPart.text : selSys ? selSys.text : `${F.items[item.id].category}. ${item.engine}. ${F.hint}`}</p>
             </>) : mode === 'plan' ? (
-              <p className="inspect__text" aria-live="polite">Configuração ilustrativa com {seatCount} lugares anunciados{item.id === 'matrix' ? ' (inclui piloto e copiloto)' : ''}. Não é a planta do exemplar. Escolha uma poltrona para ver a vista sentado.</p>
-            ) : (
               <>
-                <p className="inspect__text" aria-live="polite">Poltrona {String((seat ?? 0) + 1).padStart(2, '0')}. Vista ilustrativa a partir deste lugar.</p>
-                <button type="button" className="textbtn" onClick={() => ui.set({ inspectMode: 'plan', seat: null })}>Voltar à planta</button>
+                <p className="inspect__text" aria-live="polite">{tf(F.planText, { n: seatCount })}</p>
+                {live && <button type="button" className="sf-fly" onClick={() => startFlight(item.id)}><span className="sf-fly__glow" aria-hidden="true" />{F.fly}</button>}
               </>
-            )}
+            ) : null}
             <div className="inspect__cta">
-              <a className="btn btn--solid btn--small" href={quoteUrl(item)} target="_blank" rel="noopener noreferrer" onClick={() => track('fleet_quote', { aircraft: item.id, from: 'atlas' })}>Consultar aeronave</a>
-              <a className="textbtn" href={mailUrl(item)}>Por e-mail</a>
+              <a className="btn btn--solid btn--small" href={quoteUrl(item, undefined, m)} target="_blank" rel="noopener noreferrer" onClick={() => track('fleet_quote', { aircraft: item.id, from: 'atlas' })}>{F.quote}</a>
+              <a className="textbtn" href={mailUrl(item, m)}>{F.email}</a>
             </div>
-            <p className="micro inspect__micro">
-              Ilustração 3D paramétrica calibrada pelo envelope do tipo ({fmt(spec.envelope.length)} m × {fmt(spec.envelope.span)} m × {fmt(spec.envelope.height)} m; {spec.sources[0]}). Pintura, janelas, interior e estrutura interna são aproximados — não é o exemplar anunciado.{spec.envelopeNote ? ` ${spec.envelopeNote}` : ''}
-            </p>
+            <p className="micro inspect__micro">{F.micro}</p>
           </>
         )}
       </div>

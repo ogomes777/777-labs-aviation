@@ -1,6 +1,8 @@
 'use client';
 import type { FleetId } from '@/content/fleet';
 import { FLEET_SPECS } from '@/three/fleet/specs';
+import { FLEET } from '@/content/fleet';
+import { fmt as tf, useM } from '@/i18n';
 
 /**
  * Planta técnica 2D (vista superior, nariz à esquerda), no estilo de planta arquitetônica.
@@ -9,8 +11,10 @@ import { FLEET_SPECS } from '@/three/fleet/specs';
  */
 const fmt = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export default function FloorPlan({ id, seat, onSeat }: { id: FleetId; seat: number | null; onSeat: (i: number) => void }) {
+export default function FloorPlan({ id }: { id: FleetId }) {
+  const P = useM().fleet.plan2d;
   const s = FLEET_SPECS[id];
+  const name = FLEET.find((f) => f.id === id)?.name ?? id;
   const prop = s.nose === 'prop';
   const L = s.fusL ?? s.envelope.length - (prop ? 0.38 : 0);
   const R = s.R, Ln = s.Ln, Lt = s.Lt;
@@ -32,7 +36,7 @@ export default function FloorPlan({ id, seat, onSeat }: { id: FleetId; seat: num
   const embraer = id === 'legacy-450' || id === 'praetor-500' || id === 'praetor-600';
   const cockpitEnd = prop ? Ln + 0.9 : Ln * 1.05;
   return (
-    <figure className="fplan" aria-label={`Planta ilustrativa da cabine do ${id}`}>
+    <figure className="fplan" aria-label={tf(P.aria, { name })}>
       <svg viewBox={vb} role="img" aria-labelledby="fplan-cap">
         <defs>
           <pattern id="fplan-grid" width="1" height="1" patternUnits="userSpaceOnUse"><path d="M1 0 L0 0 0 1" fill="none" stroke="currentColor" strokeWidth="0.01" opacity="0.18" /></pattern>
@@ -44,27 +48,24 @@ export default function FloorPlan({ id, seat, onSeat }: { id: FleetId; seat: num
         <path d={`M${c0},${-inner(c0)} L${c1},${-inner(c1)} L${c1},${inner(c1)} L${c0},${inner(c0)} Z`} className="fplan__floor" />
         {/* divisória do cockpit */}
         <line x1={cockpitEnd} y1={-inner(cockpitEnd)} x2={cockpitEnd} y2={inner(cockpitEnd)} className="fplan__wall" />
-        <text x={(prop ? Ln * 0.55 : Ln * 0.62)} y={0.12} className="fplan__label">Cockpit</text>
+        <text x={(prop ? Ln * 0.55 : Ln * 0.62)} y={0.12} className="fplan__label">{P.cockpit}</text>
         {/* janelas (ambos os lados) */}
         {Array.from({ length: s.windows.n }, (_, i) => { const d = s.windows.d0 + i * s.windows.pitch; return [-1, 1].map((sd) => <line key={`${i}${sd}`} x1={d - s.windows.w / 2} x2={d + s.windows.w / 2} y1={sd * w(d)} y2={sd * w(d)} className="fplan__win" />); })}
         {/* porta principal (lado esquerdo = base do desenho) */}
         <g className="fplan__door">
           <line x1={s.door.d - s.door.w / 2} x2={s.door.d + s.door.w / 2} y1={w(s.door.d)} y2={w(s.door.d)} />
           <path d={`M${s.door.d - s.door.w / 2},${w(s.door.d)} A${s.door.w},${s.door.w} 0 0 1 ${s.door.d + s.door.w / 2},${w(s.door.d) + s.door.w}`} />
-          <text x={s.door.d} y={w(s.door.d) + s.door.w + 0.42} className="fplan__label fplan__label--sm">Porta</text>
+          <text x={s.door.d} y={w(s.door.d) + s.door.w + 0.42} className="fplan__label fplan__label--sm">{P.door}</text>
         </g>
         {/* lavatório: somente onde o anúncio declara (Legacy 450) */}
-        {id === 'legacy-450' && <g><rect x={c1 - 1.0} y={-inner(c1 - 1) + 0.05} width={0.95} height={inner(c1 - 1) * 2 - 0.1} className="fplan__room" /><text x={c1 - 0.52} y={0.1} className="fplan__label fplan__label--sm">Lav.</text></g>}
+        {id === 'legacy-450' && <g><rect x={c1 - 1.0} y={-inner(c1 - 1) + 0.05} width={0.95} height={inner(c1 - 1) * 2 - 0.1} className="fplan__room" /><text x={c1 - 0.52} y={0.1} className="fplan__label fplan__label--sm">{P.lav}</text></g>}
         {/* poltronas (clicáveis → vista sentado) */}
         {s.cabin.seats.map((st, i) => {
           const z = st.side * (prop ? R * 0.4 : R * 0.5);
-          const on = seat === i;
           return (
-            <g key={i} className="fplan__seat" data-on={on} role="button" tabIndex={0} aria-pressed={on} aria-label={`Poltrona ${i + 1}: ver deste lugar`}
-              onClick={() => onSeat(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSeat(i); } }}>
+            <g key={i} className="fplan__seat" style={{ ['--i' as string]: i } as React.CSSProperties}>
               <rect x={st.d - seatW / 2} y={z - seatW / 2} width={seatW} height={seatW} rx={0.1} />
               <line x1={st.d + (st.facing === 1 ? -1 : 1) * (seatW / 2 - 0.08)} x2={st.d + (st.facing === 1 ? -1 : 1) * (seatW / 2 - 0.08)} y1={z - seatW / 2 + 0.06} y2={z + seatW / 2 - 0.06} className="fplan__back" />
-              <text x={st.d} y={z + 0.1} className="fplan__num">{String(i + 1).padStart(2, '0')}</text>
             </g>
           );
         })}
@@ -72,11 +73,11 @@ export default function FloorPlan({ id, seat, onSeat }: { id: FleetId; seat: num
         <g className="fplan__dim">
           <line x1={0} x2={L} y1={R + 1.1} y2={R + 1.1} />
           <line x1={0} x2={0} y1={R + 0.85} y2={R + 1.35} /><line x1={L} x2={L} y1={R + 0.85} y2={R + 1.35} />
-          <text x={L / 2} y={R + 1.6} className="fplan__label fplan__label--sm">{`Comprimento total do tipo: ${fmt(s.envelope.length)} m`}</text>
-          {embraer && <><line x1={c0 + 0.32} x2={c0 + 0.32} y1={-1.04} y2={1.04} /><line x1={c0 + 0.2} x2={c0 + 0.44} y1={-1.04} y2={-1.04} /><line x1={c0 + 0.2} x2={c0 + 0.44} y1={1.04} y2={1.04} /><text x={(c0 + c1) / 2} y={-R - 0.45} className="fplan__label fplan__label--sm">Largura interna da cabine: 2,08 m (Embraer) · cota no início da cabine</text></>}
+          <text x={L / 2} y={R + 1.6} className="fplan__label fplan__label--sm">{tf(P.length, { n: fmt(s.envelope.length) })}</text>
+          {embraer && <><line x1={c0 + 0.32} x2={c0 + 0.32} y1={-1.04} y2={1.04} /><line x1={c0 + 0.2} x2={c0 + 0.44} y1={-1.04} y2={-1.04} /><line x1={c0 + 0.2} x2={c0 + 0.44} y1={1.04} y2={1.04} /><text x={(c0 + c1) / 2} y={-R - 0.45} className="fplan__label fplan__label--sm">{P.width}</text></>}
         </g>
       </svg>
-      <figcaption id="fplan-cap">Configuração ilustrativa do modelo · {s.cabin.seats.length} lugares anunciados · não é a planta do exemplar. Toque numa poltrona para ver deste lugar.</figcaption>
+      <figcaption id="fplan-cap">{tf(P.caption, { n: s.cabin.seats.length })}</figcaption>
     </figure>
   );
 }

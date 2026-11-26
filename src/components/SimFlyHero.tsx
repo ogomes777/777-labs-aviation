@@ -1,12 +1,13 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
+import {useM} from '@/i18n';
 const clamp=(x:number)=>Math.max(0,Math.min(1,x));
 const ramp=(x:number,a:number,b:number)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
 const mix=(a:number,b:number,t:number)=>a+(b-a)*t;
 export default function SimFlyHero(){
  const root=useRef<HTMLDivElement>(null),video=useRef<HTMLVideoElement>(null),cloud=useRef<HTMLDivElement>(null),plane=useRef<HTMLImageElement>(null),copies=useRef<HTMLDivElement>(null),bar=useRef<HTMLSpanElement>(null);
- const [mounted,setMounted]=useState(false);useEffect(()=>setMounted(true),[]);
+ const m=useM();const [mounted,setMounted]=useState(false);useEffect(()=>setMounted(true),[]);
  useEffect(()=>{if(!mounted)return;const el=root.current,v=video.current,section=el?.closest('section'),next=document.getElementById('portal');if(!el||!v||!section||!next)return;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');let fps=new URLSearchParams(location.search).get('fps')==='30'?30:60,desired=0,raf=0,disposed=false,fallback=fps===30;
  const seek=()=>{if(disposed||reduced.matches||v.seeking||v.readyState<1||!Number.isFinite(v.duration))return;const last=Math.max(0,Math.floor(v.duration*fps)-1);const time=Math.round(desired*last)/fps;if(Math.abs(time-v.currentTime)>=.49/fps)try{v.currentTime=time;}catch{}};
@@ -33,8 +34,8 @@ export default function SimFlyHero(){
  <h1 id="hero-title" data-focus-target className="simfly-title" aria-label="SimFly"><span>SIM</span><span data-text="FLY">FLY</span></h1>
  <img ref={plane} className="simfly-launch-plane" src="/media/simfly-plane-dorsal.png" alt="" aria-hidden="true" decoding="async"/>
  <div className="simfly-title simfly-title--outline" aria-hidden="true"><span>SIM</span><span>FLY</span></div>
- <div className="simfly-copies" ref={copies}><p>Jeito simples<br/><em data-text="de voar.">de voar.</em></p><p>O tempo é seu.<br/><em data-text="O céu também.">O céu também.</em></p><p>Liberdade<br/><em data-text="em outra altura.">em outra altura.</em></p></div>
- <div className="simfly-cue" aria-hidden="true"><span>SCROLL / TOUCH</span><i><b ref={bar}/></i></div>
+ <div className="simfly-copies" ref={copies}><p>{m.hero.c1a}<br/><em data-text={m.hero.c1b}>{m.hero.c1b}</em></p><p>{m.hero.c2a}<br/><em data-text={m.hero.c2b}>{m.hero.c2b}</em></p><p>{m.hero.c3a}<br/><em data-text={m.hero.c3b}>{m.hero.c3b}</em></p></div>
+ <div className="simfly-cue" aria-hidden="true"><i><b ref={bar}/></i></div>
  {mounted&&createPortal(<div ref={cloud} className="simfly-cloud-bridge" aria-hidden="true"><div className="simfly-cloud-bridge__photo"/><div className="simfly-cloud-bridge__mist"/></div>,document.body)}
  <style jsx global>{`
  #top.simfly-hero.chapter{height:520svh;background:#f5f7fa}#top.simfly-hero .chapter__sticky{position:sticky;top:0;height:100svh;min-height:0;padding:0;display:block;border:0;outline:0}

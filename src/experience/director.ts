@@ -84,6 +84,8 @@ export interface UIState {
   /** V6: preview aberto (pré-seleção) — destaca o sistema em 3D sem desmontar */
   fleetPreview: SystemId | null;
   seat: number | null;
+  /** V7: test drive — aeronave em voo (null = fora do voo) */
+  flight: FleetId | null;
   /** nível de qualidade adaptativo 0..3 (regulado pelo FPS real do dispositivo) */
   perf: number;
   /** profundidade de campo ativa (desligada dentro da cabine) */
@@ -123,6 +125,7 @@ export const ui = createStore<UIState>({
   fleetPitch: 0,
   fleetPreview: null,
   seat: null,
+  flight: null,
   perf: 2,
   dof: true,
   floor: false,

@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {gsap} from 'gsap';
 import dots from '@/content/globe-dots.json';
+import {useM} from '@/i18n';
 const clamp=(x:number)=>Math.min(1,Math.max(0,x));
 const ramp=(x:number,a:number,b:number)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
 const mix=(a:number,b:number,t:number)=>a+(b-a)*t;
@@ -25,7 +26,7 @@ export function SimFlyRoutesGlobe(){return <div className="simfly-route-anchor" 
 export function SimFlyAviationSection(){
  const stage=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null),plane=useRef<HTMLDivElement>(null),track=useRef<SVGPathElement>(null),measure=useRef<SVGPathElement>(null),trail=useRef<SVGPathElement>(null),ahead=useRef<SVGPathElement>(null),halo=useRef<SVGPathElement>(null),svg=useRef<SVGSVGElement>(null),copy=useRef<HTMLDivElement>(null),globeCopy=useRef<HTMLDivElement>(null),night=useRef<HTMLDivElement>(null),meta=useRef<HTMLDivElement>(null),dust=useRef<HTMLDivElement>(null),wordmark=useRef<HTMLDivElement>(null),optical=useRef<HTMLDivElement>(null),pearl=useRef<HTMLDivElement>(null),worldLayer=useRef<HTMLDivElement>(null),orbitTrail=useRef<SVGGElement>(null);
  const progress=useRef(0),offset=useRef(0),pitch=useRef(0),drag=useRef<{x:number;y:number}|null>(null),tween=useRef<gsap.core.Tween|null>(null),ambient=useRef(0);
- const [mounted,setMounted]=useState(false),[selected,setSelected]=useState(0);const choice=useRef(0);choice.current=selected;
+ const m=useM();const [mounted,setMounted]=useState(false);const choice=useRef(0);
  useEffect(()=>{setMounted(true);},[]);
  const paint=()=>{const c=canvas.current;if(!c)return;const ctx=c.getContext('2d');if(!ctx)return;const w=c.clientWidth,h=c.clientHeight;if(w<1||h<1)return;const dpr=Math.min(devicePixelRatio||1,1.75);if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
  const p=progress.current,angle=mix(.52,-.22,p)+offset.current,cs=Math.cos(angle),sn=Math.sin(angle),tilt=.13+pitch.current,ct=Math.cos(tilt),st=Math.sin(tilt),R=Math.min(w,h)*.39,cx=w*.5,cy=h*.51;
@@ -215,7 +216,7 @@ export function SimFlyAviationSection(){
   window.addEventListener('scroll',queue,{passive:true});window.addEventListener('resize',resize);reduced.addEventListener('change',queue);const ro=new ResizeObserver(resize);ro.observe(el);queue();
   return()=>{delete second.dataset.simflyHandoff;cancelAnimationFrame(raf);stopAmbient();cancelAnimationFrame(dustRaf);window.removeEventListener('pointermove',moveDust);window.removeEventListener('pointercancel',resetDust);document.documentElement.removeEventListener('pointerleave',resetDust);document.removeEventListener('visibilitychange',onVisibility);ro.disconnect();window.removeEventListener('scroll',queue);window.removeEventListener('resize',resize);reduced.removeEventListener('change',queue);tween.current?.kill();if(['aircraft','globe'].includes(document.documentElement.dataset.simflyZone??''))delete document.documentElement.dataset.simflyZone;};
  },[mounted]);
- const select=(i:number)=>{setSelected(i);choice.current=i;tween.current?.kill();const current=mix(.52,-.22,progress.current)+offset.current,goal=-cities[i].lon*rad;const delta=Math.atan2(Math.sin(goal-current),Math.cos(goal-current));const state={x:offset.current,y:pitch.current};if(matchMedia('(prefers-reduced-motion: reduce)').matches){offset.current+=delta;pitch.current=0;paintRef.current();return;}tween.current=gsap.to(state,{x:offset.current+delta,y:Math.max(-.3,Math.min(.3,cities[i].lat*rad*.4)),duration:.75,ease:'power2.inOut',onUpdate:()=>{offset.current=state.x;pitch.current=state.y;paintRef.current();}});};
+
 
  // Localized reflection on glyphs only. No backdrop, panel or pointer-capturing overlay.
  const shineTitle=(e:import('react').PointerEvent<HTMLElement>)=>{const h=e.currentTarget;h.dataset.shine='true';const parts=((h.children.length?Array.from(h.children):[h]) as HTMLElement[]);for(const part of parts){const r=part.getBoundingClientRect();part.style.setProperty('--sx',`${e.clientX-r.left}px`);part.style.setProperty('--sy',`${e.clientY-r.top}px`);}};
@@ -225,8 +226,8 @@ export function SimFlyAviationSection(){
   <div className="simfly-routes__world" ref={worldLayer}>
   <div className="simfly-routes__dust" ref={dust} aria-hidden="true">{skyDust.map((pt,i)=><span key={i} style={{left:`${pt.x}%`,top:`${pt.y}%`,width:pt.size,height:pt.size,animationDelay:`${pt.delay}s`,animationDuration:`${pt.duration}s`}}/>)}</div>
   <div className="simfly-routes__wordmark" ref={wordmark} aria-hidden="true">SIMFLY</div>
- <div className="simfly-routes__copy" ref={globeCopy}><small>03 / DESTINOS</small><h2 id="rotas-preview-title" data-focus-target><span className="simfly-title-auto" data-text="O céu">O céu</span><em className="simfly-title-hover" onPointerMove={shineTitle} onPointerDown={shineTitle} onPointerEnter={shineTitle} onPointerLeave={resetTitle} onPointerUp={e=>{if(e.pointerType!=='mouse')resetTitle(e);}} onPointerCancel={resetTitle}><i data-text="nos">nos</i><i data-text="conecta.">conecta.</i></em></h2><p>Explore destinos pelo mundo. Uma perspectiva sem fronteiras.</p><div className="simfly-routes__cities" role="group" aria-label="Destinos ilustrativos">{cities.map((c,i)=><button key={c.name} type="button" aria-pressed={selected===i} onClick={()=>select(i)}><span>{c.name}<small>{c.country}</small></span><b aria-hidden="true">↗</b></button>)}</div><p className="simfly-routes__note">Rotas ilustrativas, não representam voos operados.</p></div>
- <canvas ref={canvas} className="simfly-routes__canvas" aria-label="Globo geográfico com rotas ilustrativas" role="img" onPointerDown={e=>{if(e.pointerType==='mouse'){tween.current?.kill();drag.current={x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);}}} onPointerMove={e=>{if(drag.current){offset.current+=(e.clientX-drag.current.x)*.006;pitch.current=Math.max(-.6,Math.min(.6,pitch.current+(e.clientY-drag.current.y)*.004));drag.current={x:e.clientX,y:e.clientY};paintRef.current();}}} onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}}/>
+ <div className="simfly-routes__copy" ref={globeCopy}><h2 id="rotas-preview-title" data-focus-target><span className="simfly-title-auto" data-text={m.routes.t1}>{m.routes.t1}</span><em className="simfly-title-hover" onPointerMove={shineTitle} onPointerDown={shineTitle} onPointerEnter={shineTitle} onPointerLeave={resetTitle} onPointerUp={e=>{if(e.pointerType!=='mouse')resetTitle(e);}} onPointerCancel={resetTitle}><i data-text={m.routes.t2}>{m.routes.t2}</i><i data-text={m.routes.t3}>{m.routes.t3}</i></em></h2><p>{m.routes.p}</p></div>
+ <canvas ref={canvas} className="simfly-routes__canvas" aria-label={m.routes.globe} role="img" onPointerDown={e=>{tween.current?.kill();drag.current={x:e.clientX,y:e.clientY};if(e.pointerType==='mouse')e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(drag.current){offset.current+=(e.clientX-drag.current.x)*.006;if(e.pointerType==='mouse')pitch.current=Math.max(-.6,Math.min(.6,pitch.current+(e.clientY-drag.current.y)*.004));drag.current={x:e.clientX,y:e.clientY};paintRef.current();}}} onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}} style={{touchAction:'pan-y',cursor:'grab'}}/>
 
   </div>
   <svg ref={svg} className="simfly-continuum__route" aria-hidden="true"><defs><linearGradient id="sf-trail" gradientUnits="userSpaceOnUse"><stop stopColor="#85b7ef" stopOpacity=".18"/><stop offset=".48" stopColor="#367ed4"/><stop offset="1" stopColor="#9dd8ff"/></linearGradient><linearGradient id="sf-ahead" gradientUnits="userSpaceOnUse"><stop stopColor="#91c6ff"/><stop offset=".48" stopColor="#478ce7" stopOpacity=".65"/><stop offset="1" stopColor="#a8d8ff" stopOpacity="0"/></linearGradient></defs>
@@ -236,9 +237,9 @@ export function SimFlyAviationSection(){
    <g ref={orbitTrail}>{Array.from({length:12},(_,i)=><path key={i} pathLength="1" fill="none" stroke="#9dd8ff" strokeWidth="2.2" strokeLinecap="butt" opacity="0"/>)}</g>
    <path ref={ahead} pathLength="1" fill="none" stroke="url(#sf-ahead)" strokeWidth="1.9" strokeLinecap="round" opacity="0"/>
   </svg>
-  <div className="simfly-continuum__aircopy" ref={copy}><article><small>02 / A AERONAVE</small><h2 data-focus-target>Uma nova<br/>forma de <em>voar.</em></h2><p>Conforto, precisão e liberdade em cada detalhe.</p></article><article><small>SIMFLY / EXPERIÊNCIA</small><h2>O mundo<br/>à sua <em>altura.</em></h2><p>Um novo olhar sobre a aviação executiva.</p></article></div>
+  <div className="simfly-continuum__aircopy" ref={copy}><article><h2 id="sobre-title" data-focus-target>{m.about.a1}<br/>{m.about.a2} <em>{m.about.a3}</em></h2><p>{m.about.ap}</p></article><article><h2>{m.about.b1}<br/>{m.about.b2} <em>{m.about.b3}</em></h2><p>{m.about.bp}</p></article></div>
   <div className="simfly-continuum__plane" ref={plane}><img src="/media/simfly-plane-cutout.png" alt="" decoding="async"/><div className="simfly-approach-rig"><img className="simfly-approach-source" src="/media/simfly-plane-approach-3840.png" alt="" decoding="async"/><img className="simfly-approach-source simfly-approach-lamp-off" src="/media/simfly-plane-approach-lamp-off.png" alt="" decoding="async" aria-hidden="true"/></div></div>
-  <div className="simfly-continuum__meta" ref={meta}><span>SIMFLY / EXECUTIVE AVIATION</span><span>CONCEITO VISUAL</span></div>
+  <div className="simfly-continuum__meta" ref={meta}/>
 
  <div className="simfly-handoff__optical" ref={optical} aria-hidden="true"/>
  <div className="simfly-handoff__pearl" ref={pearl} aria-hidden="true"/>

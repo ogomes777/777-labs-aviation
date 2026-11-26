@@ -4,6 +4,7 @@ import { GALLERY } from '@/content/site';
 import { frame, ui } from '@/experience/director';
 import { nav } from './navigation';
 import { track } from '@/lib/analytics';
+import { fmt, useM } from '@/i18n';
 
 /**
  * Galeria horizontal da cabine.
@@ -11,6 +12,7 @@ import { track } from '@/lib/analytics';
  * Mobile / leve / reduzido: rolagem horizontal nativa com scroll-snap (sem sequestro do scroll vertical).
  */
 export default function CabinGallery() {
+  const E = useM().experience;
   const index = ui.useStore((s) => s.galleryIndex);
   const motion = ui.useStore((s) => s.motion);
   const webgl = ui.useStore((s) => s.webgl);
@@ -79,25 +81,25 @@ export default function CabinGallery() {
 
   return (
     <div className="gallery-wrap" style={{ display: 'contents' }}>
-      <div className="gallery__viewport" ref={vp} data-gallery-viewport tabIndex={0} role="region" aria-roledescription="carrossel" aria-label="Galeria da cabine — use as setas esquerda e direita" onKeyDown={onKey}>
+      <div className="gallery__viewport" ref={vp} data-gallery-viewport tabIndex={0} role="region" aria-roledescription="carrossel" aria-label={E.region} onKeyDown={onKey}>
         <div className="gallery__track" data-gallery-track>
           {GALLERY.map((g, i) => (
-            <article key={g.id} className="card" data-active={i === index ? 'true' : 'false'} aria-roledescription="slide" aria-label={`${i + 1} de ${n}: ${g.kicker}`}>
+            <article key={g.id} className="card" data-active={i === index ? 'true' : 'false'} aria-roledescription="slide" aria-label={fmt(E.slide, { i: i + 1, n, name: E.gallery[g.id].kicker })}>
               <div className="card__media">
-                <img src={`/media/cabin-${g.id}.webp`} alt={`Render da cabine conceitual: ${g.kicker.toLowerCase()}`} width={880} height={550} loading="lazy" decoding="async" />
+                <img src={`/media/cabin-${g.id}.webp`} alt={fmt(E.alt, { name: E.gallery[g.id].kicker })} width={880} height={550} loading="lazy" decoding="async" />
               </div>
               <div className="card__body">
-                <span className="card__kicker">{g.kicker}</span>
-                <h3>{g.title}</h3>
+                <span className="card__kicker">{E.gallery[g.id].kicker}</span>
+                <h3>{E.gallery[g.id].title}</h3>
               </div>
             </article>
           ))}
         </div>
       </div>
       <div className="gallery__controls">
-        <button type="button" className="textbtn" onClick={() => goTo(index - 1)} disabled={index === 0} aria-label="Microcena anterior">Anterior</button>
+        <button type="button" className="textbtn" onClick={() => goTo(index - 1)} disabled={index === 0} aria-label={E.prev}>{E.prev}</button>
         <span aria-live="polite" className="counter">{String(index + 1).padStart(2, '0')} / {String(n).padStart(2, '0')}</span>
-        <button type="button" className="textbtn" onClick={() => goTo(index + 1)} disabled={index === n - 1} aria-label="Próxima microcena">Próxima</button>
+        <button type="button" className="textbtn" onClick={() => goTo(index + 1)} disabled={index === n - 1} aria-label={E.next}>{E.next}</button>
       </div>
     </div>
   );

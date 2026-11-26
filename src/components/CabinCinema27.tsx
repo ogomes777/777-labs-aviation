@@ -3,10 +3,11 @@ import {useEffect,useRef,useState} from 'react';
 import {GALLERY} from '@/content/site';
 import {ui} from '@/experience/director';
 import {nav} from './navigation';
+import {useM} from '@/i18n';
 
-const phrases = [['Cada','detalhe.'], ['Conversa','sem pressa.'], ['Decidir','no ar.'], ['Chegar','descansado.'], ['O mundo,','enquadrado.']] as const;
-const chapters=[{kicker:'SIMFLY / EXPERIÊNCIA',title:'Cada detalhe.'},...GALLERY];
+const split=(t:string):[string,string]=>{const i=t.indexOf(' ');return i<0?['',t]:[t.slice(0,i),t.slice(i+1)];};
 export default function CabinCinema27(){
+ const m=useM();const E=m.experience;const chapters=[{kicker:'',p:[E.t1,E.t2] as [string,string]},...GALLERY.map(g=>({kicker:E.gallery[g.id].kicker,p:split(E.gallery[g.id].title)}))];
  const motion=ui.useStore(s=>s.motion), webgl=ui.useStore(s=>s.webgl), quality=ui.useStore(s=>s.quality);
  const live=motion==='cinematic'&&webgl&&quality!=='lite';
  const root=useRef<HTMLDivElement>(null), unlocked=useRef(false), [atGate,setAtGate]=useState(false);
@@ -34,5 +35,5 @@ export default function CabinCinema27(){
  },[live]);
  const enter=()=>{unlocked.current=true;setAtGate(false);const el=document.getElementById('frota');if(!el)return;const y=el.getBoundingClientRect().top+window.scrollY+Math.max(0,(el.offsetHeight-innerHeight)*.065);if(nav.lenis)nav.lenis.scrollTo(y,{duration:1.55,force:true});else window.scrollTo({top:y,behavior:'smooth'});};
  if(!live)return null;
- return <div ref={root} className="sf27-cabin-cinema"><div className="sf27-copy-stack">{chapters.map((c,i)=><div key={i} className="sf27-cinema-line" data-sf27-copy={i} onPointerMove={e=>{const b=e.currentTarget.getBoundingClientRect();e.currentTarget.style.setProperty('--sf27-pointer',`${Math.max(0,Math.min(100,(e.clientX-b.left)/Math.max(1,b.width)*100))}%`);}}><span>{c.kicker}</span><h2><strong>{phrases[i][0]}</strong>{' '}<em>{phrases[i][1]}</em></h2></div>)}</div><div className="sf27-hangar-gate" data-open={atGate}><span>SIMFLY / PRÓXIMO DESTINO</span><h2>O próximo voo<br/><em>começa aqui.</em></h2><button type="button" disabled={!atGate} onClick={enter}>Entrar no hangar <span aria-hidden="true">↗</span></button></div></div>;
+ return <div ref={root} className="sf27-cabin-cinema"><div className="sf27-copy-stack">{chapters.map((c,i)=><div key={i} className="sf27-cinema-line" data-sf27-copy={i} onPointerMove={e=>{const b=e.currentTarget.getBoundingClientRect();e.currentTarget.style.setProperty('--sf27-pointer',`${Math.max(0,Math.min(100,(e.clientX-b.left)/Math.max(1,b.width)*100))}%`);}}>{c.kicker&&<span>{c.kicker}</span>}<h2><strong>{c.p[0]}</strong>{c.p[0]?' ':''}<em>{c.p[1]}</em></h2></div>)}</div><div className="sf27-hangar-gate" data-open={atGate}><h2><em>{m.fleet.title}</em></h2><button type="button" disabled={!atGate} onClick={enter}>{E.enter}</button></div></div>;
 }

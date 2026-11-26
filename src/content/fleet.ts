@@ -1,3 +1,4 @@
+import ptMessages, { type Messages } from '@/i18n/messages/pt';
 // Frota SimFly — cinco aeronaves ANUNCIADAS no portfólio (https://simfly.site/#portfolio, fonte S01).
 // Dados comerciais vêm de simfly-fleet-pack/data/fleet.json. Status e fatos são do anúncio, não telemetria,
 // e a disponibilidade precisa ser confirmada com a SimFly. Não há preço, matrícula nem número de série publicados.
@@ -74,82 +75,39 @@ export const FLEET: FleetItem[] = [
 /** Canal oficial (revalidar no site antes de publicar). Mensagem pré-preenchida, nunca enviada automaticamente. */
 export const CONTACT = { whatsapp: '5534991386000', email: 'contato@simfly.com.br' };
 
-export function quoteUrl(item: Pick<FleetItem, 'make' | 'name' | 'year'>, phone = CONTACT.whatsapp) {
+export function quoteUrl(item: Pick<FleetItem, 'make' | 'name' | 'year'>, phone = CONTACT.whatsapp, m: Messages = ptMessages) {
   if (!/^\d{10,15}$/.test(phone)) throw new Error('Telefone inválido');
-  const text = `Olá, tenho interesse no ${item.make} ${item.name} ${item.year} anunciado pela SimFly. Gostaria de confirmar disponibilidade e receber informações.`;
+  const text = m.fleet.quoteText.replace('{name}', `${item.make} ${item.name}`).replace('{year}', String(item.year));
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
-export function mailUrl(item: Pick<FleetItem, 'make' | 'name' | 'year'>) {
-  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(`Interesse: ${item.make} ${item.name} ${item.year}`)}`;
+export function mailUrl(item: Pick<FleetItem, 'make' | 'name' | 'year'>, m: Messages = ptMessages) {
+  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(m.fleet.mailSubject.replace('{name}', `${item.make} ${item.name}`).replace('{year}', String(item.year)))}`;
 }
 
 export interface Component { id: string; label: string; text: string }
 export interface SystemInfo { id: SystemId; label: string; text: string; parts: Component[] }
 
-/** Sistemas e peças por aeronave. Descrições funcionais gerais (catálogo educacional), não lista IPC. */
-export function systemsFor(id: FleetId): SystemInfo[] {
+/** Sistemas e peças por aeronave, no idioma ativo. Descrições funcionais gerais (catálogo educacional), não lista IPC. */
+export function systemsFor(id: FleetId, m: Messages = ptMessages): SystemInfo[] {
   const piston = id === 'matrix';
-  const winglets = id !== 'matrix' && id !== 'citation-cj2-plus';
+  const cj = id === 'citation-cj2-plus';
+  const winglets = !piston && !cj;
   const f = FLEET.find((x) => x.id === id)!;
+  const S = m.fleet.sys, P = m.fleet.parts;
+  const part = (pid: keyof typeof P): Component => ({ id: pid, label: P[pid].label, text: P[pid].text });
+  const v = (o: { jet: string; piston: string; cj?: string }) => (piston ? o.piston : cj && o.cj ? o.cj : o.jet);
+  const vars = { engine: f.engine, n: f.pax };
+  const fill = (t: string) => t.replace(/\{(\w+)\}/g, (_, k) => String((vars as Record<string, string | number>)[k] ?? `{${k}}`));
   return [
-    { id: 'fuselagem', label: 'Fuselagem', text: piston ? 'Estrutura metálica que integra cockpit e cabine de seis lugares — não pressurizada (EASA IM.A.077).' : 'Estrutura principal pressurizada que integra cockpit, cabine e a união com asas e empenagem.',
-      parts: [
-        { id: 'skin', label: 'Revestimento', text: 'Casca externa que fecha o volume e distribui cargas junto com a estrutura interna.' },
-        { id: 'windshield', label: 'Para-brisa', text: 'Painéis transparentes frontais do cockpit.' },
-        { id: 'frames', label: 'Cavernas e longarinas', text: 'Estrutura interna ilustrativa: anéis e reforços longitudinais (posições não verificadas).' },
-        ...(piston ? [] : [{ id: 'radome', label: 'Radome', text: 'Cone do nariz que abriga antenas e sensores; conteúdo interno varia por configuração.' }]),
-        { id: 'sensors', label: 'Pitots e antenas', text: 'Tomadas de pressão e antenas externas em posições ilustrativas (não verificadas no exemplar).' },
-      ] },
-    { id: 'asas', label: piston ? 'Asa baixa' : 'Asas', text: piston ? 'Asa baixa reta de monomotor; superfícies de controle no bordo de fuga.' : `Asa baixa${id === 'citation-cj2-plus' ? ' de enflechamento reduzido' : ' enflechada'}${winglets ? ' com winglets' : ''}; superfícies de controle no bordo de fuga.`,
-      parts: [
-        { id: 'wing', label: 'Asas esquerda e direita', text: 'Superfícies de sustentação principais.' },
-        ...(winglets ? [{ id: 'winglet', label: 'Winglets', text: 'Pontas de asa que reduzem o arrasto induzido; formato ilustrativo até validação por foto.' }] : []),
-        { id: 'aileron', label: 'Ailerons', text: 'Controle de rolagem.' },
-        { id: 'flap', label: 'Flaps', text: 'Aumentam a sustentação em baixa velocidade.' },
-        { id: 'spar', label: 'Longarina e nervuras', text: 'Estrutura interna ilustrativa da asa.' },
-        { id: 'fuel', label: 'Tanques de combustível', text: 'Volume ilustrativo entre longarinas; a arquitetura real de tanques do tipo não está representada.' },
-        { id: 'navlights', label: 'Luzes de navegação', text: 'Vermelha à esquerda, verde à direita e branca na cauda — convenção aeronáutica.' },
-      ] },
-    { id: 'propulsao', label: piston ? 'Motor e hélice' : 'Propulsão', text: f.engine + (piston ? ': motor a pistão turboalimentado acionando hélice frontal.' : ': turbofans montados na fuselagem traseira.'),
-      parts: piston ? [
-        { id: 'prop', label: 'Hélice', text: 'Converte a potência do motor em tração. Tipo: hélice Hartzell de 3 pás e 80 pol (EASA); confirmar no exemplar.' },
-        { id: 'spinner', label: 'Spinner', text: 'Cone aerodinâmico do cubo da hélice.' },
-        { id: 'cowling', label: 'Capô e escapamentos', text: 'Carenagem do motor, entradas de ar e saídas de escape.' },
-        { id: 'crankcase', label: 'Cárter', text: 'Bloco central do motor de seis cilindros opostos (representação ilustrativa).' },
-        { id: 'cylinders', label: 'Cilindros', text: 'Seis cilindros horizontalmente opostos, três de cada lado (arranjo do TIO-540; geometria ilustrativa).' },
-        { id: 'turbo', label: 'Turbocompressor', text: 'Usa os gases de escape para comprimir o ar de admissão — o “T” de TIO (posição ilustrativa).' },
-        { id: 'intercooler', label: 'Intercooler', text: 'Resfria o ar comprimido antes da admissão (posição ilustrativa).' },
-      ] : [
-        { id: 'nacelle', label: 'Nacelas', text: 'Carenagens dos motores; organizam o escoamento de ar.' },
-        { id: 'fan', label: 'Fan', text: 'Acelera o fluxo de ar que produz a maior parte do empuxo do turbofan.' },
-        { id: 'compressor', label: 'Compressor', text: 'Estágios que elevam a pressão do ar (representação genérica, não geometria do fabricante).' },
-        { id: 'combustor', label: 'Câmara de combustão', text: 'Mistura e queima combustível com o ar comprimido.' },
-        { id: 'turbine', label: 'Turbina', text: 'Extrai energia dos gases para acionar fan e compressor.' },
-        { id: 'shaft', label: 'Eixo', text: 'Liga turbina, compressor e fan (simplificado em um eixo ilustrativo).' },
-        { id: 'accessory', label: 'Caixa de acessórios', text: 'Aciona gerador, bombas e outros acessórios (posição ilustrativa).' },
-        { id: 'pylon', label: 'Pilones', text: 'Ligam os motores à fuselagem.' },
-      ] },
-    { id: 'empenagem', label: 'Empenagem', text: piston ? 'Cauda convencional: estabilizador horizontal na base da deriva.' : 'Cauda em T: estabilizador horizontal no topo da deriva.',
-      parts: [
-        { id: 'fin', label: 'Deriva e leme', text: 'Estabilidade e controle direcional.' },
-        { id: 'stab', label: 'Estabilizador e profundores', text: 'Estabilidade longitudinal e controle de arfagem.' },
-      ] },
-    { id: 'trem', label: 'Trem de pouso', text: piston ? 'Trem triciclo retrátil, mostrado baixado em solo.' : 'Trem triciclo retrátil, mostrado baixado em solo.',
-      parts: [
-        { id: 'gear-nose', label: 'Trem dianteiro', text: 'Sustenta o nariz em solo e permite orientação no táxi.' },
-        { id: 'gear-main', label: 'Trens principais', text: 'Recebem a maior parte das cargas de solo.' },
-        { id: 'brakes', label: 'Freios', text: 'Discos nas rodas principais dissipam a energia da frenagem (representação ilustrativa).' },
-      ] },
-    { id: 'cabine', label: 'Cabine', text: `Interior ilustrativo com ${f.pax} lugares anunciados${piston ? ' (inclui piloto), sem itens de cabine de jato' : ''}. Layout real do exemplar a confirmar.`,
-      parts: [
-        { id: 'seats', label: 'Poltronas', text: 'Disposição ilustrativa a partir da capacidade anunciada.' },
-        { id: 'floor', label: 'Piso e revestimento', text: 'Piso e laterais internas em representação ilustrativa.' },
-        { id: 'cockpit', label: 'Cockpit', text: piston ? 'Painel de instrumentos ilustrativo; aviônica instalada no exemplar a confirmar.' : 'Painel e assentos de tripulação ilustrativos; aviônica instalada no exemplar a confirmar.' },
-        ...(id === 'legacy-450' ? [{ id: 'lavatory', label: 'Lavatório', text: 'Declarado no anúncio (8 pax + 1 toilet); posição e volume ilustrativos.' }] : []),
-      ] },
-    { id: 'portas', label: 'Portas e acessos', text: piston ? 'Porta com escada integrada (airstair) no tipo; lado e posição não verificados — representação ilustrativa até foto do exemplar.' : (id === 'citation-cj2-plus' ? 'Porta principal dianteira esquerda em representação ilustrativa; posição não verificada para o tipo.' : 'Porta principal dianteira esquerda, logo atrás do cockpit (ilustração Embraer); confirmar no exemplar.'),
-      parts: [{ id: 'door', label: 'Porta principal', text: 'Posição e contorno ilustrativos.' }] },
+    { id: 'fuselagem', label: S.fuselagem.label, text: v(S.fuselagem), parts: [part('skin'), part('windshield'), part('frames'), ...(piston ? [] : [part('radome')]), part('sensors')] },
+    { id: 'asas', label: piston ? S.asas.labelPiston : S.asas.label, text: v(S.asas), parts: [part('wing'), ...(winglets ? [part('winglet')] : []), part('aileron'), part('flap'), part('spar'), part('fuel'), part('navlights')] },
+    { id: 'propulsao', label: piston ? S.propulsao.labelPiston : S.propulsao.label, text: fill(v(S.propulsao)),
+      parts: piston ? (['prop', 'spinner', 'cowling', 'crankcase', 'cylinders', 'turbo', 'intercooler'] as const).map(part) : (['nacelle', 'fan', 'compressor', 'combustor', 'turbine', 'shaft', 'accessory', 'pylon'] as const).map(part) },
+    { id: 'empenagem', label: S.empenagem.label, text: v(S.empenagem), parts: [part('fin'), part('stab')] },
+    { id: 'trem', label: S.trem.label, text: v(S.trem), parts: [part('gear-nose'), part('gear-main'), part('brakes')] },
+    { id: 'cabine', label: S.cabine.label, text: fill(v(S.cabine)), parts: [part('seats'), part('floor'), part('cockpit'), ...(id === 'legacy-450' ? [part('lavatory')] : [])] },
+    { id: 'portas', label: S.portas.label, text: v(S.portas), parts: [part('door')] },
   ];
 }
 /** compatibilidade com a lista de peças do inspetor (peças achatadas por sistema) */
-export const partsFor = (id: FleetId) => systemsFor(id).flatMap((s) => s.parts.map((p) => ({ ...p, system: s.id })));
+export const partsFor = (id: FleetId, m: Messages = ptMessages) => systemsFor(id, m).flatMap((s) => s.parts.map((p) => ({ ...p, system: s.id })));

@@ -2,6 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import type { PreviewState } from './usePreview';
+import { useM } from '@/i18n';
 
 /**
  * Card glass de pré-visualização ancorado ao hotspot, com flip horizontal/vertical perto das bordas.
@@ -11,6 +12,7 @@ import type { PreviewState } from './usePreview';
 export default function HotspotPreview({ state, cardRef, onConfirm, onEnter, onLeave, tone = 'dark', id }: {
   state: PreviewState; cardRef: RefObject<HTMLDivElement | null>; onConfirm: () => void; onEnter: () => void; onLeave: () => void; tone?: 'dark' | 'light'; id: string;
 }) {
+  const PV = useM().fleet.preview;
   const [mounted, setMounted] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const raf = useRef(0);
@@ -44,7 +46,7 @@ export default function HotspotPreview({ state, cardRef, onConfirm, onEnter, onL
   if (!mounted || !item) return null;
   const showMedia = item.media && failed !== item.media;
   return createPortal(
-    <div ref={cardRef} id={id} className="hp-card" data-tone={tone} data-armed={state.armed} role={state.armed ? 'dialog' : 'tooltip'} aria-label={state.armed ? `Prévia: ${item.title}` : undefined}
+    <div ref={cardRef} id={id} className="hp-card" data-tone={tone} data-armed={state.armed} role={state.armed ? 'dialog' : 'tooltip'} aria-label={state.armed ? PV.previewOf.replace('{name}', item.title) : undefined}
       onPointerEnter={onEnter} onPointerLeave={(e) => { if (e.pointerType === 'mouse') onLeave(); }}>
       <div className="hp-card__media" data-fallback={!showMedia}>
         {showMedia ? (
@@ -53,7 +55,7 @@ export default function HotspotPreview({ state, cardRef, onConfirm, onEnter, onL
         ) : (
           <div className="hp-card__fallback" aria-hidden="true">
             <svg viewBox="0 0 120 60"><path d="M6 33 L52 30 L70 10 L78 10 L68 30 L100 29 L112 22 L116 24 L110 33 L68 36 L78 54 L70 54 L52 37 L6 35 Z" fill="none" stroke="currentColor" strokeWidth="1.2" /></svg>
-            <span>Prévia visual pendente</span>
+            <span>{PV.pending}</span>
           </div>
         )}
       </div>
@@ -62,9 +64,9 @@ export default function HotspotPreview({ state, cardRef, onConfirm, onEnter, onL
         <strong className="hp-card__title">{item.title}</strong>
         <p className="hp-card__text">{item.text}</p>
         {state.armed ? (
-          <button type="button" className="hp-card__cta" onClick={onConfirm}>{item.cta} <span aria-hidden="true">↗</span></button>
+          <button type="button" className="hp-card__cta" onClick={onConfirm}>{item.cta}</button>
         ) : (
-          <span className="hp-card__hint">Clique para abrir · Enter no teclado</span>
+          <span className="hp-card__hint">{PV.hint}</span>
         )}
       </div>
     </div>,

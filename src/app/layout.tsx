@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import '@/styles/global.css';
+import '@/styles/v7.css';
+import { PREFS_BOOT } from '@/i18n/boot';
 
 const bodoni = localFont({
   src: [
@@ -31,9 +33,9 @@ const manrope = localFont({ src: './fonts/Manrope-Variable.woff2', variable: '--
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://777-labs-aviation.vercel.app'),
-  title: '777 LABS AVIATION — Concept by SET77 Labs',
-  description: 'Showroom cinematográfico e conceitual de aviação executiva: céu, aeronave, cabine e destinos numa única câmera contínua. Demonstração de experiência digital da SET77 Labs — não opera voos.',
-  openGraph: { title: '777 LABS AVIATION — Concept by SET77 Labs', description: 'O mundo muda quando você escolhe a altura. Um showroom digital conceitual de aviação executiva.', images: ['/media/og.jpg'], locale: 'pt_BR', type: 'website' },
+  title: 'SimFly — Compra e venda de aeronaves executivas',
+  description: 'Intermediação especializada em compra e venda de jatos, turbohélices e helicópteros executivos no Brasil e nos Estados Unidos. Jeito simples de voar.',
+  openGraph: { title: 'SimFly — Jeito simples de voar', description: 'Conectamos compradores e vendedores de aeronaves executivas. Brasil · Estados Unidos.', images: ['/media/og.jpg'], locale: 'pt_BR', type: 'website' },
   robots: { index: true, follow: true },
   icons: { icon: '/favicon.svg' },
 };
@@ -44,9 +46,9 @@ const boot = `(function(){try{var d=document.documentElement,q=new URLSearchPara
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${bodoni.variable} ${manrope.variable} ${script.variable} ${cormorant.variable} ${gloock.variable} ${instrument.variable}`} data-motion="cinematic" data-scene="light" suppressHydrationWarning>
+    <html lang="pt-BR" className={`${bodoni.variable} ${manrope.variable} ${script.variable} ${cormorant.variable} ${gloock.variable} ${instrument.variable}`} data-motion="cinematic" data-scene="light" data-theme="sky" data-lang="pt" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: boot }} />
+        <script dangerouslySetInnerHTML={{ __html: boot + PREFS_BOOT }} />
       </head>
       <body>{children}</body>
     </html>

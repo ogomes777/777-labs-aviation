@@ -23,6 +23,10 @@ import { applyInspect } from './inspector';
 import { buildFleetCraft, type FleetCraftBuild } from './fleet/airframe';
 import { FLEET_SPECS } from './fleet/specs';
 import { FLEET } from '@/content/fleet';
+import { prefs } from '@/i18n';
+import { createFlightWorld } from './flight/world';
+import { FlightSim } from './flight/sim';
+import { flightUi } from '@/experience/flight';
 import { DESTINATIONS } from '@/content/destinations';
 import type { PartId, VariantId, ViewId } from '@/content/site';
 
@@ -222,6 +226,11 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const g = new THREE.Group(); g.add(sun, hemi, key, rim, winL, winR, ...cab);
     return { g, sun, hemi, key, rim, cab, winL, winR };
   }, []);
+  // ---------- test drive (V7) ----------
+  const flightWorld = useMemo(() => createFlightWorld(env.gy), [env.gy]);
+  useEffect(() => () => flightWorld.dispose(), [flightWorld]);
+  const sim = useMemo(() => new FlightSim(), []);
+  const flightHidden = useRef<THREE.Object3D[] | null>(null);
   useEffect(() => {
     jet.cabin.lightSpots.forEach((p, i) => lights.cab[i].position.copy(p));
     const s = jet.spec, cx = jet.fus.x((s.cabinStart + s.cabinEnd) / 2), w = s.R - 0.16;
@@ -630,6 +639,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // adaptação de exposição do sensor: entra na cabine escura e a imagem clareia aos poucos (e vice-versa)
       const expo = 0.94 * W.sky + 1.1 * W.hangar + 0.98 * W.studio + 1.2 * W.cabin + 1.02 * W.globe;
       u.get('uExposure')!.value = frame.freezeClock ? Math.max(0.9, expo) : damp(u.get('uExposure')!.value, Math.max(0.9, expo), 0.9, dt);
+      const th = prefs.get().theme === 'amber' ? 1 : 0;
+      u.get('uTheme')!.value = Math.abs(u.get('uTheme')!.value - th) < 0.002 ? th : damp(u.get('uTheme')!.value, th, 4, Math.min(rawDt, 0.1));
     }
     {
     }
@@ -704,8 +715,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         c.group.position.x = damp(c.group.position.x, tx, lam, rdt);
         c.group.position.z = damp(c.group.position.z, tz, lam, rdt);
         c.group.rotation.y = damp(c.group.rotation.y, tyaw, lam, rdt);
-        c.setFade(st.inspect ? (c.id === st.inspect ? 1 : 0.22) : 0.6 + 0.4 * w);
-        if (c.halo) (c.halo.material as THREE.MeshBasicMaterial).opacity = (st.inspect ? 0 : 1) * w * w * (0.85 + 0.15 * Math.sin(time * 1.6));
+        c.setFade(st.flight ? 1 : st.inspect ? (c.id === st.inspect ? 1 : 0.22) : 0.6 + 0.4 * w);
+        if (c.halo) (c.halo.material as THREE.MeshBasicMaterial).opacity = (st.inspect || st.flight ? 0 : 1) * w * w * (0.85 + 0.15 * Math.sin(time * 1.6));
         c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
         c.focusPart(c.id === st.inspect && st.inspectMode === 'parts' && st.inspectSystem ? st.inspectPart : null);
       });
@@ -816,6 +827,61 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
 
     if (hsVis) anatomy24.project(cam, st.part, st.anatomyDetail, size.width, size.height);
+    // ----- test drive: sobrescreve câmera, céu e cena no fim do quadro (as cenas aprovadas seguem intactas) -----
+    {
+      const fid = st.flight;
+      const craft = fid ? crafts.current.find((c) => c.id === fid) : null;
+      if (fid && craft && sim.id !== fid) {
+        sim.start(fid, craft, env.gy, time);
+        const names = new Set(['grass', 'sky-dome', 'ridge-ring']);
+        flightHidden.current = [];
+        env.hangar.group.traverse((o) => { if ((names.has(o.name) || o.renderOrder === -9) && o.visible) { o.visible = false; flightHidden.current!.push(o); } });
+        crafts.current.forEach((c) => { c.setFade(1); c.setXray(0); c.isolate(null); });
+      }
+      if ((!fid || !craft) && sim.id) {
+        sim.stop();
+        flightHidden.current?.forEach((o) => { o.visible = true; }); flightHidden.current = null;
+        flightWorld.group.visible = false;
+      }
+      if (sim.id && craft) {
+        const portrait = size.width < size.height;
+        const fx2 = Number(new URLSearchParams(location.search).get('flightx')) || 1;
+        const sdt = Math.min(rawDt, 0.1) * fx2; const n = Math.ceil(sdt / 0.05);
+        for (let i = 0; i < n; i++) sim.step(sdt / n, time, env.gy, portrait);
+        cam.position.copy(sim.eye); cam.lookAt(sim.target);
+        const wantFov = flightUi.get().view === 'cockpit' ? 64 : portrait ? 58 : 46;
+        if (Math.abs(cam.fov - wantFov) > 0.01 || cam.near !== 0.5 || cam.far !== 60000) { cam.fov = wantFov; cam.near = 0.5; cam.far = 60000; cam.updateProjectionMatrix(); }
+        focus.copy(sim.target);
+        // cena: aeródromo da Frota + mundo do voo + o céu da janela da cabine (cúpula e mar de nuvens)
+        lineup.visible = true; life.group.visible = true; env.hangar.group.visible = true;
+        jg.visible = false;
+        if (globeRef.current) globeRef.current.root.visible = false;
+        flightWorld.group.visible = true;
+        flightWorld.update(cam.position, time);
+        const pal = lerpPalette(SKY_PALETTES.dawn, SKY_PALETTES.dusk, 0.55, tmp.pal);
+        env.skyGroup.visible = true;
+        const su = env.sky.uniforms, cu = env.sea.uniforms;
+        su.uZenith.value.copy(pal.zenith); su.uHorizon.value.copy(pal.horizon); su.uGlow.value.copy(pal.glow); su.uBelow.value.copy(pal.haze); su.uOpacity.value = 1;
+        su.uSun.value.copy(lights.sun.position).normalize();
+        env.sky.mesh.position.copy(cam.position);
+        cu.uLit.value.copy(pal.lit); cu.uShade.value.copy(pal.shade); cu.uDeep.value.copy(pal.deep); cu.uHaze.value.copy(pal.haze);
+        cu.uOpacity.value = 1; cu.uCinemaOcean.value = 0; cu.uTime.value = time; cu.uCam.value.copy(cam.position);
+        // mar de nuvens acima de ~1.300 m: abaixo dele o céu fica aberto e o chão visível
+        env.sea.mesh.position.set(cam.position.x, env.gy + 1300, cam.position.z);
+        env.sea.mesh.visible = cam.position.y > env.gy + 1240;
+        env.puffs.mesh.visible = false;
+        const fu = flightWorld.earthU, ku = flightWorld.cloudU;
+        fu.uSun.value.copy(su.uSun.value); ku.uSun.value.copy(su.uSun.value);
+        fu.uHaze.value.copy(pal.haze); ku.uHaze.value.copy(pal.haze); fu.uSky.value.copy(pal.zenith).lerp(pal.horizon, 0.4);
+        ku.uLit.value.copy(pal.lit); ku.uShade.value.copy(pal.shade);
+        const fog = scene.fog as THREE.FogExp2;
+        fog.color.copy(pal.haze); fog.density = 0.00016;
+        (scene.background as THREE.Color).copy(pal.horizon);
+        lights.sun.intensity = 2.5; lights.hemi.intensity = 0.62; lights.key.intensity = 0; lights.rim.intensity = 0.8;
+        if (fx.dof) fx.dof.bokehScale = 0;
+        if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = Math.min(0.0016, Math.max(0, (sim.V - 60) * 0.00001));
+      }
+    }
     if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown }).__777env = { ...env, gl }; }
     // custo de CPU do loop de direção (sem o desenho da GPU), média móvel — exposto para QA
     const cpu = performance.now() - cpu0;
@@ -830,6 +896,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={env.hangar.group} />
       <primitive object={env.grid.mesh} />
       <primitive object={globeHolder} />
+      <primitive object={flightWorld.group} />
       <primitive object={jet.group} />
       <primitive object={lineup} />
       <primitive object={life.group} />
