@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ui, type MotionMode } from '@/experience/director';
+import { frame, ui, type MotionMode } from '@/experience/director';
 import { writeMotionPreference } from '@/experience/quality';
 import { nav, navigate } from './navigation';
 import { track } from '@/lib/analytics';
@@ -31,6 +31,25 @@ export default function SiteHeader() {
   const langBtn = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { initPrefs(); }, []);
+  // tom do vidro pela cena que está de fato atrás do header (claro: Sobre, anatomia, serviços, cabine; escuro: o resto)
+  const [tone, setTone] = useState<'dark' | 'light'>('dark');
+  useEffect(() => {
+    const d = document.documentElement;
+    const decide = () => {
+      const zone = d.dataset.simflyZone;
+      const ch = ui.get().activeChapter;
+      const sky = ch === 6 && frame.t > 5.86; // a câmera sai pela janela: céu azul atrás
+      const light = zone === 'aircraft' || (!zone && (ch === 4 || ch === 5 || (ch === 6 && !sky)));
+      setTone(light ? 'light' : 'dark');
+    };
+    const mo = new MutationObserver(decide);
+    mo.observe(d, { attributes: true, attributeFilter: ['data-simfly-zone'] });
+    const un = ui.subscribe(decide);
+    let raf = 0; const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; decide(); }); };
+    addEventListener('scroll', onScroll, { passive: true });
+    decide();
+    return () => { mo.disconnect(); un(); removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
+  }, []);
   useEffect(() => {
     const d = menuRef.current; if (!d) return;
     const lenis = nav.lenis as unknown as { stop?: () => void; start?: () => void } | null;
@@ -65,7 +84,7 @@ export default function SiteHeader() {
   const inline = INLINE.includes(lang) ? INLINE : [lang, ...INLINE.slice(0, 2)];
 
   return (
-    <header className="sfh" data-solid={motion !== 'cinematic' ? 'true' : 'false'}>
+    <header className="sfh" data-tone={tone} data-solid={motion !== 'cinematic' ? 'true' : 'false'}>
       <div className="sfh__bar">
         <div className="sfh__left">
           <div className="sfh__theme" role="radiogroup" aria-label={m.header.theme}>
