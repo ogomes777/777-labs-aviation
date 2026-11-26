@@ -2,10 +2,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { ui, type MotionMode } from '@/experience/director';
 import { writeMotionPreference } from '@/experience/quality';
-import { navigate } from './navigation';
+import { nav, navigate } from './navigation';
 import { track } from '@/lib/analytics';
 import { CONTACT } from '@/content/fleet';
 import SimFlyLogo from './SimFlyLogo';
+import MenuSky from './MenuSky';
 import { LANGS, initPrefs, setLang, setTheme, useLang, useM, useTheme, type Lang } from '@/i18n';
 
 const SECTIONS = ['sobre', 'servicos', 'portfolio', 'procuramos', 'contato'] as const;
@@ -32,8 +33,10 @@ export default function SiteHeader() {
   useEffect(() => { initPrefs(); }, []);
   useEffect(() => {
     const d = menuRef.current; if (!d) return;
-    if (menu && !d.open) d.showModal();
-    if (!menu && d.open) d.close();
+    const lenis = nav.lenis as unknown as { stop?: () => void; start?: () => void } | null;
+    if (menu && !d.open) { d.showModal(); lenis?.stop?.(); document.documentElement.style.overflow = 'hidden'; }
+    if (!menu && d.open) { d.close(); }
+    if (!menu) { lenis?.start?.(); document.documentElement.style.overflow = ''; }
   }, [menu]);
   useEffect(() => {
     if (!langs) return;
@@ -67,7 +70,7 @@ export default function SiteHeader() {
         <div className="sfh__left">
           <div className="sfh__theme" role="radiogroup" aria-label={m.header.theme}>
             <button type="button" role="radio" aria-checked={theme === 'sky'} aria-label={m.header.themeSky} className="sfh__dot sfh__dot--sky" onClick={() => setTheme('sky')} />
-            <button type="button" role="radio" aria-checked={theme === 'night'} aria-label={m.header.themeNight} className="sfh__dot sfh__dot--night" onClick={() => setTheme('night')} />
+            <button type="button" role="radio" aria-checked={theme === 'dusk'} aria-label={m.header.themeDusk} className="sfh__dot sfh__dot--dusk" onClick={() => setTheme('dusk')} />
           </div>
           <div className="sfh__langs" role="radiogroup" aria-label={m.header.language}>
             {inline.map((l) => (
@@ -80,12 +83,14 @@ export default function SiteHeader() {
         </div>
 
         <a href="#top" className="sfh__brand" onClick={(e) => go(e, '#top')} aria-label={m.meta.home}>
-          <SimFlyLogo className="sfh__logo" />
-          <span className="sfh__jet" aria-hidden="true"><img src="/media/simfly-plane-cutout.png" alt="" width={56} height={17} decoding="async" /></span>
+          <span className="sfh__logo3d"><SimFlyLogo className="sfh__logo" gradient /></span>
+          <span className="sfh__orbit" aria-hidden="true"><span className="sfh__jet"><img src="/media/simfly-plane-cutout.png" alt="" width={84} height={26} decoding="async" /></span></span>
         </a>
 
         <div className="sfh__right">
-          <a className="sfh__cta" href={wa} target="_blank" rel="noopener noreferrer" onClick={() => track('contact_click', { from: 'header-wa' })}>{m.header.contact}</a>
+          <a className="sfh__wa" href={wa} target="_blank" rel="noopener noreferrer" aria-label={m.header.contact} title={m.header.contact} onClick={() => track('contact_click', { from: 'header-wa' })}>
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M28.5 4.2 3.6 14.1c-.8.3-.8 1.4 0 1.7l7.3 2.7 2.7 8.2c.3.8 1.3.9 1.8.2l3.6-4.9 6.6 4.8c.6.4 1.4.1 1.6-.6l3.7-20.6c.2-.9-.6-1.6-1.4-1.4Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /><path d="m10.9 18.5 13.4-9.6-9.5 11.6-1.2 5.9" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" /></svg>
+          </a>
           <button ref={menuBtn} type="button" className="sfh__burger" aria-haspopup="dialog" aria-expanded={menu} aria-label={m.header.menu} onClick={() => setMenu(true)}><i /><i /></button>
         </div>
       </div>
@@ -102,6 +107,7 @@ export default function SiteHeader() {
 
       <dialog ref={menuRef} className="sfm" aria-label={m.header.menu} onClose={() => { setMenu(false); menuBtn.current?.focus(); }} onCancel={() => setMenu(false)}
         onClick={(e) => { if (e.target === menuRef.current) setMenu(false); }}>
+        {menu && <MenuSky />}
         <div className="sfm__inner">
           <div className="sfm__top">
             <span />
@@ -124,7 +130,6 @@ export default function SiteHeader() {
                 <button key={id} type="button" role="radio" aria-checked={motion === id} disabled={id === 'cinematic' && !webgl} title={id === 'cinematic' && !webgl ? m.header.modes.webglOff : m.header.modes[`${id}Hint` as const]} onClick={() => motion !== id && setMode(id)}>{m.header.modes[id]}</button>
               ))}
             </div>
-            <a className="sfm__wa" href={wa} target="_blank" rel="noopener noreferrer">{m.contact.whatsapp}</a>
           </div>
         </div>
       </dialog>

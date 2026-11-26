@@ -23,13 +23,17 @@ class GradeEffect extends Effect {
         c = mix(c, c * (1.0 + uContrast * (s - 0.5) * 1.4), 1.0);
         c = c + uLift * (1.0 - c);
         if (uTheme > 0.001) {
-          // tema Noite: luz de luar — mesma paleta azul, superfícies claras viram marinho, luzes continuam brilhando
-          vec3 h = max(c, 0.0);
-          float l = dot(h, vec3(0.2126, 0.7152, 0.0722));
-          // valores em espaço linear (a conversão sRGB vem no fim do pipeline)
-          vec3 moon = mix(vec3(0.0015, 0.004, 0.012), vec3(0.05, 0.088, 0.2), smoothstep(0.0, 1.0, pow(l, 1.1)));
-          vec3 keepLights = h * smoothstep(0.97, 1.25, l);
-          vec3 r = mix(moon, h * vec3(0.16, 0.24, 0.45), 0.18) + keepLights * 0.7;
+          // tema Crepúsculo: só a família azul gira para índigo/violeta; laranjas do pôr do sol e neutros ficam
+          vec3 h = clamp(c, 0.0, 1.0);
+          vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+          vec4 pp = mix(vec4(h.bg, K.wz), vec4(h.gb, K.xy), step(h.b, h.g));
+          vec4 qq = mix(vec4(pp.xyw, h.r), vec4(h.r, pp.yzx), step(pp.x, h.r));
+          float dd = qq.x - min(qq.w, qq.y);
+          vec3 hsv = vec3(abs(qq.z + (qq.w - qq.y) / (6.0 * dd + 1e-10)), dd / (qq.x + 1e-10), qq.x);
+          float blue = smoothstep(0.42, 0.5, hsv.x) * (1.0 - smoothstep(0.74, 0.8, hsv.x));
+          vec3 wh = vec3(hsv.x + 0.062 * blue, hsv.y * (1.0 - 0.08 * blue), hsv.z);
+          vec3 r = wh.z * mix(vec3(1.0), clamp(abs(fract(wh.xxx + vec3(1.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0) - 1.0, 0.0, 1.0), wh.y);
+          r = mix(r, r * vec3(1.02, 0.99, 1.04), 0.6); // neutros levemente lavanda
           c = mix(c, r, uTheme);
         }
         outputColor = vec4(c, inputColor.a);

@@ -639,7 +639,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // adaptação de exposição do sensor: entra na cabine escura e a imagem clareia aos poucos (e vice-versa)
       const expo = 0.94 * W.sky + 1.1 * W.hangar + 0.98 * W.studio + 1.2 * W.cabin + 1.02 * W.globe;
       u.get('uExposure')!.value = frame.freezeClock ? Math.max(0.9, expo) : damp(u.get('uExposure')!.value, Math.max(0.9, expo), 0.9, dt);
-      const th = prefs.get().theme === 'night' ? 1 : 0;
+      const th = prefs.get().theme === 'dusk' ? 1 : 0;
       u.get('uTheme')!.value = Math.abs(u.get('uTheme')!.value - th) < 0.002 ? th : damp(u.get('uTheme')!.value, th, 4, Math.min(rawDt, 0.1));
     }
     {
@@ -975,6 +975,7 @@ function RenderGate() {
     const covered = () => {
       if (ui.get().flight || !frame.ready) return false;
       const op = (el: Element | null) => { if (!el) return 0; const st = (el as HTMLElement).style; return st.visibility === 'hidden' ? 0 : Number(st.opacity || 0); };
+      if (document.querySelector('dialog.sfm[open]')) return true; // menu opaco aberto: nada roda por trás
       if (op(document.querySelector('.simfly-continuum')) >= 0.999) return true;
       if (op(document.querySelector('.simfly-cloud-bridge')) >= 0.999) return true;
       const hero = document.getElementById('top');

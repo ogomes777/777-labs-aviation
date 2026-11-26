@@ -132,3 +132,8 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Rollback: dpl_4rHiJTyJyH9LTnXKC2ucqoCQtWRt (V6, b011a5c).
 - Testes: unitários 22/22; E2E da Frota e do menu passando; falhas E2E restantes são as legadas da base V28 (canvas do globo 2D em modo reduzido, link "Explorar", timeouts de cenas cinemáticas no swiftshader).
 - Complemento V7: dpl_5qaha3akDcRf4UY2rS4q5K8bW1ap (commit aed3e24) — hélice/fans girando no voo, hangar com chapa metálica, cobertura e janelas altas, globo final em marinho realista com borda de luz. Rollback: dpl_YAtz92xhfP4dMAFgFEk1ycCLA5Mf.
+
+### V7.2 — header premium, menu de aviação, tema Crepúsculo (26/11)
+- Segundo tema refeito como "Crepúsculo" (índigo/violeta claro); "Noite" (escuro demais) e "Glacial" (turquesa puxando para verde) descartados a pedido. 3D gira só a família azul, mantendo o pôr do sol.
+- Header: vidro mais forte com borda especular, logo cromada com profundidade, jato da marca maior em órbita ondulada passando por trás e pela frente da logo, ícone vazado de aviãozinho de papel (abre o WhatsApp), botão de idiomas compacto.
+- Menu: opaco (a página e o 3D pausam por trás), capítulos centralizados em Instrument Serif girando como dado, fundo animado de carta aérea (mapa em pontos, rotas e jatos), sem botão de WhatsApp, modos de movimento discretos.

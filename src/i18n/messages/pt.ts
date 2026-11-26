@@ -15,7 +15,7 @@ const pt = {
     contact: 'Fale conosco',
     theme: 'Tema',
     themeSky: 'Tema Céu',
-    themeNight: 'Tema Noite',
+    themeDusk: 'Tema Crepúsculo',
     language: 'Idioma',
     motion: 'Movimento',
     motionPrefs: 'Preferências de movimento',

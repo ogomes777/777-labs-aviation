@@ -13,7 +13,7 @@ const m: Messages = {
     contact: 'Contáctenos',
     theme: 'Tema',
     themeSky: 'Tema Cielo',
-    themeNight: 'Tema Noche',
+    themeDusk: 'Tema Crepúsculo',
     language: 'Idioma',
     motion: 'Movimiento',
     motionPrefs: 'Preferencias de movimiento',

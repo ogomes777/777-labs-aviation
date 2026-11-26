@@ -13,36 +13,34 @@
   --sf-grade: none;
   --sf-accent-rgb: 76, 168, 255;
 }
-html[data-theme='night'] {
-  /* mesma paleta azul, invertida: branco → marinho profundo, marinho/preto → branco-gelo, azul → azul-céu */
-  --sf-paper: #0a1628; --sf-pearl: #0e1d33; --sf-ink: #eaf2ff; --sf-ink-soft: #9fb6d3;
-  --sf-blue: #7cc4ff; --sf-blue-2: #9fd3ff; --sf-glow: #bfe6ff; --sf-glow-2: #5fb2ff; --sf-glow-3: #e3f4ff;
-  --sf-night: #040a15; --sf-night-2: #071226; --sf-night-3: #0f2442; --sf-void: #02060d;
-  --sf-on-dark: #f2f8ff; --sf-on-dark-soft: #a9bdd8;
-  --sf-glass: rgba(150, 200, 255, 0.10); --sf-glass-line: rgba(170, 215, 255, 0.30);
-  --sf-grade: saturate(1.12) brightness(0.82) contrast(1.08) hue-rotate(-4deg);
-  --sf-accent-rgb: 124, 196, 255;
-  --ink: #eaf2ff; --pearl: #0a1628; --fg: #eaf2ff; --fg-soft: rgba(234, 242, 255, 0.74); --line: rgba(234, 242, 255, 0.18);
+html[data-theme='dusk'] {
+  /* Crepúsculo: a paleta fria girada para o índigo/violeta do céu de fim de tarde (sem verde, sem amarelo, sem escurecer) */
+  --sf-paper: #f5f2fa; --sf-pearl: #efeaf7; --sf-ink: #1e1640; --sf-ink-soft: #625a83;
+  --sf-blue: #5a48d8; --sf-blue-2: #4a3ac0; --sf-glow: #c3b8ff; --sf-glow-2: #8f7dff; --sf-glow-3: #ece7ff;
+  --sf-night: #130d2c; --sf-night-2: #1c1440; --sf-night-3: #2c2160; --sf-void: #0b0720;
+  --sf-on-dark: #f6f3ff; --sf-on-dark-soft: #bdb3e0;
+  --sf-glass: rgba(236, 230, 255, 0.14); --sf-glass-line: rgba(226, 218, 255, 0.40);
+  --sf-grade: hue-rotate(28deg) saturate(1.06) brightness(1.0);
+  --sf-accent-rgb: 143, 125, 255;
+  --champagne: #b6a8ff; --champagne-deep: #4a3ac0;
 }
-html[data-theme='night'] body { background: #071226; }
-html[data-theme='night'] .simfly-film video,
-html[data-theme='night'] .simfly-cloud-bridge__photo,
-html[data-theme='night'] .still img,
-html[data-theme='night'] .stage__poster,
-html[data-theme='night'] .card__media img,
-html[data-theme='night'] .hp-card__media img { filter: var(--sf-grade); }
+html[data-theme='dusk'] body { background: #efeaf7; }
+html[data-theme='dusk'] .simfly-film,
+html[data-theme='dusk'] .simfly-cloud-bridge,
+html[data-theme='dusk'] .simfly-continuum,
+html[data-theme='dusk'] .still img,
+html[data-theme='dusk'] .stage__poster,
+html[data-theme='dusk'] .card__media img,
+html[data-theme='dusk'] .hp-card__media img { filter: var(--sf-grade); }
+html[data-theme='dusk'] .sfh__bar { --header-tint: #efe9ff; }
+html[data-theme='dusk'] #engenharia h2 { color: #2a1d63 !important; }
+html[data-theme='dusk'] #engenharia h2 em, html[data-theme='dusk'] .sf-services strong { color: var(--sf-blue) !important; }
+html[data-theme='dusk'] .hotspot i { background: #6f5cf0 !important; box-shadow: 0 0 0 5px rgba(143, 125, 255, .24), 0 0 0 1px #fff inset !important; }
+html[data-theme='dusk'] .anatomy24-panel .chip[aria-pressed=true] { color: var(--sf-blue) !important; border-color: var(--sf-blue) !important; }
+html[data-theme='dusk'] .fcard, html[data-theme='dusk'] .inspect { --sf-neon: #8f7dff; }
+html[data-theme='dusk'] .sf-fly { color: #fff; }
+
 /* superfícies claras do legado passam para o marinho do tema */
-html[data-theme='night'] #top.simfly-hero.chapter, html[data-theme='night'] #portal.simfly-aircraft-chapter { background: var(--sf-paper) !important; }
-html[data-theme='night'] .simfly-continuum { background: var(--sf-paper) !important; }
-html[data-theme='night'] .simfly-continuum__light { background: radial-gradient(ellipse at 74% 55%, #16335c, var(--sf-paper) 76%) !important; }
-html[data-theme='night'] .simfly-continuum__aircopy article { color: var(--sf-ink) !important; }
-html[data-theme='night'] .simfly-continuum__aircopy em { color: var(--sf-blue) !important; }
-html[data-theme='night'] .simfly-continuum__aircopy p { color: var(--sf-ink-soft) !important; }
-html[data-theme='night'] .simfly-handoff__pearl, html[data-theme='night'] .simfly-cloud-bridge, html[data-theme='night'] .simfly-cloud-bridge__mist { background: var(--sf-paper) !important; }
-html[data-theme='night'] .simfly-cloud-bridge__photo { opacity: .9; }
-html[data-theme='night'] .sfh__bar { --header-tint: #0a1628; }
-html[data-theme='night'] .sfh { --fg: #eef6ff; }
-html[data-theme='night'] .sfh__word b:last-child { color: var(--sf-blue); }
 html { transition: background-color 600ms var(--ease-ui); }
 
 /* ---------- header: cápsula de vidro ---------- */
@@ -69,7 +67,7 @@ html[data-simfly-zone='hero'] .sfh__bar { --header-tint: #0b2443; }
 .sfh__dot { width: 18px; height: 18px; border-radius: 50%; padding: 0; cursor: pointer; border: 1px solid color-mix(in srgb, currentColor 55%, transparent); background: transparent; position: relative; transition: transform 220ms var(--ease-ui), box-shadow 220ms; }
 .sfh__dot::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; transition: transform 260ms var(--ease-ui); }
 .sfh__dot--sky::after { background: radial-gradient(circle at 35% 30%, #cfe6ff, #2f6fc4 70%); }
-.sfh__dot--night::after { background: radial-gradient(circle at 35% 30%, #7da7d9, #071226 72%); box-shadow: inset 0 0 0 1px rgba(160,210,255,.5); }
+.sfh__dot--dusk::after { background: radial-gradient(circle at 35% 30%, #f3eeff, #8f7dff 58%, #2c2160 100%); }
 .sfh__dot[aria-checked='false'] { border-color: transparent; }
 .sfh__dot[aria-checked='false']::after { transform: scale(.72); }
 .sfh__dot[aria-checked='true'] { box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 10%, transparent); }
@@ -319,9 +317,6 @@ html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100
 /* rótulos genéricos do painel da anatomia (contagens, modo) — fora, por pedido de limpeza */
 .anatomy26-meta, .anatomy26-index__head span:last-child { display: none !important; }
 
-/* tema Noite: textos do legado que eram marinho passam para gelo */
-html[data-theme='night'] #engenharia h2, html[data-theme='night'] #interior h2, html[data-theme='night'] .anatomy24-panel, html[data-theme='night'] .sf-services { color: var(--sf-ink) !important; }
-html[data-theme='night'] #engenharia h2 em, html[data-theme='night'] .sf-services strong { color: var(--sf-blue) !important; }
 
 /* ---------- limpeza total: sem microcopy, traços, barras, ícones e divisórias entre seções ---------- */
 .sf-services li { border-top: 0 !important; padding: 12px 0 !important; }
@@ -347,10 +342,73 @@ html[data-theme='night'] #engenharia h2 em, html[data-theme='night'] .sf-service
 .sfm__nav a:hover .sfm__dice, .sfm__nav a:focus-visible .sfm__dice, .sfm__nav a[data-roll='true'] .sfm__dice { transform: rotateX(90deg); }
 .sfm__nav a:hover, .sfm__nav a[aria-current='true'] { transform: none !important; }
 @media (prefers-reduced-motion: reduce) { .sfm__dice { transition: none; } }
-html[data-theme='night'] #engenharia .anatomy24-detail, html[data-theme='night'] #engenharia .chip, html[data-theme='night'] #engenharia .btn { background: rgba(8, 20, 40, .45) !important; color: var(--sf-ink) !important; border-color: rgba(160, 210, 255, .28) !important; }
-html[data-theme='night'] #engenharia .part-card p, html[data-theme='night'] #engenharia .anatomy26-atlas p, html[data-theme='night'] .sf-services span { color: var(--sf-ink-soft) !important; }
-html[data-theme='night'] .panel { --panel-glass: rgba(4, 12, 28, 0.55); }
 .sf-wanted, .sf-contact, .sf-foot { text-shadow: 0 2px 22px rgba(2, 8, 20, .55); }
 dialog.sfm, dialog.sfm * { pointer-events: auto; }
 
 @media (max-width: 760px) { .fplan-wrap { left: 10px !important; right: 10px !important; } }
+
+/* =================== Header V7.2: vidro Apple, logo com volume, jato em órbita =================== */
+.sfh__bar { height: 58px; backdrop-filter: blur(28px) saturate(200%) brightness(1.06); -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.06);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--header-tint, #f5f7fa) 42%, transparent), color-mix(in srgb, var(--header-tint, #f5f7fa) 20%, transparent));
+  border: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.08), 0 1px 0 rgba(255,255,255,.06), 0 18px 50px -22px rgba(3, 12, 26, .55); }
+.sfh__bar::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(120deg, rgba(255,255,255,.75), rgba(255,255,255,.12) 30%, rgba(255,255,255,.04) 55%, rgba(255,255,255,.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.sfh__bar::before { background: radial-gradient(120% 140% at 50% -40%, rgba(255,255,255,.28), transparent 60%) !important; opacity: 1 !important; }
+.sfh__brand { isolation: isolate; padding: 8px 14px; }
+.sfh__logo3d { position: relative; z-index: 2; display: block; }
+.sfh__logo { height: 25px !important;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.45)) drop-shadow(0 1px 0 rgba(0,0,0,.28)) drop-shadow(0 2px 0 rgba(0,0,0,.18)) drop-shadow(0 3px 0 rgba(0,0,0,.10)) drop-shadow(0 8px 12px rgba(2, 12, 30, .35)) !important; }
+.sfh__orbit { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 1; pointer-events: none; }
+.sfh__jet { position: absolute; left: 0; top: 0; width: 42px !important; animation: sfhOrbit 7.2s linear infinite !important;
+  offset-path: path('M -112 6 C -84 -30 -36 -30 -6 -6 C 22 16 58 24 92 2 C 122 -18 128 -34 104 -30 C 70 -24 40 30 0 22 C -40 14 -70 -20 -100 -18 C -126 -16 -132 -2 -112 6 Z');
+  offset-rotate: auto; offset-anchor: 50% 50%; will-change: offset-distance, transform, opacity; }
+.sfh__jet img { width: 100%; height: auto; filter: drop-shadow(0 3px 4px rgba(2, 14, 32, .35)) drop-shadow(0 0 6px rgba(var(--sf-accent-rgb), .45)) !important; }
+@keyframes sfhOrbit {
+  0% { offset-distance: 0%; z-index: 3; scale: 1; opacity: .95; }
+  44% { z-index: 3; scale: 1.06; opacity: 1; }
+  50% { z-index: 0; scale: .82; opacity: .62; }
+  92% { z-index: 0; scale: .78; opacity: .55; }
+  100% { offset-distance: 100%; z-index: 3; scale: 1; opacity: .95; }
+}
+.sfh__more { height: 22px !important; padding: 0 6px !important; border-radius: 7px !important; margin-left: -10px; border-color: color-mix(in srgb, currentColor 22%, transparent) !important; background: transparent !important; }
+.sfh__more i { width: 10px !important; }
+.sfh__wa { width: 40px; height: 40px; display: grid; place-content: center; color: inherit; opacity: .9; transition: opacity 200ms, transform 300ms var(--ease-ui); }
+.sfh__wa svg { width: 22px; height: 22px; }
+.sfh__wa:hover { opacity: 1; transform: translateY(-1px) scale(1.06); }
+.sfh__cta { display: none !important; }
+@media (max-width: 860px) { .sfh__more { margin-left: 0; height: 26px !important; } }
+@media (max-width: 700px) {
+  .sfh__bar { height: 50px; }
+  .sfh__logo { height: 20px !important; }
+  .sfh__orbit { scale: .72; }
+  .sfh__wa { width: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .sfh__jet { animation: none !important; offset-distance: 12%; } }
+
+/* =================== Menu V7.2: opaco, carta aeronáutica, capítulos no centro =================== */
+dialog.sfm { backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  background:
+    radial-gradient(900px 640px at 50% 46%, rgba(var(--sf-accent-rgb), .16), transparent 62%),
+    repeating-radial-gradient(circle at 50% 46%, rgba(255,255,255,.05) 0 1px, transparent 1px 88px),
+    linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px) 0 0 / 96px 96px,
+    linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px) 0 0 / 96px 96px,
+    linear-gradient(180deg, var(--sf-night), var(--sf-night-2)) !important; }
+dialog.sfm::after { content: ''; position: fixed; inset: 0; pointer-events: none;
+  background: conic-gradient(from 0deg at 50% 46%, transparent 0 88deg, rgba(var(--sf-accent-rgb), .10) 90deg, transparent 96deg 360deg);
+  animation: sfmSweep 9s linear infinite; }
+@keyframes sfmSweep { to { transform: rotate(1turn); } }
+.sfm__inner { place-items: center; text-align: center; }
+.sfm__top { width: 100%; }
+.sfm__nav { justify-items: center; align-self: center; gap: clamp(0px, .6vh, 8px); }
+.sfm__nav a { font: 400 clamp(2.8rem, 8vw, 6.6rem)/1.02 var(--font-condensed) !important; letter-spacing: -.01em; margin: 0 auto; }
+.sfm__dice > span + span { font-family: var(--font-condensed); }
+.sfm__foot { justify-content: center; gap: 10px 26px; padding-top: 14px; opacity: .72; }
+.sfm__langs button, .sfm__motion button { font-size: .66rem !important; letter-spacing: .14em; text-transform: uppercase; }
+.sfm__motion { gap: 4px 12px; }
+@media (prefers-reduced-motion: reduce) { dialog.sfm::after { animation: none; } }
+.sfm__sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; animation: sfmSky 900ms 120ms var(--ease-ui) forwards; }
+@keyframes sfmSky { to { opacity: 1; } }
+.sfm__inner { position: relative; z-index: 1; }
+.sfm__nav a { text-shadow: 0 2px 30px color-mix(in srgb, var(--sf-night) 80%, transparent); }
+dialog.sfm::after { z-index: 0; }

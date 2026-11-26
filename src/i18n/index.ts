@@ -19,7 +19,7 @@ export const LANGS = [
   { code: 'ko', label: 'KO', name: '한국어', html: 'ko' },
 ] as const;
 export type Lang = (typeof LANGS)[number]['code'];
-export type Theme = 'sky' | 'night';
+export type Theme = 'sky' | 'dusk';
 
 const loaders: Record<Exclude<Lang, 'pt'>, () => Promise<{ default: Messages }>> = {
   en: () => import('./messages/en'),
@@ -72,7 +72,7 @@ export function setTheme(theme: Theme) {
 /** Chamado uma vez no cliente: aplica o que o script de boot já decidiu no <html>. */
 export function initPrefs() {
   const d = document.documentElement;
-  const theme = d.dataset.theme === 'night' ? 'night' : 'sky';
+  const theme = d.dataset.theme === 'dusk' ? 'dusk' : 'sky';
   if (theme !== prefs.get().theme) prefs.set({ theme });
   const lang = d.dataset.lang;
   if (valid(lang) && lang !== 'pt') void setLang(lang);

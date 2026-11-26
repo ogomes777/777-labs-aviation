@@ -12,7 +12,7 @@ const m: Messages = {
     contact: '联系我们',
     theme: '主题',
     themeSky: '天空主题',
-    themeNight: '夜间主题',
+    themeDusk: '暮色主题',
     language: '语言',
     motion: '动效',
     motionPrefs: '动效偏好',
