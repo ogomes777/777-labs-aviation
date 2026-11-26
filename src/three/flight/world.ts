@@ -87,29 +87,51 @@ export function createFlightWorld(gy: number) {
           float lod = 1.0 - smoothstep(0.2, 0.9, px * fr);
           g += dirs[k].xy * cos(ph) * 0.055 * lod;
         }
-        vec2 w1 = vec2(fbm(p * 0.03 + uTime * 0.06), fbm(p * 0.03 - uTime * 0.05 + 9.0)) - 0.5;
-        g += w1 * 0.42 * (1.0 - smoothstep(6.0, 30.0, px));
-        vec2 rip = vec2(noise(p * 0.22 + uTime * 0.5), noise(p * 0.22 - uTime * 0.45 + 7.0)) - 0.5;
-        g += rip * 0.3 * micro;
+        // vento: ondulação alongada na direção do vento (não isotrópica — sem cara de tecido); some com a distância
+        vec2 wd = normalize(vec2(1.0, 0.35)); mat2 wr = mat2(wd.x, wd.y, -wd.y, wd.x);
+        vec2 pw = wr * p;
+        vec2 w1 = vec2(noise(pw * vec2(0.018, 0.05) + uTime * vec2(0.09, 0.0)), noise(pw * vec2(0.022, 0.06) - uTime * vec2(0.07, 0.01) + 9.0)) - 0.5;
+        g += (wr * w1) * 0.16 * (1.0 - smoothstep(3.0, 18.0, px));
+        vec2 rip = vec2(noise(pw * vec2(0.16, 0.42) + uTime * 0.6), noise(pw * vec2(0.19, 0.5) - uTime * 0.5 + 7.0)) - 0.5;
+        g += (wr * rip) * 0.12 * micro;
+        // ondas não resolvidas viram rugosidade (como numa foto aérea): o reflexo do sol se espalha numa trilha de brilho
+        float rough = smoothstep(0.6, 45.0, px);
+        g *= 1.0 - 0.55 * rough;
         vec3 N = normalize(vec3(-g.x, 1.0, -g.y));
         float ndv = max(dot(-V, N), 0.0);
         float fres = 0.02 + 0.98 * pow(1.0 - ndv, 5.0);
         vec3 R = reflect(V, N);
+        // reflexo do céu com nuvens grandes e suaves (variação de cor em grande escala)
+        float cl = smoothstep(0.45, 0.8, fbm(p * 0.00025 + uTime * 0.002));
         vec3 skyR = mix(uHaze * 1.05, uSky, smoothstep(0.0, 0.45, R.y));
+        skyR = mix(skyR, vec3(0.92, 0.94, 0.97), cl * 0.35 * smoothstep(0.05, 0.5, R.y));
         float depth = smoothstep(0.0, 900.0, shore);
         vec3 body = mix(uShallow * 1.15, uDeep * 0.85, depth);
-        // luz dentro da água (subsuperfície) nas cristas voltadas ao sol
-        body += uShallow * 0.25 * max(dot(N.xz, normalize(uSun.xz)), 0.0) * (1.0 - depth * 0.6);
+        // manchas de vento (slicks) e correntes: tom da água varia em quilômetros
+        float slick = fbm(pw * vec2(0.0006, 0.0018) + 4.0);
+        body *= 0.86 + 0.28 * slick;
+        body = mix(body, uShallow * 1.6, smoothstep(220.0, 0.0, shore) * 0.55); // água rasa clara junto à praia
+        body += uShallow * 0.22 * max(dot(N.xz, normalize(uSun.xz)), 0.0) * (1.0 - depth * 0.6);
         vec3 water = mix(body, skyR, fres);
         float sd = max(dot(R, uSun), 0.0);
-        float glint = pow(sd, 900.0) * 9.0 + pow(sd, 120.0) * 0.9 * (0.6 + 0.4 * noise(p * 0.6 + uTime)) + pow(sd, 12.0) * 0.08;
+        float sharp = mix(900.0, 70.0, rough), sharpB = mix(120.0, 14.0, rough);
+        float glint = pow(sd, sharp) * mix(9.0, 1.6, rough) + pow(sd, sharpB) * mix(0.9, 0.5, rough) * (0.6 + 0.4 * noise(p * 0.6 + uTime)) + pow(sd, 10.0) * 0.07;
         water += uSunCol * glint;
-        // espuma: arrebentação na costa + carneirinhos raros nas cristas
-        float foam = smoothstep(60.0, 0.0, abs(shore - 30.0 - 9.0 * sin(uTime * 0.7 + p.x * 0.012))) * (0.55 + 0.45 * noise(p * 0.08 + uTime * 0.3));
-        float caps = smoothstep(0.62, 0.8, noise(p * 0.013 + uTime * 0.05)) * smoothstep(0.3, 0.55, length(g)) * 0.35 * fine;
-        water = mix(water, vec3(0.93, 0.95, 0.95), clamp(foam * 0.8 + caps, 0.0, 1.0));
-        vec3 col = shore < 0.0 ? land : shore < 36.0 ? sand : water;
-        col = mix(col, sand, smoothstep(-8.0, 0.0, shore) * step(shore, 0.0));
+        // espuma: arrebentação em faixas que vêm e vão + carneirinhos raros alongados no vento
+        float wave = sin(shore * 0.12 - uTime * 1.3 + fbm(p * 0.01) * 6.0);
+        float foam = smoothstep(52.0, 0.0, shore - 4.0) * smoothstep(0.35, 1.0, wave) * (0.5 + 0.5 * noise(p * 0.09 + uTime * 0.3));
+        foam += smoothstep(10.0, 0.0, shore) * 0.7;
+        float caps = smoothstep(0.7, 0.86, noise(pw * vec2(0.01, 0.03) + uTime * 0.05)) * 0.3 * fine;
+        water = mix(water, vec3(0.93, 0.95, 0.95), clamp(foam * 0.85 + caps, 0.0, 1.0));
+        // praia: largura varia (40–110 m), areia seca → molhada; vegetação de restinga entra pela areia
+        float beachW = 40.0 + 70.0 * fbm(p * 0.0021 + 2.0);
+        vec3 wet = sand * vec3(0.66, 0.64, 0.6);
+        float sandK = smoothstep(-beachW, -beachW * 0.55, shore) ;
+        float scrub = smoothstep(0.45, 0.75, noise(p * 0.05) * 0.6 + (1.0 - sandK) * 0.7);
+        vec3 shoreLand = mix(sand, mix(vec3(0.33, 0.36, 0.2), land, 0.5), scrub * (1.0 - sandK));
+        vec3 col;
+        if (shore < 0.0) col = mix(land, shoreLand, smoothstep(-beachW * 1.4, -beachW * 0.4, shore));
+        else col = mix(wet, water, smoothstep(0.0, 14.0, shore));
         // perspectiva aérea (mais densa perto do horizonte)
         float fogF = 1.0 - exp(-pow(d * uFog, 1.35));
         col = mix(col, uHaze, clamp(fogF, 0.0, 1.0));
@@ -186,35 +208,50 @@ export function createFlightWorld(gy: number) {
 
   // ---------- nuvens volumétricas (billboards em mosaico infinito) ----------
   const tex = (() => {
-    // atlas 2×2 de cúmulos: A = densidade, R = luz (topo iluminado, base sombreada — luz "assada" por espessura)
-    const N = 256, c = document.createElement('canvas'); c.width = c.height = N * 2; const g = c.getContext('2d')!;
+    // atlas 2×2 de cúmulos (couve-flor): torres empilhadas sobre base plana, detalhe fino nas bordas.
+    // A = densidade, R = luz direta "assada" pela espessura na direção do sol, G = oclusão ambiente
+    const N = 384, c = document.createElement('canvas'); c.width = c.height = N * 2; const g = c.getContext('2d')!;
     let s = 7; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    const puff = (x: number, y: number, r: number, a: number) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(0.55, `rgba(255,255,255,${a * 0.42})`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); };
     for (let t = 0; t < 4; t++) {
-      const ox = (t % 2) * N, oy = Math.floor(t / 2) * N;
-      const puffs = 90 + t * 25;
-      for (let i = 0; i < puffs; i++) {
-        const a = rnd() * Math.PI, rr = Math.pow(rnd(), 0.65) * (88 + t * 6);
-        const x = ox + 128 + Math.cos(a) * rr * (rnd() > 0.5 ? 1 : -1), y = oy + 160 - Math.sin(a) * rr * (0.5 + t * 0.06) - rnd() * 8;
-        const r = 9 + rnd() * 30 * (1 - rr / 150);
-        const gr = g.createRadialGradient(x, y, 0, x, y, r);
-        gr.addColorStop(0, 'rgba(255,255,255,0.26)'); gr.addColorStop(0.6, 'rgba(255,255,255,0.09)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-        g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+      const ox = (t % 2) * N, oy = Math.floor(t / 2) * N, base = oy + N * 0.74;
+      const towers = Array.from({ length: 3 + Math.floor(rnd() * 3) }, () => ({ cx: ox + N * (0.22 + 0.56 * rnd()), w: N * (0.1 + 0.11 * rnd()), h: N * (0.16 + (t === 3 ? 0.42 : 0.3) * rnd()) }));
+      for (let i = 0; i < 260; i++) {
+        const tw = towers[Math.floor(rnd() * towers.length)];
+        const u = (rnd() - 0.5) * 2, hv = Math.pow(rnd(), 0.8);
+        const x = tw.cx + u * tw.w * (1.1 - hv * 0.45);
+        const y = base - hv * tw.h * Math.sqrt(Math.max(0.05, 1 - u * u * 0.7)) - N * 0.02;
+        puff(x, y, N * (0.035 + 0.075 * rnd()) * (1 - hv * 0.35), 0.24);
       }
-      const fade = g.createLinearGradient(0, oy + 160, 0, oy + 200); fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
-      g.globalCompositeOperation = 'destination-out'; g.fillStyle = fade; g.fillRect(ox, oy + 160, N, N - 160); g.globalCompositeOperation = 'source-over';
+      for (let i = 0; i < 380; i++) { // detalhe: bolinhas pequenas no contorno superior
+        const tw = towers[Math.floor(rnd() * towers.length)];
+        const a = rnd() * Math.PI, x = tw.cx + Math.cos(a) * tw.w * (0.85 + rnd() * 0.3), y = base - N * 0.02 - Math.sin(a) * tw.h * (0.8 + rnd() * 0.25);
+        puff(x, y, N * (0.012 + 0.025 * rnd()), 0.2);
+      }
+      // base achatada (condensação): corta abaixo da base com transição curta
+      const fade = g.createLinearGradient(0, base - N * 0.03, 0, base + N * 0.04); fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+      g.globalCompositeOperation = 'destination-out'; g.fillStyle = fade; g.fillRect(ox, base - N * 0.03, N, oy + N - (base - N * 0.03)); g.globalCompositeOperation = 'source-over';
     }
-    const img = g.getImageData(0, 0, N * 2, N * 2), px = img.data, W = N * 2;
+    const W = N * 2, img = g.getImageData(0, 0, W, W), px = img.data;
     const dens = new Float32Array(W * W); for (let i = 0; i < W * W; i++) dens[i] = px[i * 4 + 3] / 255;
     for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) {
-      // espessura acima do pixel (luz vindo de cima/levemente do sol) → sombra interna
-      let acc = 0; for (let k = 1; k <= 7; k++) { const yy = y - k * 5, xx = x + k * 2; if (yy >= 0 && xx < W && (yy % N) < (y % N)) acc += dens[yy * W + xx]; }
-      const lit = Math.max(0, Math.min(1, 1 - acc * 0.32));
-      const o = (y * W + x) * 4; px[o] = lit * 255; px[o + 1] = lit * 255; px[o + 2] = 255; px[o + 3] = Math.min(255, dens[y * W + x] * 255 * 1.25);
+      const ty = y % N, tx = x % N;
+      let acc = 0, ao = 0;
+      for (let k = 1; k <= 8; k++) { // luz do sol (alto, levemente à direita)
+        const yy = y - k * 6, xx = x + k * 3;
+        if (ty - k * 6 >= 0 && tx + k * 3 < N) acc += dens[yy * W + xx];
+      }
+      for (let k = 1; k <= 4; k++) { // oclusão: massa ao redor
+        const r = k * 10;
+        for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r]]) { const xx = tx + dx, yy = ty + dy; if (xx >= 0 && xx < N && yy >= 0 && yy < N) ao += dens[(y + dy) * W + (x + dx)]; }
+      }
+      const lit = Math.max(0, Math.min(1, 1 - acc * 0.24));
+      const o = (y * W + x) * 4; px[o] = lit * 255; px[o + 1] = Math.max(0, Math.min(1, 1 - ao * 0.055)) * 255; px[o + 2] = 255; px[o + 3] = Math.min(255, dens[y * W + x] * 255 * 1.2);
     }
     g.putImageData(img, 0, 0);
-    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.NoColorSpace; t.premultiplyAlpha = false; return t;
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.NoColorSpace; t.premultiplyAlpha = false; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 4; return t;
   })();
-  const makeClouds = (COUNT: number, TILE: number, y0: number, yr: number, s0: number, sr: number, rel: number, seed: number) => {
+  const makeClouds = (COUNT: number, TILE: number, y0: number, yr: number, s0: number, sr: number, rel: number, seed: number, aspect = 0.6) => {
   const base = new THREE.PlaneGeometry(1, 1);
   const geo = new THREE.InstancedBufferGeometry();
   geo.index = base.index; geo.attributes.position = base.attributes.position; geo.attributes.uv = base.attributes.uv;
@@ -236,21 +273,21 @@ export function createFlightWorld(gy: number) {
   const cloudU = {
     uMap: { value: tex }, uCam: { value: new THREE.Vector3() }, uTile: { value: TILE },
     uLit: { value: new THREE.Color('#fff1e0') }, uShade: { value: new THREE.Color('#9aa4b8') }, uHaze: { value: new THREE.Color('#e7c7ac') },
-    uSun: { value: new THREE.Vector3(-0.6, 0.25, 0.75).normalize() }, uFog: { value: 0.00011 }, uOpacity: { value: 1 }, uRel: { value: rel }, uFarNear: { value: rel },
+    uSun: { value: new THREE.Vector3(-0.6, 0.25, 0.75).normalize() }, uFog: { value: 0.00011 }, uOpacity: { value: 1 }, uRel: { value: rel }, uFarNear: { value: rel }, uDrift: { value: new THREE.Vector2() }, uTime: { value: 0 }, uAspect: { value: aspect },
   };
   const cloudM = new THREE.ShaderMaterial({
     uniforms: cloudU, transparent: true, depthWrite: false, fog: false,
     vertexShader: /* glsl */ `
-      attribute vec3 aOff; attribute vec2 aSize; uniform vec3 uCam; uniform float uTile; uniform float uRel; uniform vec3 uSun;
+      attribute vec3 aOff; attribute vec2 aSize; uniform vec3 uCam; uniform float uTile; uniform float uRel; uniform vec3 uSun; uniform vec2 uDrift; uniform float uAspect;
       varying vec2 vUv; varying float vD; varying float vEdge; varying float vSeed; varying float vY; varying float vSil;
       void main(){
         vec3 c = aOff;
-        vec2 rel = mod(aOff.xz - uCam.xz + 0.5 * uTile, uTile) - 0.5 * uTile;
+        vec2 rel = mod(aOff.xz + uDrift - uCam.xz + 0.5 * uTile, uTile) - 0.5 * uTile;
         c.xz = uCam.xz + rel; c.y += uCam.y * uRel;
         vEdge = 1.0 - smoothstep(0.36, 0.5, max(abs(rel.x), abs(rel.y)) / uTile);
         vec4 mv = viewMatrix * vec4(c, 1.0);
         float rot = aSize.y * 6.283;
-        vec2 corner = position.xy * vec2(1.0, 0.56);
+        vec2 corner = position.xy * vec2(1.0, uAspect);
         corner = mat2(cos(rot * 0.08), -sin(rot * 0.08), sin(rot * 0.08), cos(rot * 0.08)) * corner;
         mv.xy += corner * aSize.x;
         vUv = uv; vD = -mv.z; vSeed = aSize.y; vY = position.y;
@@ -258,15 +295,19 @@ export function createFlightWorld(gy: number) {
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D uMap; uniform vec3 uLit, uShade, uHaze; uniform float uFog, uOpacity, uFarNear;
+      uniform sampler2D uMap; uniform vec3 uLit, uShade, uHaze; uniform float uFog, uOpacity, uFarNear, uTime;
       varying vec2 vUv; varying float vD; varying float vEdge; varying float vSeed; varying float vY; varying float vSil;
       void main(){
         vec2 uv = vUv; if (fract(vSeed * 7.0) > 0.5) uv.x = 1.0 - uv.x;
         float tile = floor(vSeed * 3.999);
         uv = uv * 0.5 + vec2(mod(tile, 2.0), floor(tile / 2.0)) * 0.5;
-        vec4 tx = texture2D(uMap, uv);
+        // evolução lenta: a nuvem "respira" (borda corroída por ruído que muda com o tempo)
+        vec2 wob = vec2(sin(vUv.y * 9.0 + uTime * 0.11 + vSeed * 40.0), cos(vUv.x * 7.0 - uTime * 0.09 + vSeed * 17.0)) * 0.004;
+        vec4 tx = texture2D(uMap, uv + wob);
         float a = tx.a;
-        vec3 col = mix(uShade * 0.92, uLit * 1.04, tx.r);
+        a *= smoothstep(0.0, 0.35, a + 0.12 * sin(uTime * 0.07 + vSeed * 60.0 + vUv.x * 5.0));
+        vec3 amb = mix(uShade * 0.78, mix(uShade, uLit, 0.55), tx.g);
+        vec3 col = mix(amb, uLit * 1.06, tx.r * (0.35 + 0.65 * tx.g));
         // borda prateada contra o sol (espalhamento para frente)
         col += uLit * vSil * (1.0 - a) * 0.9;
         float fogF = 1.0 - exp(-pow(vD * uFog, 1.35));
@@ -284,9 +325,10 @@ export function createFlightWorld(gy: number) {
   const src = { o: offs.slice(), s: sizes.slice() }; const order = Array.from({ length: COUNT }, (_, i) => i); const dist = new Float32Array(COUNT);
   const aO = geo.getAttribute('aOff') as THREE.InstancedBufferAttribute, aS = geo.getAttribute('aSize') as THREE.InstancedBufferAttribute;
   const sort = (cam: THREE.Vector3) => {
+    const dx = cloudU.uDrift.value.x, dz = cloudU.uDrift.value.y;
     for (let i = 0; i < COUNT; i++) {
-      const rx = ((src.o[i * 3] - cam.x + TILE * 0.5) % TILE + TILE) % TILE - TILE * 0.5;
-      const rz = ((src.o[i * 3 + 2] - cam.z + TILE * 0.5) % TILE + TILE) % TILE - TILE * 0.5;
+      const rx = ((src.o[i * 3] + dx - cam.x + TILE * 0.5) % TILE + TILE) % TILE - TILE * 0.5;
+      const rz = ((src.o[i * 3 + 2] + dz - cam.z + TILE * 0.5) % TILE + TILE) % TILE - TILE * 0.5;
       const ry = src.o[i * 3 + 1] + cam.y * rel - cam.y;
       dist[i] = rx * rx + ry * ry + rz * rz;
     }
@@ -296,22 +338,29 @@ export function createFlightWorld(gy: number) {
   };
   return { mesh, u: cloudU, sort, dispose: () => { geo.dispose(); base.dispose(); cloudM.dispose(); } };
   };
-  const clouds = makeClouds(220, 14000, gy + 820, 520, 380, 520, 0, 11);
+  // cúmulos (≈ 800–1.500 m) em mosaico maior — sem bordas de mosaico visíveis lá do alto
+  const clouds = makeClouds(300, 22000, gy + 800, 560, 380, 620, 0, 11, 0.62);
+  // altocúmulos esparsos e achatados (≈ 2.700 m): profundidade de camadas
+  const high = makeClouds(80, 30000, gy + 2600, 400, 700, 900, 0, 47, 0.34);
+  high.u.uOpacity.value = 0.72;
   // nuvens próximas na altitude da aeronave: passam rasgando quando a velocidade sobe
-  const wisps = makeClouds(70, 2600, -70, 140, 40, 90, 1, 29);
+  const wisps = makeClouds(70, 2600, -70, 140, 40, 90, 1, 29, 0.6);
   wisps.u.uOpacity.value = 0;
   const cloudU = clouds.u;
 
   let frameN = 0;
   return {
-    group, earthU, cloudU, wispU: wisps.u, skyU,
+    group, earthU, cloudU, highU: high.u, wispU: wisps.u, skyU,
     update(cam: THREE.Vector3, time: number) {
       earth.position.x = cam.x; earth.position.z = cam.z; sky.position.copy(cam); skyU.uTime.value = time;
       earthU.uCam.value.copy(cam); earthU.uTime.value = time;
-      cloudU.uCam.value.copy(cam); wisps.u.uCam.value.copy(cam);
-      if ((frameN = (frameN + 1) % 3) === 0) { clouds.sort(cam); wisps.sort(cam); }
+      // vento: as camadas derivam em velocidades diferentes (paralaxe real entre altitudes)
+      cloudU.uDrift.value.set(time * 7, time * 2.2); high.u.uDrift.value.set(time * 13, time * 4.5);
+      for (const u of [cloudU, high.u, wisps.u]) { u.uCam.value.copy(cam); u.uTime.value = time; }
+      frameN = (frameN + 1) % 3;
+      if (frameN === 0) clouds.sort(cam); else if (frameN === 1) wisps.sort(cam); else high.sort(cam);
     },
-    dispose() { earth.geometry.dispose(); earthM.dispose(); tex.dispose(); clouds.dispose(); wisps.dispose(); rwTex.dispose(); rwMat.dispose(); sky.geometry.dispose(); skyM.dispose(); runway.geometry.dispose(); lampGeo.dispose(); lampMat.dispose(); },
+    dispose() { earth.geometry.dispose(); earthM.dispose(); tex.dispose(); clouds.dispose(); high.dispose(); wisps.dispose(); rwTex.dispose(); rwMat.dispose(); sky.geometry.dispose(); skyM.dispose(); runway.geometry.dispose(); lampGeo.dispose(); lampMat.dispose(); },
   };
 }
 export type FlightWorld = ReturnType<typeof createFlightWorld>;

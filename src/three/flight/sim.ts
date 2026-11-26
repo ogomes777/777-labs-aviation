@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { FleetCraftBuild } from '../fleet/airframe';
+import { buildCabin, type CabinBuild } from '../fleet/cabin';
 import { FLEET_SPECS } from '../fleet/specs';
 import type { FleetId } from '@/content/fleet';
 import { flightInput as IN, flightTel as TEL, flightUi } from '@/experience/flight';
@@ -15,6 +16,8 @@ import { isWater, ISLAND } from './terrain';
 const G = 9.81;
 const RW_Z = 122, RW_X0 = 60, RW_X1 = -1400, RW_HALF = 26;
 const TOUCH_X = -230, GS = Math.tan(THREE.MathUtils.degToRad(3));
+// pistas pousáveis (ambas no rumo −x): aeródromo da Frota e ilha
+const RWYS = [{ z: RW_Z, thr: RW_X0, end: RW_X1, touch: TOUCH_X }, { z: ISLAND.rz, thr: ISLAND.rx0, end: ISLAND.rx1, touch: ISLAND.rx0 - 220 }];
 const clamp = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
 const damp = (a: number, b: number, k: number, dt: number) => a + (b - a) * (1 - Math.exp(-k * dt));
 const wrapPi = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -41,7 +44,7 @@ export class FlightSim {
   yaw = Math.PI; pitch = 0; roll = 0; V = 0; spool = 0; thr = 0; gear = true;
   nose = 0;
   phase: Phase = 'start';
-  private t0 = 0; private wp = 0; private landStage: 'join' | 'final' = 'join';
+  private t0 = 0; private wp = 0; private landStage: 'join' | 'final' = 'join'; private rw = RWYS[0]; private joinFar = false;
   private perf: Perf = perfFor('legacy-450');
   get vmax() { return this.perf.vmax; }
   private axisH = 2; private size = 20;
@@ -57,6 +60,14 @@ export class FlightSim {
   private rotorAng = 0;
   private maneuver: Maneuver = null; private nextManeuver = 10; private manIdx = 0;
   private sinkY = 0;
+  /** trem: 1 baixado, 0 recolhido (animado ~3 s, como no avião real) */
+  private gearK = 1; private lastDt = 1 / 60; private simT = 0;
+  /** interior de luxo (poltrona/cockpit), montado na primeira vista de dentro */
+  private interior: CabinBuild | null = null; private insideOn = false; private panelT = 0;
+  private walkPos = new THREE.Vector3(); private lastView = '';
+  private gearLegs: { o: THREE.Object3D; kind: 'nose' | 'R' | 'L' }[] = [];
+  /** luzes de navegação, strobes, beacon e farol de pouso */
+  private lights: { g: THREE.Group; nav: THREE.Sprite[]; strobe: THREE.Sprite[]; beacon: THREE.Sprite[]; land: THREE.Sprite[] } | null = null;
 
   start(id: FleetId, craft: FleetCraftBuild, gy: number, time: number) {
     if (this.craft !== craft) { this.saved.pos.copy(craft.group.position); this.saved.rot.copy(craft.group.rotation); this.saved.vis = craft.group.visible; }
@@ -65,16 +76,79 @@ export class FlightSim {
     this.pos.set(RW_X0 - 30 - this.size * 0.5, gy + this.axisH, RW_Z);
     this.yaw = Math.PI; this.pitch = 0; this.roll = 0; this.V = 0; this.spool = 0; this.thr = 0; this.gear = true; this.nose = 0;
     this.syncAttFromEuler();
-    this.setPhase('start'); this.t0 = time; this.wp = 0; this.camInit = false; this.maneuver = null; this.nextManeuver = 10; this.sinkY = 0;
+    this.setPhase('start'); this.t0 = this.simT; void time; this.wp = 0; this.camInit = false; this.maneuver = null; this.nextManeuver = 10; this.sinkY = 0;
     flightUi.set({ crash: null, landing: null });
     TEL.piston = this.perf.piston;
     this.rotors = [];
     craft.group.traverse((o) => { if (o.name === 'propeller' || o.name === 'fan') this.rotors.push(o); });
     this.rotorAng = 0;
+    this.gearK = 1; this.gearLegs = [];
+    craft.systems.trem.children.forEach((o) => { o.rotation.set(0, 0, 0); o.scale.setScalar(1); if (o.name.startsWith('gear-')) this.gearLegs.push({ o, kind: o.name === 'gear-nose' ? 'nose' : o.name.endsWith('R') ? 'R' : 'L' }); });
+    this.buildLights(craft);
+  }
+  private buildLights(craft: FleetCraftBuild) {
+    this.disposeLights();
+    if (typeof document === 'undefined') return;
+    const g = craft.group;
+    const p0 = g.position.clone(), q0 = g.quaternion.clone();
+    g.position.set(0, 0, 0); g.quaternion.identity(); g.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(craft.systems.asas);
+    const all = new THREE.Box3().setFromObject(g);
+    g.position.copy(p0); g.quaternion.copy(q0); g.updateMatrixWorld(true);
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+    const x2 = cv.getContext('2d')!; const r = x2.createRadialGradient(32, 32, 0, 32, 32, 32);
+    r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.18, 'rgba(255,255,255,0.85)'); r.addColorStop(0.45, 'rgba(255,255,255,0.18)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+    x2.fillStyle = r; x2.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+    const grp = new THREE.Group(); grp.name = 'flight-lights';
+    const mk = (color: string, size: number, x: number, y: number, z: number) => {
+      const m = new THREE.SpriteMaterial({ map: tex, color, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false });
+      const sp = new THREE.Sprite(m); sp.scale.setScalar(size); sp.position.set(x, y, z); sp.userData.size = size; sp.renderOrder = 5; grp.add(sp); return sp;
+    };
+    const span = Math.max(box.max.z, -box.min.z), tipX = (box.min.x + box.max.x) / 2 - (box.max.x - box.min.x) * 0.15, tipY = box.max.y;
+    const sz = Math.max(0.6, this.size * 0.05);
+    const nav = [mk('#ff2a1e', sz, tipX, tipY, -span), mk('#2bff7a', sz, tipX, tipY, span), mk('#ffffff', sz * 0.8, all.min.x + 0.15, all.max.y * 0.55, 0)];
+    const strobe = [mk('#ffffff', sz * 3.2, tipX - 0.1, tipY, -span - 0.05), mk('#ffffff', sz * 3.2, tipX - 0.1, tipY, span + 0.05)];
+    const beacon = [mk('#ff3020', sz * 1.9, (all.min.x + all.max.x) * 0.5, all.max.y * 0.62, 0), mk('#ff3020', sz * 1.9, (all.min.x + all.max.x) * 0.5 + 0.6, -this.axisH * 0.42, 0)];
+    const land = [mk('#fff4dc', sz * 2.6, all.max.x - this.size * 0.12, -this.axisH * 0.55, 0.3), mk('#fff4dc', sz * 2.6, all.max.x - this.size * 0.12, -this.axisH * 0.55, -0.3)];
+    g.add(grp);
+    this.lights = { g: grp, nav, strobe, beacon, land };
+    grp.userData.tex = tex;
+  }
+  private disposeLights() {
+    const L = this.lights; if (!L) return;
+    L.g.parent?.remove(L.g);
+    L.g.children.forEach((o) => ((o as THREE.Sprite).material as THREE.Material).dispose());
+    (L.g.userData.tex as THREE.Texture | undefined)?.dispose();
+    this.lights = null;
+  }
+  private updateLights(time: number) {
+    const L = this.lights; if (!L) return;
+    const fl = (s: THREE.Sprite, k: number) => { s.visible = k > 0.01; s.scale.setScalar((s.userData.size as number) * (0.35 + 0.65 * k)); (s.material as THREE.SpriteMaterial).opacity = Math.min(1, k); };
+    const ph = time % 1.2; // strobe: duplo flash a cada 1,2 s
+    const st = ph < 0.05 || (ph > 0.14 && ph < 0.19) ? 1 : 0;
+    L.strobe.forEach((s) => fl(s, this.phase === 'start' || this.phase === 'parked' ? 0 : st));
+    const bp = (time * 1.1) % 1; const bk = bp < 0.18 ? Math.sin((bp / 0.18) * Math.PI) : 0; // beacon rotativo
+    L.beacon.forEach((s) => fl(s, bk));
+    L.nav.forEach((s) => fl(s, 0.9));
+    const ld = this.gearK > 0.5 && this.phase !== 'parked' && this.phase !== 'crashed' ? 1 : 0;
+    L.land.forEach((s) => fl(s, ld));
+  }
+  private setInside(on: boolean) {
+    const c = this.craft; if (!c || on === this.insideOn) return;
+    if (on && !this.interior && typeof document !== 'undefined') { this.interior = buildCabin(FLEET_SPECS[this.id!], c.fuse, c.fusL, { lux: true }); c.group.add(this.interior.group); }
+    this.insideOn = on;
+    if (this.interior) this.interior.group.visible = on;
+    // por dentro o casco externo some: o céu, a asa e os motores aparecem pelas janelas recortadas no forro
+    c.systems.fuselagem.visible = !on; c.systems.portas.visible = !on; c.systems.cabine.visible = !on;
   }
   stop() {
     const c = this.craft;
+    this.setInside(false);
+    if (this.interior) { this.interior.group.parent?.remove(this.interior.group); this.interior.dispose(); this.interior = null; }
     this.rotors.forEach((r) => { r.rotation.x = 0; }); this.rotors = [];
+    this.disposeLights();
+    this.gearLegs.forEach(({ o }) => { o.rotation.set(0, 0, 0); o.scale.setScalar(1); o.visible = true; }); this.gearLegs = [];
     if (c) { c.group.position.copy(this.saved.pos); c.group.rotation.copy(this.saved.rot); c.group.visible = this.saved.vis; c.systems.trem.visible = true; }
     this.craft = null; this.id = null;
   }
@@ -93,14 +167,15 @@ export class FlightSim {
 
   step(dt: number, time: number, gy: number, portrait: boolean, seat: number | null) {
     const c = this.craft; if (!c) return;
+    this.lastDt = dt; this.simT += dt;
     const P = this.perf;
     const auto = flightUi.get().auto;
-    if (IN.restart) { IN.restart = false; this.start(this.id!, c, gy, time - 10); }
+    if (IN.restart) { IN.restart = false; this.start(this.id!, c, gy, time); this.t0 -= 10; }
     const agl = () => this.pos.y - gy - this.axisH;
     let pitchCmd = 0, rollTarget: number | null = null, thrTarget = this.thr;
 
     // ---------- fases de solo ----------
-    if (this.phase === 'start') { thrTarget = 0.12; if (time - this.t0 > (P.piston ? 2.2 : 3.6)) this.setPhase('ready'); }
+    if (this.phase === 'start') { thrTarget = 0.12; if (this.simT - this.t0 > (P.piston ? 2.2 : 3.6)) this.setPhase('ready'); }
     if (this.phase === 'ready') { thrTarget = 0.12; if (IN.takeoff || IN.pitch > 0.5 || IN.throttle > 0.5 || auto) { IN.takeoff = false; this.setPhase('roll'); } }
     if (this.phase === 'parked') { thrTarget = 0.1; this.V = damp(this.V, 0, 2, dt); if (IN.takeoff || IN.pitch > 0.5 || IN.throttle > 0.5) { IN.takeoff = false; this.setPhase('roll'); flightUi.set({ landing: null }); } }
     if (this.phase === 'crashed') {
@@ -110,7 +185,13 @@ export class FlightSim {
       this.writeCamera(dt, gy, portrait, seat);
       return;
     }
-    if (IN.land && this.phase === 'air') { IN.land = false; this.syncEulerFromAtt(); this.landStage = this.pos.x > 2500 && Math.cos(wrapPi(this.yaw - Math.PI)) > 0.5 ? 'final' : 'join'; flightUi.set({ auto: false }); this.maneuver = null; this.setPhase('approach'); }
+    if (IN.land && this.phase === 'air') {
+      IN.land = false; this.syncEulerFromAtt();
+      // pista mais próxima (pelo ponto de aproximação final, 4,2 km antes da cabeceira)
+      this.rw = RWYS.reduce((a, b) => (Math.hypot(b.thr + 4200 - this.pos.x, b.z - this.pos.z) < Math.hypot(a.thr + 4200 - this.pos.x, a.z - this.pos.z) ? b : a));
+      this.landStage = 'join'; this.joinFar = false;
+      flightUi.set({ auto: false }); this.maneuver = null; this.setPhase('approach');
+    }
     IN.land = false;
 
     let onGround = this.phase === 'start' || this.phase === 'ready' || this.phase === 'roll' || this.phase === 'rollout' || this.phase === 'parked';
@@ -136,20 +217,26 @@ export class FlightSim {
       // ---------- guiado (pouso automático / voo livre) ----------
       let tgtHdg: number | null = null, tgtAlt: number | null = null;
       if (this.phase === 'approach') {
-        const glide = Math.max(0, (this.pos.x - TOUCH_X) * GS);
+        const R = this.rw;
+        const sNeed = (v: number) => clamp((v - P.vr * 0.9) / (P.vmax - P.vr * 0.9), 0, 1); // potência que sustenta a velocidade
         if (this.landStage === 'join') {
-          const jx = 6200, jz = RW_Z;
+          const jx = R.thr + (this.joinFar ? 7000 : 3600), jz = R.z;
           tgtHdg = Math.atan2(-(jz - this.pos.z), jx - this.pos.x);
-          tgtAlt = Math.max(320, Math.min(600, (this.pos.x - TOUCH_X) * GS));
-          thrTarget = clamp(0.35 + (P.vapp * 1.35 - this.V) * 0.05, 0.05, 1);
-          if (Math.hypot(jx - this.pos.x, jz - this.pos.z) < 900) this.landStage = 'final';
+          tgtAlt = this.joinFar ? 480 : 330;
+          const tv = Math.min(P.vapp * 2.5, P.vmax * 0.88);
+          thrTarget = clamp(sNeed(tv) + (tv - this.V) * 0.03, 0.05, 1);
+          if (Math.hypot(jx - this.pos.x, jz - this.pos.z) < 900) {
+            if (Math.cos(wrapPi(this.yaw - Math.PI)) > 0.3) { this.landStage = 'final'; }
+            else this.joinFar = !this.joinFar; // chegou de frente: dá a volta e alinha
+          }
         } else {
-          const e = this.pos.z - RW_Z;
+          const e = this.pos.z - R.z;
           tgtHdg = Math.PI - clamp(e * 0.006, -0.6, 0.6);
-          tgtAlt = glide;
-          thrTarget = clamp(0.3 + (P.vapp - this.V) * 0.06, 0.02, 1);
+          tgtAlt = Math.max(0, (this.pos.x - R.touch) * GS);
+          const dThr = this.pos.x - R.thr, tv = P.vapp * (1 + clamp((dThr - 900) / 2400, 0, 0.55));
+          thrTarget = clamp(sNeed(tv) + (tv - this.V) * 0.05, 0.02, 1);
           if (agl() < 320) this.gear = true;
-          if (this.pos.x < RW_X1 + 200) this.landStage = 'join';
+          if (this.pos.x < R.end + 200) { this.landStage = 'join'; this.joinFar = true; } // arremetida
         }
       } else if (auto && !manual) {
         const w = SCENIC[this.wp % SCENIC.length];
@@ -209,12 +296,13 @@ export class FlightSim {
       this.syncEulerFromAtt();
 
       // ---------- acelerador e energia ----------
-      if (IN.throttle !== 0) { this.thr = clamp(this.thr + IN.throttle * dt * 0.6, 0, 1); thrTarget = this.thr; }
+      if (IN.throttle !== 0) { this.thr = clamp(this.thr + IN.throttle * dt * 1.1, 0, 1); thrTarget = this.thr; }
       this.fwd.set(1, 0, 0).applyQuaternion(this.att);
       const vMin = P.vr * 0.9, vTop = P.vmax;
       const vT = vMin + (vTop - vMin) * this.spool;
-      let acc = (vT - this.V) * 0.22 - G * this.fwd.y * 0.75;
-      if (IN.brake) acc -= 9; // freio aerodinâmico (spoilers)
+      let acc = (vT - this.V) * (vT > this.V ? 0.34 : 0.26) - G * this.fwd.y * 0.75;
+      if (IN.throttle > 0) acc += P.accel * 0.6 * (1 - this.V / (vTop * 1.12)); // empurrão do acelerador (sente a potência)
+      if (IN.brake) acc -= 14; // freio aerodinâmico (spoilers)
       this.V = clamp(this.V + acc * dt, P.vr * 0.55, vTop * 1.12);
       // trem
       if (this.gear && agl() > 35 && this.phase === 'air' && this.fwd.y > 0) this.gear = false;
@@ -273,34 +361,86 @@ export class FlightSim {
       if (Math.abs(this.nose) > 1e-3) { this.qa.setFromAxisAngle(AX_Z, this.nose); c.group.quaternion.multiply(this.qa); }
     } else { c.group.rotation.set(0, this.yaw, 0); c.group.rotateZ(this.pitch + this.nose); c.group.rotateX(this.roll); this.att.copy(c.group.quaternion); }
     c.group.visible = true;
-    c.systems.trem.visible = this.gear;
+    // trem: nariz recolhe para a frente, principais para dentro (em direção ao eixo)
+    const gt = this.gear ? 1 : 0;
+    this.gearK += clamp(gt - this.gearK, -this.lastDt / 3.2, this.lastDt / 3.2);
+    const e = this.gearK * this.gearK * (3 - 2 * this.gearK), a = (1 - e) * Math.PI * 0.5;
+    for (const L of this.gearLegs) {
+      if (L.kind === 'nose') L.o.rotation.set(0, 0, a); else L.o.rotation.set(L.kind === 'R' ? a : -a, 0, 0);
+      L.o.scale.setScalar(1 - (1 - e) * 0.25);
+      L.o.visible = this.gearK > 0.03;
+    }
+    c.systems.trem.visible = this.gearLegs.length ? true : this.gear;
+    this.updateLights(performance.now() / 1000);
     this.rotorAng += (1 / 60) * (this.perf.piston ? 4 + this.spool * 34 : 3 + this.spool * 46);
     for (const r of this.rotors) r.rotation.x = this.rotorAng;
   }
 
   private writeCamera(dt: number, gy: number, portrait: boolean, seat: number | null) {
     const c = this.craft!; const view = flightUi.get().view;
-    const ql = performance.now() - IN.lookAt > 2600;
+    const insideV = view === 'seat' || view === 'walk' || view === 'cockpit';
+    const ql = performance.now() - IN.lookAt > 2600 && !insideV; // por dentro o olhar fica onde a pessoa deixou (360° livre)
     if (ql) { IN.lookYaw = damp(IN.lookYaw, 0, 1.4, dt); IN.lookPitch = damp(IN.lookPitch, 0, 1.4, dt); }
     const q = c.group.quaternion;
     this.upL.set(0, 1, 0).applyQuaternion(q);
     const s = FLEET_SPECS[this.id!];
-    if (view === 'seat' && seat !== null && c.seats[seat]) {
-      // vista da poltrona escolhida na planta: altura dos olhos, olhando para a janela do lado da poltrona
-      const se = c.seats[seat];
-      const side = Math.sign(se.pos.z) || 1;
-      this.tmp.set(se.pos.x - se.facing * 0.15, c.floorY + (this.id === 'matrix' ? 0.9 : 1.1), se.pos.z * 0.85);
-      this.tmp2.set(this.tmp.x + se.facing * 2.2 + Math.cos(IN.lookYaw) * 0, this.tmp.y - 0.12 + Math.sin(IN.lookPitch) * 1.5, this.tmp.z + side * 2.6 + Math.sin(IN.lookYaw) * 2.2);
-      this.tmp.applyQuaternion(q).add(c.group.position); this.tmp2.applyQuaternion(q).add(c.group.position);
-      this.eye.copy(this.tmp); this.target.copy(this.tmp2); this.camUp.copy(this.upL); this.inside = true; this.camInit = true;
+    const inView = (view === 'seat' && seat !== null && !!c.seats[seat]) || view === 'cockpit' || view === 'walk';
+    this.setInside(inView);
+    const I = this.interior;
+    if (inView && I) {
+      // olhar 360°: arrastar gira a cabeça (guinada no eixo da aeronave, elevação limitada)
+      const look = (eye: THREE.Vector3, dir: THREE.Vector3) => {
+        this.qa.setFromAxisAngle(AX_Y, IN.lookYaw); dir.applyQuaternion(this.qa);
+        const side = this.tmp2.set(-dir.z, 0, dir.x).normalize();
+        this.qa.setFromAxisAngle(side, clamp(IN.lookPitch * 0.9, -0.9, 1.1)); dir.applyQuaternion(this.qa);
+        this.tmp.copy(eye).applyQuaternion(q).add(c.group.position);
+        this.eye.copy(this.tmp);
+        this.target.copy(eye).addScaledVector(dir, 3).applyQuaternion(q).add(c.group.position);
+        this.camUp.copy(this.upL); this.inside = true; this.camInit = true;
+      };
+      const seatEye = (i: number) => {
+        const se = I.seats[i];
+        const F = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0);
+        const eye = se.pos.clone().addScaledVector(F, -0.1); eye.y += this.id === 'matrix' ? 0.86 : s.R < 1 ? 0.98 : 1.08;
+        if (se.facing === 0) eye.z -= se.side * 0.12;
+        return eye;
+      };
+      if (view === 'walk') {
+        // primeira pessoa: levanta da poltrona (ou do assento do piloto) e caminha pelo corredor
+        if (this.lastView !== 'walk') {
+          this.walkPos.copy(seat !== null && I.seats[seat] ? seatEye(seat) : I.pilotEye);
+          const se = seat !== null ? I.seats[seat] : null;
+          if (this.lastView === 'seat' && se) { IN.lookYaw += se.facing === 0 ? Math.atan2(se.side * 0.94, 0.34) : se.facing === 1 ? -se.side * 0.64 : Math.PI + se.side * 0.64; }
+          else if (this.lastView !== 'cockpit') IN.lookYaw = Math.PI;
+        }
+        const yawW = IN.lookYaw;
+        const fwd = this.tmp.set(Math.cos(yawW), 0, -Math.sin(yawW)), rgt = this.tmp2.set(Math.sin(yawW), 0, Math.cos(yawW));
+        this.walkPos.addScaledVector(fwd, IN.walkF * 1.25 * dt).addScaledVector(rgt, IN.walkS * 0.9 * dt);
+        this.walkPos.y = damp(this.walkPos.y, I.walk.eyeY, 5, dt);
+        const yNow = this.walkPos.y; I.walk.clamp(this.walkPos); this.walkPos.y = yNow;
+        // passada: leve balanço da cabeça
+        const bob = (Math.abs(IN.walkF) + Math.abs(IN.walkS)) > 0.1 ? Math.sin(this.simT * 7.5) * 0.012 : 0;
+        this.lastView = view;
+        look(this.walkPos.clone().add(new THREE.Vector3(0, bob, 0)), new THREE.Vector3(1, -0.04, 0));
+        if ((this.panelT += dt) > 0.08) { this.panelT = 0; I.updatePanel({ pitch: this.pitch, roll: this.roll, speed: this.V, alt: TEL.alt, hdg: TEL.hdg, vs: TEL.vs }); }
+        return;
+      }
+      if (view !== this.lastView && this.lastView === 'walk') IN.lookYaw = 0; // de volta à poltrona: olhar padrão do lugar
+      this.lastView = view;
+      if (view === 'seat' && seat !== null && I.seats[seat]) {
+        // poltrona escolhida na planta: olhos na altura de quem está sentado, olhando à frente e um pouco para a janela
+        const se = I.seats[seat];
+        const F = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0);
+        const eye = seatEye(seat);
+        const dir = se.facing === 0 ? F.clone().multiplyScalar(0.94).add(new THREE.Vector3(0.34, -0.06, 0)).normalize() : F.clone().multiplyScalar(0.8).add(new THREE.Vector3(0, -0.07, se.side * 0.6)).normalize();
+        look(eye, dir);
+      } else {
+        look(I.pilotEye.clone(), new THREE.Vector3(1, -0.12, 0.02).normalize());
+      }
+      if ((this.panelT += dt) > 0.08) { this.panelT = 0; I.updatePanel({ pitch: this.pitch, roll: this.roll, speed: this.V, alt: TEL.alt, hdg: TEL.hdg, vs: TEL.vs }); }
       return;
     }
-    if (view === 'cockpit') {
-      this.tmp.set(this.size * 0.5 - s.Ln * 0.95, s.R * 1.12 + 0.35, 0).applyQuaternion(q).add(c.group.position);
-      this.tmp2.set(Math.cos(IN.lookYaw) * 60, -4 + Math.sin(IN.lookPitch) * 40, -Math.sin(IN.lookYaw) * 60).applyQuaternion(q).add(this.tmp);
-      this.eye.copy(this.tmp); this.target.copy(this.tmp2); this.camUp.copy(this.upL); this.inside = false; this.camInit = true;
-      return;
-    }
+    this.lastView = view;
     this.inside = false;
     // externa: atrás e acima, no referencial da aeronave quando ela manobra; nivelada em voo normal
     this.syncEulerFromAtt();

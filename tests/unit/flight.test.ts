@@ -31,8 +31,10 @@ describe('test drive: decolagem, voo livre e pouso automático', () => {
       const r = fly(id, id === 'legacy-450');
       expect(r.maxAlt).toBeGreaterThan(300);
       expect(r.parkedAt).toBeGreaterThan(0);
-      expect(Math.abs(r.z - 122)).toBeLessThan(26); // dentro da largura da pista
-      expect(r.x).toBeLessThan(80); expect(r.x).toBeGreaterThan(-1500);
+      // pousa na pista mais próxima: aeródromo da Frota (z 122) ou ilha (z 600)
+      const main = Math.abs(r.z - 122) < 26 && r.x < 80 && r.x > -1500;
+      const island = Math.abs(r.z - 600) < 26 && r.x < -9050 && r.x > -10480;
+      expect(main || island).toBe(true);
     });
   }
 });

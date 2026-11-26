@@ -8,6 +8,7 @@ import { CUT_PLANES } from '../jet/materials';
 import type { JetSpec } from '../jet/spec';
 import type { InspectEntry } from '../inspector';
 import { FLEET_SPECS, type FleetSpec } from './specs';
+import { buildCabin } from './cabin';
 
 /**
  * Gerador ORIGINAL de aeronaves paramétricas para o hangar SimFly.
@@ -29,8 +30,11 @@ export interface FleetCraftBuild {
   anchorRefs: Record<SystemId, { obj: THREE.Object3D; local: THREE.Vector3 }>;
   bounds: Record<SystemId, { center: THREE.Vector3; radius: number }>;
   entries: InspectEntry[];
-  seats: { pos: THREE.Vector3; facing: 1 | -1 }[];
+  seats: { pos: THREE.Vector3; facing: 1 | -1 | 0; side: -1 | 1 }[];
   floorY: number;
+  /** fuselagem paramétrica (interior de luxo do voo usa a mesma seção) */
+  fuse: Fuselage;
+  fusL: number;
   cutY: number;
   size: number;
   /** altura do eixo acima do solo */
@@ -547,31 +551,12 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const floorY = s.cabin.floor;
   const cab = new THREE.Group(); cab.name = 'cabin-interior'; systems.cabine.add(cab);
   {
-    const w = f.profile((s.cabin.start + s.cabin.end) / 2).w * 0.92 * Math.sqrt(Math.max(0, 1 - (floorY / s.R) ** 2));
-    const fl = new THREE.BoxGeometry(s.cabin.end - s.cabin.start, 0.04, w * 2);
-    const m = mesh(cab, fl, carpet, 'floor'); m.position.set(fx((s.cabin.start + s.cabin.end) / 2), floorY - 0.02, 0);
     mesh(cab, fuselageGeometry(f, { nu: Math.round(50 * detail), nv: Math.round(36 * detail), inset: 0.07, d0: s.cabin.start, d1: s.cabin.end }), lining, 'lining');
   }
-  const seatGeo = (() => {
-    const sc = prop ? 0.78 : 1;
-    const base = new RoundedBoxGeometry(0.56 * sc, 0.2 * sc, 0.56 * sc, 3, 0.06 * sc); base.translate(0, 0.38 * sc, 0);
-    const back = new RoundedBoxGeometry(0.16 * sc, 0.7 * sc, 0.56 * sc, 3, 0.06 * sc); back.translate(-0.24 * sc, 0.78 * sc, 0);
-    const armL = new RoundedBoxGeometry(0.5 * sc, 0.12 * sc, 0.08 * sc, 2, 0.03 * sc); armL.translate(0, 0.58 * sc, 0.29 * sc);
-    const armR = armL.clone(); armR.translate(0, 0, -0.58 * sc);
-    const ped = new THREE.CylinderGeometry(0.1 * sc, 0.14 * sc, 0.3 * sc, 12); ped.translate(0, 0.15 * sc, 0);
-    const parts = [base, back, armL, armR, ped].map((x) => (x.index ? x.toNonIndexed() : x));
-    const g = mergeGeometries(parts)!; [base, back, armL, armR, ped, ...parts].forEach((x) => x.dispose());
-    return g;
-  })();
-  tr(seatGeo);
-  const seats: FleetCraftBuild['seats'] = [];
-  s.cabin.seats.forEach((st, i) => {
-    const z = st.side * (prop ? s.R * 0.4 : s.R * 0.5);
-    const m = new THREE.Mesh(seatGeo, leather); m.name = `seat-${i + 1}`; m.userData.xray = 'solid';
-    m.position.set(fx(st.d), floorY, z); m.rotation.y = st.facing === 1 ? Math.PI : 0;
-    cab.add(m);
-    seats.push({ pos: V(fx(st.d), floorY, z), facing: st.facing });
-  });
+  // poltronas, móveis e cockpit pela planta de fábrica (mesma fonte da planta 2D)
+  const cabinB = buildCabin(s, f, L, { lux: false, clip: CUT_PLANES });
+  cab.add(cabinB.group); disposables.push(cabinB);
+  const seats: FleetCraftBuild['seats'] = cabinB.seats;
 
   // ---------- PORTAS ----------
   {
@@ -609,19 +594,6 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
       const b = new THREE.BoxGeometry(0.22, hgt, 0.025); const q = f.point(d, th, 0); b.translate(q.x - 0.03, q.y + (th > 0 ? hgt / 2 : -hgt / 2), q.z); sens.push(b);
     }
     mesh(systems.fuselagem, mergeGeometries(sens.map((g) => (g.index ? g.toNonIndexed() : g)))!, darkMetal, 'sensors'); sens.forEach((g) => g.dispose());
-    // cockpit: painel de instrumentos + assentos de tripulação (jatos)
-    const ck = new THREE.Group(); ck.name = 'cockpit'; systems.cabine.add(ck);
-    const pd = prop ? s.Ln + 0.15 : s.Ln * 0.62;
-    const pw = f.profile(pd + 0.2).w * 1.4;
-    const panel = new RoundedBoxGeometry(0.22, 0.32, pw, 2, 0.03); const pm = mesh(ck, panel, darkMetal, 'panel'); pm.position.set(fx(pd), floorY + 0.75, 0);
-    const scr = tr(new THREE.MeshStandardMaterial({ color: '#0a1220', emissive: new THREE.Color('#2f6fd8'), emissiveIntensity: 0.9, roughness: 0.2 }));
-    const sg = new THREE.PlaneGeometry(pw * 0.8, 0.18); sg.rotateY(-Math.PI / 2); const sm2 = mesh(ck, sg, scr, 'displays'); sm2.position.set(fx(pd) - 0.115, floorY + 0.78, 0);
-    if (!prop) for (const side of [1, -1]) { const m = new THREE.Mesh(seatGeo, leather); m.name = 'crew-seat'; m.position.set(fx(pd + 0.9), floorY, side * s.R * 0.42); m.rotation.y = Math.PI; ck.add(m); }
-    // lavatório: somente onde o anúncio o declara (Legacy 450 "8 pax + 1 toilet")
-    if (id === 'legacy-450') {
-      const lav = new RoundedBoxGeometry(0.95, 1.65, s.R * 1.5, 2, 0.05);
-      const lavMat = tr(lining.clone()); lavMat.side = THREE.DoubleSide; const lm = mesh(cab, lav, lavMat, 'lavatory'); lm.position.set(fx(s.cabin.end - 0.5), floorY + 0.83, 0);
-    }
     // tanques de combustível ilustrativos (volume entre longarinas; só no raio-X)
     const fuelMat = tr(new THREE.MeshStandardMaterial({ color: '#7fb6ff', emissive: new THREE.Color('#1d4fa8'), emissiveIntensity: 0.6, transparent: true, opacity: 0.55, depthWrite: false }));
     for (const side of [1, -1] as const) {
@@ -695,7 +667,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     compressor: 'compressor', combustor: 'combustor', turbine: 'turbine', shaft: 'shaft', accessory: 'accessory',
     cowling: 'cowling', crankcase: 'crankcase', cylinders: 'cylinders', turbo: 'turbo', intercooler: 'intercooler',
     fin: 'fin', rudder: 'fin', stab: 'stab', elevator: 'stab',
-    floor: 'floor', lining: 'floor', lavatory: 'lavatory', panel: 'cockpit', displays: 'cockpit', 'crew-seat': 'cockpit', door: 'door',
+    floor: 'floor', lining: 'floor', furnishing: 'floor', lavatory: 'lavatory', panel: 'cockpit', displays: 'cockpit', 'crew-seat': 'cockpit', door: 'door',
   };
   const allMeshes: THREE.Mesh[] = [];
   const partIds = new Set<string>();
@@ -747,13 +719,14 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     });
   };
   const setXray = (amount: number) => {
-    const a = Math.min(1, Math.max(0, amount));
+    let a = Math.min(1, Math.max(0, amount));
+    if (a < 0.006) a = 0; // sem resíduo: casco volta a ser 100% opaco (resíduo deixava o casco no passe transparente e ele sumia atrás de nuvens)
     (xray.uniforms.uAlpha as { value: number }).value = focused ? Math.max(0.55, a) : a;
     internalMat.emissiveIntensity = 0.35 + 0.9 * a;
     internalMat.transparent = true; internalMat.opacity = Math.min(1, a * 1.4);
     const on = a > 0.01;
     if (!focused) { overlays.forEach((o) => { o.visible = on; }); internals.forEach((o) => { o.visible = on; }); }
-    if (Math.abs(a - xrA) < 0.004 && on === xrOn) return;
+    if ((a === xrA || (a > 0 && Math.abs(a - xrA) < 0.004)) && on === xrOn) return;
     xrA = a; xrOn = on; applyOpacity();
   };
   const focusPart = (part: string | null) => {
@@ -784,7 +757,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const isolate = (sid: SystemId | null) => { for (const k2 of SYSTEMS) systems[k2].visible = !sid || k2 === sid; };
 
   return {
-    id, spec: s, group, systems, anchors, anchorRefs, bounds, entries, seats, floorY, cutY: s.R * 0.26, size: s.envelope.length, axisH: s.axisH,
+    id, spec: s, group, systems, anchors, anchorRefs, bounds, entries, seats, floorY, fuse: f, fusL: L, cutY: s.R * 0.26, size: s.envelope.length, axisH: s.axisH,
     setXray, isolate, setFade, focusPart, partBounds, partIds,
     dispose: () => { disposables.forEach((d) => d.dispose()); },
   };

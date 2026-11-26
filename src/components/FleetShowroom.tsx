@@ -150,7 +150,7 @@ export default function FleetShowroom() {
   const selPart = selSys?.parts.find((p) => p.id === part) ?? null;
   const spec = inspect ? FLEET_SPECS[inspect] : null;
   const selectSystem = (sid: SystemId | null) => { preview.close(); frame.orbitYaw = 0; frame.orbitPitch = 0; ui.set({ inspectSystem: sid, inspectPart: null, fleetPreview: null }); if (sid) track('fleet_system', { inspect: inspect ?? undefined, system: sid }); };
-  const seatCount = item ? FLEET_SPECS[item.id].cabin.seats.length : 0;
+  const seatCount = item ? FLEET_SPECS[item.id].cabin.seats.length + (FLEET_SPECS[item.id].cabin.zones.some((z) => z.toilet) ? 1 : 0) : 0;
 
   // órbita 360°: arrastar (mouse/dedo) ou setas do teclado
   const orbitHandlers = {

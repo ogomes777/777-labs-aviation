@@ -1,4 +1,5 @@
 'use client';
+import type { FlightView } from '@/experience/flight';
 import { useEffect, useRef, useState } from 'react';
 import { ui } from '@/experience/director';
 import { flightInput as IN, flightTel as TEL, flightUi, resetFlightInput } from '@/experience/flight';
@@ -76,9 +77,16 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
   useEffect(() => { audio.current?.setMuted(!sound); }, [sound]);
 
   const exit = () => { track('flight_exit', { aircraft: id }); ui.set({ flight: null }); };
+  // dentro da cabine como passageiro (poltrona ou caminhando), o avião segue sozinho em voo livre
+  const setView = (v: FlightView) => {
+    IN.walkF = 0; IN.walkS = 0;
+    if (v !== 'walk') { IN.lookYaw = 0; IN.lookPitch = 0; IN.lookVx = 0; IN.lookVy = 0; }
+    const ph = flightUi.get().phase;
+    flightUi.set({ view: v, ...((v === 'seat' || v === 'walk') && (ph === 'air') ? { auto: true } : {}) });
+  };
   const cycleView = () => {
-    const order = (ui.get().seat !== null ? ['chase', 'cockpit', 'seat'] : ['chase', 'cockpit']) as ('chase' | 'cockpit' | 'seat')[];
-    const cur = flightUi.get().view; flightUi.set({ view: order[(order.indexOf(cur) + 1) % order.length] });
+    const order = (ui.get().seat !== null ? ['chase', 'cockpit', 'seat'] : ['chase', 'cockpit']) as FlightView[];
+    const cur = flightUi.get().view === 'walk' ? 'seat' : flightUi.get().view; setView(order[(order.indexOf(cur) + 1) % order.length]);
   };
   const hold = (dir: 1 | -1 | 0) => () => { IN.throttle = dir; };
   const brakeOn = () => { IN.brake = true; }, brakeOff = () => { IN.brake = false; };
@@ -89,6 +97,15 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
     const apply = () => {
       const up = held.has('w') || held.has('arrowup'), dn = held.has('s') || held.has('arrowdown');
       const lf = held.has('a') || held.has('arrowleft'), rt = held.has('d') || held.has('arrowright');
+      const v = flightUi.get().view;
+      if (v === 'walk' || v === 'seat') {
+        // passageiro: WASD/setas andam pela cabine (na poltrona, W levanta)
+        IN.pitch = 0; IN.roll = 0;
+        IN.walkF = (up ? 1 : 0) - (dn ? 1 : 0); IN.walkS = (rt ? 1 : 0) - (lf ? 1 : 0);
+        if (v === 'seat' && (up || dn || lf || rt)) setView('walk');
+        return;
+      }
+      IN.walkF = 0; IN.walkS = 0;
       IN.pitch = (up ? 1 : 0) - (dn ? 1 : 0);
       IN.roll = (rt ? 1 : 0) - (lf ? 1 : 0);
       IN.throttle = (held.has('shift') || held.has('e') ? 1 : 0) - (held.has('control') || held.has('q') ? 1 : 0);
@@ -102,6 +119,8 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
       if (k === 'l') { IN.land = true; return; }
       if (k === 'f') { flightUi.set({ auto: !flightUi.get().auto }); return; }
       if (k === 'c' || k === 'v') { cycleView(); return; }
+      if (k === 'g') { const v = flightUi.get().view; if (v === 'walk' && ui.get().seat !== null) setView('seat'); else if (v === 'seat' || v === 'cockpit') setView('walk'); return; }
+      if (k === 'x') { setView('chase'); return; }
       if (k === 'r' && flightUi.get().crash) { IN.restart = true; return; }
       if (k === 'm') { flightUi.set({ sound: !flightUi.get().sound }); return; }
       held.add(k); apply();
@@ -141,9 +160,11 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
     const R = 46, l = Math.min(R, Math.hypot(dx, dy)), a = Math.atan2(dy, dx);
     const x = Math.cos(a) * l, y = Math.sin(a) * l;
     if (knob.current) knob.current.style.transform = `translate(${x}px, ${y}px)`;
+    const v = flightUi.get().view;
+    if (v === 'walk' || v === 'seat') { IN.walkS = x / R; IN.walkF = -y / R; if (v === 'seat' && l > R * 0.4) setView('walk'); return; }
     IN.roll = x / R; IN.pitch = -y / R; // puxar para baixo = cabrar, como manche
   };
-  const onStickUp = () => { stick.current = null; IN.roll = 0; IN.pitch = 0; if (knob.current) knob.current.style.transform = ''; };
+  const onStickUp = () => { stick.current = null; IN.roll = 0; IN.pitch = 0; IN.walkF = 0; IN.walkS = 0; if (knob.current) knob.current.style.transform = ''; };
 
   const status = phase === 'start' ? F.starting : phase === 'approach' ? F.landing : phase === 'parked' ? F.landed : null;
 
@@ -156,7 +177,12 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
         <div className="sf-flight__tools">
           {(phase === 'air' || phase === 'approach') && <button type="button" aria-pressed={auto} onClick={() => flightUi.set({ auto: !auto })}>{F.free}</button>}
           {phase === 'air' && <button type="button" onClick={() => { IN.land = true; }}>{F.land}</button>}
-          <button type="button" aria-pressed={view !== 'chase'} onClick={cycleView} aria-label={F.view}>{view === 'chase' ? F.cockpit : view === 'cockpit' && seat !== null ? F.seatView : F.chase}</button>
+          {(view === 'seat' || view === 'cockpit') && <button type="button" onClick={() => setView('walk')}>{F.walk}</button>}
+          {view === 'walk' && seat !== null && <button type="button" onClick={() => setView('seat')}>{F.backSeat}</button>}
+          {view === 'walk' && seat === null && <button type="button" onClick={() => setView('cockpit')}>{F.cockpit}</button>}
+          {view === 'chase' ? <button type="button" onClick={cycleView} aria-label={F.view}>{F.cockpit}</button>
+            : <button type="button" aria-pressed="true" onClick={() => setView('chase')}>{F.chase}</button>}
+          {view === 'cockpit' && seat !== null && <button type="button" onClick={() => setView('seat')}>{F.seatView}</button>}
           <button type="button" className="sf-flight__snd" aria-pressed={sound} onClick={() => flightUi.set({ sound: !sound })} aria-label={sound ? F.soundOff : F.soundOn}><span data-on={sound} /></button>
         </div>
       </div>
@@ -169,7 +195,25 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
         <span><small>{F.alt}</small><b ref={alt}>0</b><i>ft</i></span>
         <span><small>{F.hdg}</small><b ref={hdg}>270</b><i>°</i></span>
       </div>
-      <p className="sf-flight__hint"><span className="sf-flight__hint-k">{F.hintKeys2}</span><span className="sf-flight__hint-t">{F.controlsTouch}</span></p>
+      <p className="sf-flight__hint"><span className="sf-flight__hint-t">{F.controlsTouch}</span></p>
+      {(view === 'walk' || view === 'seat') ? (
+      <dl className="sf-flight__keys" aria-label={F.controls}>
+        <div><dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dt><dd>{F.keyWalk}</dd></div>
+        <div><dt><i>⟲</i></dt><dd>{F.keyLook}</dd></div>
+        <div><dt><kbd>G</kbd></dt><dd>{F.keyStand}</dd></div>
+        <div><dt><kbd>X</kbd></dt><dd>{F.chase}</dd></div>
+      </dl>
+      ) : (
+      <dl className="sf-flight__keys" aria-label={F.controls}>
+        <div><dt><kbd>W</kbd><kbd>S</kbd><i>/</i><kbd>↑</kbd><kbd>↓</kbd></dt><dd>{F.keyPitch}</dd></div>
+        <div><dt><kbd>A</kbd><kbd>D</kbd><i>/</i><kbd>←</kbd><kbd>→</kbd></dt><dd>{F.keyRoll}</dd></div>
+        <div><dt><kbd>E</kbd><i>/</i><kbd>⇧</kbd></dt><dd>{F.keyUp}</dd></div>
+        <div><dt><kbd>Q</kbd><i>/</i><kbd>Ctrl</kbd></dt><dd>{F.keyDown}</dd></div>
+        <div><dt><kbd className="w">␣</kbd></dt><dd>{F.keyBrake}</dd></div>
+        <div><dt><kbd>C</kbd></dt><dd>{F.keyCam}</dd></div>
+        <div><dt><kbd>L</kbd></dt><dd>{F.keyLand}</dd></div>
+      </dl>
+      )}
       {(phase === 'air' || phase === 'approach') && (
         <div className="sf-flight__pad" aria-label={F.faster}>
           <button type="button" aria-label={F.faster} onPointerDown={hold(1)} onPointerUp={hold(0)} onPointerLeave={hold(0)} onPointerCancel={hold(0)}>+</button>

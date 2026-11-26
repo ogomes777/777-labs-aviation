@@ -475,3 +475,23 @@ html[data-theme='dusk'] .simfly-cloud-bridge::after { content: ''; position: abs
 .fplan__seat rect { transition: fill 200ms, stroke 200ms; }
 .fplan__seat:hover rect, .fplan__seat:focus-visible rect { stroke: rgba(var(--sf-accent-rgb), 1); }
 .fplan__seat[data-on='true'] rect { fill: rgba(var(--sf-accent-rgb), .55); stroke: #e8f6ff; }
+
+/* ---------- test drive: legenda de teclas, sempre visível e discreta (desktop) ---------- */
+.sf-flight__keys { position: absolute; left: max(14px, env(safe-area-inset-left)); bottom: calc(max(16px, env(safe-area-inset-bottom)) + 34px); margin: 0; display: grid; gap: 5px; padding: 12px 14px; border-radius: 14px; background: rgba(8, 18, 34, .34); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); border: 1px solid rgba(255,255,255,.12); color: #fff; font-size: .6rem; letter-spacing: .06em; pointer-events: none; opacity: .86; }
+.sf-flight__keys > div { display: grid; grid-template-columns: 112px auto; align-items: center; gap: 10px; }
+.sf-flight__keys dt { display: flex; align-items: center; gap: 3px; }
+.sf-flight__keys dd { margin: 0; opacity: .78; white-space: nowrap; }
+.sf-flight__keys i { font-style: normal; opacity: .4; margin: 0 2px; }
+.sf-flight__keys kbd { display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 4px; border-radius: 5px; font: 600 .56rem/1 ui-sans-serif, system-ui, sans-serif; color: #fff; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-bottom-width: 2px; }
+.sf-flight__keys kbd.w { min-width: 46px; }
+@media (pointer: coarse) { .sf-flight__keys { display: none; } }
+@media (max-height: 560px) { .sf-flight__keys { display: none; } }
+
+/* planta: ambientes reais */
+.fplan__room--galley, .fplan__room--wardrobe, .fplan__room--credenza, .fplan__room--refresh { fill: rgba(var(--sf-accent-rgb), .12); stroke: rgba(var(--sf-accent-rgb), .75); stroke-width: .022; }
+.fplan__room--divan { fill: rgba(232, 241, 255, .12); stroke: #cfe2ff; stroke-width: .026; }
+.fplan__room--table { fill: rgba(232, 241, 255, .06); stroke: rgba(207, 226, 255, .6); stroke-width: .018; }
+.fplan__room--out { fill: none; stroke-dasharray: .08 .06; stroke: rgba(207, 226, 255, .5); }
+.fplan__crew { fill: none; stroke: rgba(207, 226, 255, .5); stroke-width: .022; }
+.fplan__exit line { stroke: #ffd59a; stroke-width: .07; stroke-linecap: round; }
+.fplan__label--xs { font-size: .19px; fill: rgba(232, 241, 255, .78); }

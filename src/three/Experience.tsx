@@ -257,7 +257,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const perfMon = useRef({ bad: 0, acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
-  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, fleetCamX: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
+  const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, fleetCamX: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true, hotStill: 0 }), []);
 
   // ---------- configuração do renderer ----------
   useEffect(() => {
@@ -417,13 +417,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
     // parallax sutil (somente fora da cabine)
     const outside = t < 1.15 || (t > 1.9 && t < 4.4) || t > 6.4;
-    const par = outside ? 0.35 : 0.04;
+    const par = inFleet ? 0 : outside ? 0.35 : 0.04; // frota: câmera firme (linhas da pista não 'andam' com o mouse)
     tmp.eye.x += frame.px * par * (t > 3.2 && t < 4.4 ? 0.2 : 1);
     tmp.eye.y += frame.py * par * 0.5;
     cam.position.copy(tmp.eye);
     cam.lookAt(tmp.target);
     // câmera na mão: micro-oscilação orgânica (soma de senos), menor dentro da cabine
-    if (st.motion === 'cinematic' && !frame.freezeClock) {
+    if (st.motion === 'cinematic' && !frame.freezeClock && !inFleet) {
       const amp = (outside ? 0.0011 : 0.0006) + 0.0012 * (1 - ramp(t, 0.6, 1.0));
       cam.rotateX((Math.sin(time * 0.71) * 0.5 + Math.sin(time * 1.37 + 1.1) * 0.3 + Math.sin(time * 2.3 + 2.0) * 0.2) * amp);
       cam.rotateY((Math.sin(time * 0.53 + 0.4) * 0.5 + Math.sin(time * 1.19 + 2.2) * 0.3 + Math.sin(time * 1.9 + 0.7) * 0.2) * amp);
@@ -628,7 +628,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- lente e grade por cena (exposição de câmera, não filtro) -----
     const W = { sky: Math.max(skyA, epi), hangar: hangarW, studio: studioW, cabin: insidePortal || inCabin ? 1 : 0, globe: globeW };
     if (fx.dof) {
-      const bokeh = 0.9 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + 1.4 * W.hangar + 0.30 * W.cabin * (t > 4.85 ? 1 : 0.3);
+      const bokeh = 0.9 * W.sky * (t < 1.1 || epi > 0 ? 1 : 0.4) + (inFleet ? 0.35 : 1.4) * W.hangar + 0.30 * W.cabin * (t > 4.85 ? 1 : 0.3); // frota nítida
       fx.dof.bokehScale = damp(fx.dof.bokehScale, bokeh, 3, dt);
     }
     if (fx.grade) {
@@ -703,6 +703,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     tmp.xray = xrT === 0 && tmp.xray < 0.004 ? 0 : damp(tmp.xray, xrT, st.motion === 'reduced' ? 40 : 1.9, Math.min(rawDt, 0.1));
     if (inFleet || prevP > 0) {
       crafts.current.forEach((c) => {
+        if (st.flight && c.id === st.flight) return; // a aeronave em voo é do simulador (pose, visibilidade do casco, interior)
         if (c.id === st.inspect || (prevP > 0 && c.id === tmp.lastIns)) applyInspect(c.entries, inspectP.current, st.fleetPreview, time);
         c.setXray(c.id === st.inspect ? tmp.xray : 0);
         // destaque: a escolhida taxia para perto da câmera e gira em 3/4; as demais recuam, se afastam e ficam translúcidas
@@ -733,7 +734,11 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const fsec = document.getElementById('frota'); const fr2 = fsec?.getBoundingClientRect();
       const fleetOnScreen = !!fr2 && fr2.top <= 2 && fr2.bottom >= size.height - 2 && !st.flight && Number(document.documentElement.style.getPropertyValue('--fleet-out') || 0) < 0.05;
       const tgt = st.inspect ? crafts.current.find((c) => c.id === st.inspect) : settled ? crafts.current.find((c) => c.id === FLEET[Math.round(clamp(tmp.fleetIdx, 0, FLEET.length - 1))].id) : undefined;
-      const show = !!tgt && inFleet && fleetOnScreen && (st.inspect ? st.inspectMode === 'parts' && !st.inspectSystem && tmp.viewW > 0.85 && inspectP.current < 0.02 : tmp.viewW < 0.05 && ramp(raw - 3, 0.0, 0.1) > 0.98);
+      // estabilidade real: câmera parada E aeronave no lugar há ~0,3 s (sem pontinhos soltos entre um avião e outro)
+      const camStill = tmp.vel.length() < 0.35;
+      const craftHome = !!tgt && (st.inspect ? true : Math.abs(tgt.group.position.z - FRONT_Z) < 0.25);
+      tmp.hotStill = camStill && craftHome ? (tmp.hotStill ?? 0) + dt : 0;
+      const show = !!tgt && inFleet && fleetOnScreen && (tmp.hotStill ?? 0) > 0.3 && (st.inspect ? st.inspectMode === 'parts' && !st.inspectSystem && tmp.viewW > 0.85 && inspectP.current < 0.02 : tmp.viewW < 0.05 && ramp(raw - 3, 0.0, 0.1) > 0.98);
       hl.dataset.visible = show ? 'true' : 'false';
       if (show && tgt) {
         hl.dataset.aircraft = tgt.id;
@@ -871,7 +876,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           wantFov = Math.round(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(wantFov) / 2) * land)) * 10) / 10;
           cam.rotateZ(Math.PI / 2);
         }
-        const wantNearF = sim.inside ? 0.04 : 0.5;
+        const wantNearF = sim.inside ? 0.1 : 0.5; // 0,1 m: precisão de profundidade no horizonte (sem chão/água piscando)
         if (Math.abs(cam.fov - wantFov) > 0.01 || cam.near !== wantNearF || cam.far !== 60000) { cam.fov = wantFov; cam.near = wantNearF; cam.far = 60000; cam.updateProjectionMatrix(); }
         focus.copy(sim.target);
         // cena: aeródromo da Frota + mundo do voo + o céu da janela da cabine (cúpula e mar de nuvens)
@@ -898,6 +903,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         fu.uSun.value.copy(su.uSun.value); ku.uSun.value.copy(su.uSun.value);
         fu.uHaze.value.copy(sk.uHaze.value); ku.uHaze.value.copy(sk.uHaze.value); fu.uSky.value.set('#5d86c4');
         ku.uLit.value.set('#fffaf2'); ku.uShade.value.set('#8d9bb2');
+        { const hu = flightWorld.highU; hu.uSun.value.copy(su.uSun.value); hu.uHaze.value.copy(sk.uHaze.value); hu.uLit.value.set('#fffaf4'); hu.uShade.value.set('#a3afc4'); }
         const fog = scene.fog as THREE.FogExp2;
         fog.color.copy(sk.uHaze.value); fog.density = 0.00012;
         (scene.background as THREE.Color).set('#c9dcf0');
@@ -962,7 +968,7 @@ function useBudgetDpr() {
   useEffect(() => {
     const calc = () => {
       // nível 4: resolução nativa até 4K (só em aparelhos que provaram folga de FPS)
-      const budget = [0.7e6, 1.1e6, 1.7e6, 2.4e6, 8.4e6][perf] ?? 1.1e6;
+      const budget = [0.9e6, 1.5e6, 2.3e6, 3.4e6, 8.4e6][perf] ?? 1.5e6; // nível 2 já cobre 1080p nativo
       const css = Math.max(1, window.innerWidth * window.innerHeight);
       setDpr(Math.round(Math.max(0.6, Math.min(window.devicePixelRatio || 1, Math.sqrt(budget / css), 2)) * 100) / 100);
     };

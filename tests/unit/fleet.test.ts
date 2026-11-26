@@ -76,8 +76,13 @@ describe('envelopes dimensionais (fontes EASA/Embraer)', () => {
     expect(FLEET_SPECS.matrix.tail.kind).toBe('conventional');
     for (const id of ['legacy-450', 'praetor-500', 'praetor-600', 'citation-cj2-plus'] as const) expect(FLEET_SPECS[id].tail.kind).toBe('T');
   });
-  it('poltronas ilustrativas = passageiros anunciados', () => {
-    for (const f of FLEET) expect(FLEET_SPECS[f.id].cabin.seats.length).toBe(f.pax);
+  it('lugares da planta de fábrica = passageiros anunciados', () => {
+    for (const f of FLEET) {
+      const c = FLEET_SPECS[f.id].cabin;
+      const toilet = c.zones.some((z) => z.toilet) ? 1 : 0;
+      const crew = FLEET_SPECS[f.id].nose === 'prop' ? 2 : 0; // Matrix: 6 lugares incluindo o piloto
+      expect([c.seats.length + crew, c.seats.length + toilet]).toContain(f.pax);
+    }
   });
 });
 

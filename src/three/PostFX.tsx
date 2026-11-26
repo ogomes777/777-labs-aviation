@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef, useMemo } from 'react';
-import { EffectComposer, Bloom, DepthOfField, Vignette, ToneMapping, N8AO } from '@react-three/postprocessing';
+import { EffectComposer, Bloom, DepthOfField, Vignette, ToneMapping, N8AO, SMAA } from '@react-three/postprocessing';
 import { BlendFunction, Effect, EffectAttribute, ToneMappingMode, type DepthOfFieldEffect, type BloomEffect } from 'postprocessing';
 import * as THREE from 'three';
 
@@ -147,13 +147,15 @@ export default function PostFX({ quality, level, focus, dof = true }: { quality:
         <Sanitize />
         {level >= 3 && dof ? <N8AO ref={(e: unknown) => { fx.ao = e as FXHandles['ao']; }} aoRadius={1.1} distanceFalloff={0.6} intensity={2.2} quality="medium" halfRes screenSpaceRadius={false} /> : <></>}
         {dof ? <DepthOfField ref={(e: DepthOfFieldEffect | null) => { fx.dof = e; }} target={focus} focalLength={0.02} bokehScale={1.2} height={720} /> : <></>}
-        <Sharpen amount={0.6} />
+        <Sharpen amount={0.3} />
         <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.95} luminanceSmoothing={0.2} intensity={0.42} radius={0.6} />
         <SpeedBlur />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         <Grade />
         <Vignette offset={0.32} darkness={0.5} />
         <FinalGuard />
+        {/* antisserrilhado morfológico na imagem final: linhas de pátio e bordas das aeronaves sem "andar" */}
+        <SMAA />
       </EffectComposer>
     );
   }
@@ -169,13 +171,14 @@ export default function PostFX({ quality, level, focus, dof = true }: { quality:
   return (
     <EffectComposer multisampling={0} enableNormalPass={false} frameBufferType={THREE.HalfFloatType}>
       <Sanitize />
-      <Sharpen amount={0.5} />
+      <Sharpen amount={0.25} />
       <Bloom ref={(e: BloomEffect | null) => { fx.bloom = e; }} mipmapBlur luminanceThreshold={0.95} intensity={0.4} radius={0.6} levels={5} />
       <SpeedBlur />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Grade />
       <Vignette offset={0.3} darkness={0.45} />
       <FinalGuard />
+      <SMAA />
     </EffectComposer>
   );
 }

@@ -5,7 +5,7 @@ import { createStore } from './store';
  * Valores contínuos vivem em objetos mutáveis (sem re-render); só as mudanças de fase passam pela store.
  */
 export type FlightPhase = 'start' | 'ready' | 'roll' | 'air' | 'approach' | 'rollout' | 'parked' | 'crashed';
-export type FlightView = 'chase' | 'cockpit' | 'seat';
+export type FlightView = 'chase' | 'cockpit' | 'seat' | 'walk';
 
 export const flightUi = createStore({
   phase: 'start' as FlightPhase,
@@ -44,6 +44,9 @@ export const flightInput = {
   /** inércia do olhar 360° */
   lookVx: 0,
   lookVy: 0,
+  /** caminhar dentro da cabine (primeira pessoa): frente/trás e lateral (-1..1) */
+  walkF: 0,
+  walkS: 0,
 };
 
 /** Telemetria para HUD e áudio. */
@@ -62,5 +65,5 @@ export const flightTel = {
 };
 
 export function resetFlightInput() {
-  Object.assign(flightInput, { pitch: 0, roll: 0, throttle: 0, takeoff: false, land: false, restart: false, lookYaw: 0, lookPitch: 0, lookAt: 0, brake: false, hold: 0, zoom: 1, lookVx: 0, lookVy: 0 });
+  Object.assign(flightInput, { pitch: 0, roll: 0, throttle: 0, takeoff: false, land: false, restart: false, lookYaw: 0, lookPitch: 0, lookAt: 0, brake: false, hold: 0, zoom: 1, lookVx: 0, lookVy: 0, walkF: 0, walkS: 0 });
 }
