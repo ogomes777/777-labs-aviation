@@ -12,7 +12,7 @@ const m: Messages = {
     contact: 'Nous contacter',
     theme: 'Thème',
     themeSky: 'Thème Ciel',
-    themeAmber: 'Thème Ambre',
+    themeNight: 'Thème Nuit',
     language: 'Langue',
     motion: 'Mouvement',
     motionPrefs: 'Préférences de mouvement',

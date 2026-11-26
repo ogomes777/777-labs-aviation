@@ -12,7 +12,7 @@ const m: Messages = {
     contact: 'お問い合わせ',
     theme: 'テーマ',
     themeSky: 'スカイテーマ',
-    themeAmber: 'アンバーテーマ',
+    themeNight: 'ナイトテーマ',
     language: '言語',
     motion: 'モーション',
     motionPrefs: 'モーション設定',

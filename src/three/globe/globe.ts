@@ -28,10 +28,13 @@ export function createGlobe(quality: 'high' | 'balanced') {
     uniforms: { uOpacity: { value: 1 } }, transparent: true,
     vertexShader: /* glsl */ `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
     fragmentShader: /* glsl */ `varying vec3 vN; varying vec3 vV; uniform float uOpacity;
-      void main(){ float f = pow(1.0 - max(dot(vN, vV), 0.0), 2.4);
-        vec3 base = vec3(0.028, 0.045, 0.075); vec3 rim = vec3(0.45, 0.58, 0.78);
-        float light = 0.6 + 0.4 * max(dot(vN, normalize(vec3(-0.4, 0.5, 0.8))), 0.0);
-        gl_FragColor = vec4(base * light + rim * f * 0.55, uOpacity);
+      void main(){ float nv = max(dot(vN, vV), 0.0); float f = pow(1.0 - nv, 2.2);
+        vec3 L = normalize(vec3(-0.45, 0.42, 0.78));
+        float dl = dot(vN, L);
+        vec3 base = mix(vec3(0.012, 0.024, 0.05), vec3(0.04, 0.085, 0.16), smoothstep(-0.3, 0.8, dl));
+        vec3 H = normalize(L + vV); float spec = pow(max(dot(vN, H), 0.0), 60.0) * 0.55 + pow(max(dot(vN, H), 0.0), 8.0) * 0.06;
+        vec3 rim = vec3(0.42, 0.68, 1.0);
+        gl_FragColor = vec4(base + vec3(0.6, 0.8, 1.0) * spec * smoothstep(0.0, 0.3, dl) + rim * f * (0.55 + 0.45 * smoothstep(-0.2, 0.6, dl)), uOpacity);
         #include <colorspace_fragment>
       }`,
   }));
@@ -42,13 +45,23 @@ export function createGlobe(quality: 'high' | 'balanced') {
     uniforms: { uOpacity: { value: 1 } }, transparent: true, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false,
     vertexShader: /* glsl */ `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
     fragmentShader: /* glsl */ `varying vec3 vN; varying vec3 vV; uniform float uOpacity;
-      void main(){ float d = abs(dot(vN, vV)); float f = pow(clamp(d, 0.0, 1.0), 5.0) * 0.85;
-        gl_FragColor = vec4(vec3(0.5, 0.66, 0.92) * f, f * uOpacity);
+      void main(){ float d = abs(dot(vN, vV)); float f = pow(clamp(d, 0.0, 1.0), 3.2) * 1.25;
+        gl_FragColor = vec4(vec3(0.42, 0.68, 1.0) * f, f * uOpacity);
         #include <colorspace_fragment>
       }`,
   }));
-  const atmo = new THREE.Mesh(T(new THREE.SphereGeometry(GLOBE_R * 1.16, 64, 48)), atmoMat);
+  const atmo = new THREE.Mesh(T(new THREE.SphereGeometry(GLOBE_R * 1.2, 64, 48)), atmoMat);
   root.add(atmo);
+  // borda de luz (frente, aditiva): o contorno do planeta acende como na órbita real
+  const rimMat = T(new THREE.ShaderMaterial({
+    uniforms: { uOpacity: { value: 1 } }, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+    vertexShader: /* glsl */ `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: /* glsl */ `varying vec3 vN; varying vec3 vV; uniform float uOpacity;
+      void main(){ float f = pow(1.0 - max(dot(vN, vV), 0.0), 3.0); gl_FragColor = vec4(vec3(0.55, 0.8, 1.0) * f * 0.9, f * uOpacity);
+        #include <colorspace_fragment>
+      }`,
+  }));
+  root.add(new THREE.Mesh(T(new THREE.SphereGeometry(GLOBE_R * 1.012, 64, 48)), rimMat));
 
   // pontos de terra
   const pts = dots as [number, number][];
@@ -83,7 +96,7 @@ export function createGlobe(quality: 'high' | 'balanced') {
   DESTINATIONS.forEach((d) => mkMarker(d.id, d.lat, d.lon, '#f4f6f8'));
 
   // arco animado origem → destino
-  const arcMat = T(new THREE.MeshBasicMaterial({ color: '#d8bf94', transparent: true, opacity: 0.95 }));
+  const arcMat = T(new THREE.MeshBasicMaterial({ color: '#cfeaff', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
   let arc: THREE.Mesh | null = null;
   let arcLen = 0;
   const setArc = (id: string | null) => {
@@ -103,7 +116,7 @@ export function createGlobe(quality: 'high' | 'balanced') {
     spin.add(arc);
   };
   // malha de rotas: todos os destinos visíveis, traços finos com desenho escalonado
-  const netMat = T(new THREE.MeshBasicMaterial({ color: '#cdb48a', transparent: true, opacity: 0.38, depthWrite: false }));
+  const netMat = T(new THREE.MeshBasicMaterial({ color: '#8fcaff', transparent: true, opacity: 0.62, depthWrite: false, blending: THREE.AdditiveBlending }));
   let net: { mesh: THREE.Mesh; count: number; delay: number }[] = [];
   let netT = 0;
   const setNetwork = (ids: string[]) => {
@@ -117,7 +130,7 @@ export function createGlobe(quality: 'high' | 'balanced') {
       const a = o.pos.clone(), b = m.pos.clone();
       const mid = a.clone().add(b).multiplyScalar(0.5);
       mid.setLength(GLOBE_R * (1.02 + a.distanceTo(b) * 0.16));
-      const geo = new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a, mid, b), 72, 0.0045, 6, false);
+      const geo = new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a, mid, b), 96, 0.006, 6, false);
       const count = geo.index!.count; geo.setDrawRange(0, 0);
       const mesh = new THREE.Mesh(geo, netMat); spin.add(mesh);
       net.push({ mesh, count, delay: i * 0.09 });

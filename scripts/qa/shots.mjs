@@ -1,7 +1,8 @@
 import { chromium } from 'playwright';
 const [,, url, out, ...fr] = process.argv;
 const b = await chromium.launch({ args: ['--use-gl=swiftshader','--enable-unsafe-swiftshader'] });
-const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const mob = process.env.MOB === '1';
+const p = await b.newPage(mob ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } : { viewport: { width: 1440, height: 900 } });
 p.on('pageerror', e => console.log('PAGEERR', e.message));
 p.on('console', m => { if (m.type()==='error') console.log('CONSOLE', m.text().slice(0,200)); });
 await p.goto(url, { waitUntil: 'networkidle' });

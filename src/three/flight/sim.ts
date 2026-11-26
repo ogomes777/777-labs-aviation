@@ -37,6 +37,7 @@ export class FlightSim {
   phase: 'start' | 'ready' | 'roll' | 'air' | 'approach' | 'rollout' | 'parked' = 'start';
   private t0 = 0; private wp = 0; private landStage: 'join' | 'final' = 'join';
   private perf: Perf = perfFor('legacy-450');
+  get vmax() { return this.perf.vmax; }
   private axisH = 2; private size = 20;
   eye = new THREE.Vector3(); target = new THREE.Vector3();
   private camInit = false;

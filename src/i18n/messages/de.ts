@@ -12,7 +12,7 @@ const m: Messages = {
     contact: 'Kontakt aufnehmen',
     theme: 'Design',
     themeSky: 'Design Himmel',
-    themeAmber: 'Design Bernstein',
+    themeNight: 'Nacht-Theme',
     language: 'Sprache',
     motion: 'Bewegung',
     motionPrefs: 'Bewegungseinstellungen',

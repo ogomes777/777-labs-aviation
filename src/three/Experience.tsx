@@ -508,7 +508,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const reduce = st.motion === 'reduced';
       let ty: number, tp: number;
       if (dest) { const f = facing(dest.lat * 0.6 + -23.55 * 0.4, dest.lon * 0.6 + -46.63 * 0.4); ty = f.yaw; tp = f.pitch * 0.8; }
-      else { const f = facing(-10, -40); ty = f.yaw + (reduce ? 0 : time * 0.04); tp = f.pitch * 0.6; }
+      else { const f = facing(-12, -42); ty = f.yaw + (reduce ? 0 : Math.sin(time * 0.12) * 0.12); tp = f.pitch * 0.6; } // sempre o lado das rotas; deriva sutil, sem girar para longe
       ty += frame.globeYaw; tp = clamp(tp + frame.globePitch, -0.9, 0.9);
       tmp.globeYaw = damp(tmp.globeYaw, ty, 2.4, dt);
       tmp.globePitch = damp(tmp.globePitch, tp, 2.4, dt);
@@ -639,7 +639,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // adaptação de exposição do sensor: entra na cabine escura e a imagem clareia aos poucos (e vice-versa)
       const expo = 0.94 * W.sky + 1.1 * W.hangar + 0.98 * W.studio + 1.2 * W.cabin + 1.02 * W.globe;
       u.get('uExposure')!.value = frame.freezeClock ? Math.max(0.9, expo) : damp(u.get('uExposure')!.value, Math.max(0.9, expo), 0.9, dt);
-      const th = prefs.get().theme === 'amber' ? 1 : 0;
+      const th = prefs.get().theme === 'night' ? 1 : 0;
       u.get('uTheme')!.value = Math.abs(u.get('uTheme')!.value - th) < 0.002 ? th : damp(u.get('uTheme')!.value, th, 4, Math.min(rawDt, 0.1));
     }
     {
@@ -849,7 +849,14 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const sdt = Math.min(rawDt, 0.1) * fx2; const n = Math.ceil(sdt / 0.05);
         for (let i = 0; i < n; i++) sim.step(sdt / n, time, env.gy, portrait);
         cam.position.copy(sim.eye); cam.lookAt(sim.target);
-        const wantFov = flightUi.get().view === 'cockpit' ? 64 : portrait ? 58 : 46;
+        // sensação de velocidade: lente abre com a velocidade, trepidação na pista e na camada de nuvens
+        const vk = clamp(sim.V / sim.vmax, 0, 1);
+        const agl = sim.pos.y - env.gy;
+        const inCloud = clamp(1 - Math.abs(agl - 1080) / 320, 0, 1);
+        const shake = (sim.phase === 'roll' || sim.phase === 'rollout' ? 0.0022 * vk : 0) + 0.0016 * inCloud * vk + 0.0005 * vk * vk;
+        if (st.motion !== 'reduced' && shake > 0) { cam.rotateX(Math.sin(time * 31.7) * shake + Math.sin(time * 17.3) * shake * 0.6); cam.rotateY(Math.sin(time * 23.1 + 1.3) * shake * 0.7); }
+        const baseFov = flightUi.get().view === 'cockpit' ? 64 : portrait ? 58 : 46;
+        const wantFov = Math.round((baseFov + vk * vk * 9) * 10) / 10;
         if (Math.abs(cam.fov - wantFov) > 0.01 || cam.near !== 0.5 || cam.far !== 60000) { cam.fov = wantFov; cam.near = 0.5; cam.far = 60000; cam.updateProjectionMatrix(); }
         focus.copy(sim.target);
         // cena: aeródromo da Frota + mundo do voo + o céu da janela da cabine (cúpula e mar de nuvens)
@@ -879,7 +886,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         (scene.background as THREE.Color).copy(pal.horizon);
         lights.sun.intensity = 2.5; lights.hemi.intensity = 0.62; lights.key.intensity = 0; lights.rim.intensity = 0.8;
         if (fx.dof) fx.dof.bokehScale = 0;
-        if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = Math.min(0.0016, Math.max(0, (sim.V - 60) * 0.00001));
+        if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' ? 0 : 0.0032 * vk * vk;
+        flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.45) / 0.4, 0, 1) * 0.9 * (agl > 60 ? 1 : 0) : 0;
+        flightWorld.wispU.uLit.value.copy(pal.lit); flightWorld.wispU.uShade.value.copy(pal.shade); flightWorld.wispU.uHaze.value.copy(pal.haze);
       }
     }
     if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown }).__777env = { ...env, gl }; }
@@ -947,6 +956,36 @@ function useBudgetDpr() {
   return dpr;
 }
 
+/**
+ * Pausa a GPU quando o canvas está 100% coberto (vídeo do hero, jornada/globo opacos, nuvens) ou a aba está oculta.
+ * Era o maior desperdício do site: um terço da rolagem renderizando 3D invisível.
+ */
+function RenderGate() {
+  const setFrameloop = useThree((s) => s.setFrameloop);
+  useEffect(() => {
+    let last = '';
+    const covered = () => {
+      if (ui.get().flight || !frame.ready) return false;
+      const op = (el: Element | null) => { if (!el) return 0; const st = (el as HTMLElement).style; return st.visibility === 'hidden' ? 0 : Number(st.opacity || 0); };
+      if (op(document.querySelector('.simfly-continuum')) >= 0.999) return true;
+      if (op(document.querySelector('.simfly-cloud-bridge')) >= 0.999) return true;
+      const hero = document.getElementById('top');
+      if (hero) { const r = hero.getBoundingClientRect(); if (r.top <= 0 && r.bottom >= innerHeight) return true; }
+      return false;
+    };
+    const tick = () => {
+      const mode = document.hidden || covered() ? 'never' : 'always';
+      if (mode !== last) { last = mode; setFrameloop(mode); }
+    };
+    const id = window.setInterval(tick, 120);
+    addEventListener('scroll', tick, { passive: true });
+    document.addEventListener('visibilitychange', tick);
+    tick();
+    return () => { window.clearInterval(id); removeEventListener('scroll', tick); document.removeEventListener('visibilitychange', tick); setFrameloop('always'); };
+  }, [setFrameloop]);
+  return null;
+}
+
 export default function Experience({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const dpr = useBudgetDpr();
   return (
@@ -960,6 +999,7 @@ export default function Experience({ quality, onReady }: { quality: Q; onReady: 
       flat={false}
     >
       <World quality={quality} onReady={onReady} />
+      <RenderGate />
     </Canvas>
   );
 }

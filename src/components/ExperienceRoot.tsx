@@ -99,6 +99,7 @@ export default function ExperienceRoot() {
           // The preceding opaque globe masks this edit; do not ease through deleted poses.
           if ((frame.t >= 3.37) !== (t >= 3.37)) frame.ts = t;
           frame.t = t;
+          { const fp = frame.chapters[3]; const out = fp <= 0 ? 0 : Math.min(1, Math.max(0, (fp - 0.955) / 0.04)); document.documentElement.style.setProperty('--fleet-out', out.toFixed(3)); }
           const order = [0, 1, 2, 4, 5, 6, 3, 7, 8] as const;
           const slot = Math.min(8, Math.floor(t + 0.0001));
           const active = order[slot];
@@ -198,24 +199,6 @@ export default function ExperienceRoot() {
     })();
     return () => { disposed = true; cleanup(); };
   }, [cinematic]);
-
-  // formulário cobrindo o header → tema claro; pausa o canvas quando totalmente coberto
-  useEffect(() => {
-    const form = document.getElementById('planejar');
-    if (!form) return;
-    const io = new IntersectionObserver((es) => {
-      for (const e of es) {
-        const r = e.boundingClientRect;
-        const over = r.top < 70 && r.bottom > 70;
-        document.documentElement.dataset.form = over ? 'over' : 'off';
-        if (over) document.documentElement.dataset.scene = 'light';
-        frame.hidden = r.top <= 0 && r.bottom >= innerHeight;
-        (window as unknown as { __777recompute?: () => void }).__777recompute?.();
-      }
-    }, { threshold: Array.from({ length: 21 }, (_, i) => i / 20) });
-    io.observe(form);
-    return () => io.disconnect();
-  }, []);
 
   const onReady = useCallback(() => { setReady(true); ui.set({ canvasReady: true }); }, []);
 

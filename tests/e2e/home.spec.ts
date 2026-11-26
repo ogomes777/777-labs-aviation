@@ -30,7 +30,7 @@ test.describe('carga e estrutura', () => {
   test('H1 e CTA aparecem antes do WebGL ficar pronto', async ({ page }) => {
     await page.goto('/?qa=1&quality=balanced', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Planejar jornada', exact: true }).first()).toBeVisible();
+    await expect(page.locator('.sfh__brand')).toBeVisible();
   });
 
   test('estrutura semântica: landmarks, h1 único, skip link', async ({ page }) => {
@@ -74,9 +74,9 @@ test.describe('navegação', () => {
     await expect(btn).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(dlg).toBeVisible();
-    await dlg.getByRole('link', { name: 'Frota' }).click();
+    await dlg.getByRole('link', { name: 'Portfólio' }).click();
     await expect(dlg).toBeHidden();
-    await expect(page).toHaveURL(/#frota/);
+    await expect(page).toHaveURL(/#portfolio/);
   });
 
   test('scroll reverso rápido não congela e o tempo do filme volta', async ({ page }) => {
@@ -187,7 +187,6 @@ test.describe('resiliência', () => {
     const h = await page.locator('[data-chapter="2"]').evaluate((el) => el.getBoundingClientRect().height);
     expect(h).toBeLessThan(2000);
     for (const id of ['aeronave-title', 'engenharia-title', 'interior-title', 'experiencia-title', 'planejar-title']) await expect(page.locator(`#${id}`)).toBeAttached();
-    await expect(page.getByRole('link', { name: 'Planejar jornada', exact: true }).first()).toBeVisible();
     expect(await noHScroll(page)).toBe(true);
   });
 

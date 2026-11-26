@@ -23,14 +23,14 @@ class GradeEffect extends Effect {
         c = mix(c, c * (1.0 + uContrast * (s - 0.5) * 1.4), 1.0);
         c = c + uLift * (1.0 - c);
         if (uTheme > 0.001) {
-          // mesma matriz do CSS do tema Âmbar: hue-rotate(180deg) sepia(.24) saturate(.88)
-          vec3 h = clamp(c, 0.0, 1.0);
-          h = vec3(dot(h, vec3(-0.574, 1.430, 0.144)), dot(h, vec3(0.426, 0.430, 0.144)), dot(h, vec3(0.426, 1.430, -0.856)));
-          vec3 sp = vec3(dot(h, vec3(0.393, 0.769, 0.189)), dot(h, vec3(0.349, 0.686, 0.168)), dot(h, vec3(0.272, 0.534, 0.131)));
-          h = mix(h, sp, 0.24);
-          float lh = dot(h, vec3(0.2126, 0.7152, 0.0722));
-          h = mix(vec3(lh), h, 0.88) * 1.02;
-          c = mix(c, h, uTheme);
+          // tema Noite: luz de luar — mesma paleta azul, superfícies claras viram marinho, luzes continuam brilhando
+          vec3 h = max(c, 0.0);
+          float l = dot(h, vec3(0.2126, 0.7152, 0.0722));
+          // valores em espaço linear (a conversão sRGB vem no fim do pipeline)
+          vec3 moon = mix(vec3(0.0015, 0.004, 0.012), vec3(0.05, 0.088, 0.2), smoothstep(0.0, 1.0, pow(l, 1.1)));
+          vec3 keepLights = h * smoothstep(0.97, 1.25, l);
+          vec3 r = mix(moon, h * vec3(0.16, 0.24, 0.45), 0.18) + keepLights * 0.7;
+          c = mix(c, r, uTheme);
         }
         outputColor = vec4(c, inputColor.a);
       }`, {

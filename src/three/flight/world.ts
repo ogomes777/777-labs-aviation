@@ -51,7 +51,7 @@ export function createFlightWorld(gy: number) {
         land *= 0.86 + 0.28 * noise(p * 0.06);
         vec2 f = fract(p / fs);
         float hedge = smoothstep(0.0, 0.035, min(min(f.x, 1.0 - f.x), min(f.y, 1.0 - f.y)));
-        land *= 0.74 + 0.26 * hedge;
+        land *= mix(0.74 + 0.26 * hedge, 1.0, smoothstep(700.0, 2600.0, length(vW - uCam)));
         float forest = smoothstep(0.56, 0.68, fbm(p * 0.0011 + 3.0));
         land = mix(land, vec3(0.09, 0.13, 0.07) * (0.8 + 0.4 * noise(p * 0.15)), forest);
         // o próprio aeródromo: grama aparada uniforme sob pistas e pátio
@@ -99,28 +99,34 @@ export function createFlightWorld(gy: number) {
     const c = document.createElement('canvas'); c.width = c.height = 256;
     const g = c.getContext('2d')!;
     let s = 7; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-    for (let i = 0; i < 46; i++) {
-      const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 78, x = 128 + Math.cos(a) * rr, y = 136 + Math.sin(a) * rr * 0.55, r = 26 + rnd() * 46;
+    // cúmulo: muitos tufos pequenos e translúcidos, topo irregular, base achatada (lido em escala de cinza = densidade)
+    for (let i = 0; i < 150; i++) {
+      const a = rnd() * Math.PI, rr = Math.pow(rnd(), 0.7) * 96;
+      const x = 128 + Math.cos(a) * rr * (rnd() > 0.5 ? 1 : -1), y = 150 - Math.sin(a) * rr * 0.62 - rnd() * 10;
+      const r = 10 + rnd() * 34 * (1 - rr / 140);
       const gr = g.createRadialGradient(x, y, 0, x, y, r);
-      gr.addColorStop(0, 'rgba(255,255,255,0.42)'); gr.addColorStop(0.6, 'rgba(255,255,255,0.14)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      gr.addColorStop(0, 'rgba(255,255,255,0.20)'); gr.addColorStop(0.55, 'rgba(255,255,255,0.08)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
       g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
     }
+    // base achatada
+    const fade = g.createLinearGradient(0, 150, 0, 190); fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = fade; g.fillRect(0, 150, 256, 106); g.globalCompositeOperation = 'source-over';
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.NoColorSpace; return t;
   })();
-  const COUNT = 220, TILE = 14000;
+  const makeClouds = (COUNT: number, TILE: number, y0: number, yr: number, s0: number, sr: number, rel: number, seed: number) => {
   const base = new THREE.PlaneGeometry(1, 1);
   const geo = new THREE.InstancedBufferGeometry();
   geo.index = base.index; geo.attributes.position = base.attributes.position; geo.attributes.uv = base.attributes.uv;
   const offs = new Float32Array(COUNT * 3), sizes = new Float32Array(COUNT * 2);
-  let s2 = 11; const rnd2 = () => ((s2 = (s2 * 16807) % 2147483647) / 2147483647);
+  let s2 = seed; const rnd2 = () => ((s2 = (s2 * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < COUNT; i++) {
     // cúmulos em grupos (mais realistas que espalhados uniformemente)
     const cluster = Math.floor(i / 6);
     const cx = ((cluster * 0.618034) % 1) * TILE - TILE / 2, cz = ((cluster * 0.414214 + 0.3) % 1) * TILE - TILE / 2;
-    offs[i * 3] = cx + (rnd2() - 0.5) * 900;
-    offs[i * 3 + 1] = gy + 820 + rnd2() * 520 + (i % 6) * 18;
-    offs[i * 3 + 2] = cz + (rnd2() - 0.5) * 900;
-    const sz = 380 + rnd2() * 520;
+    offs[i * 3] = cx + (rnd2() - 0.5) * TILE * 0.065;
+    offs[i * 3 + 1] = y0 + rnd2() * yr + (i % 6) * 18;
+    offs[i * 3 + 2] = cz + (rnd2() - 0.5) * TILE * 0.065;
+    const sz = s0 + rnd2() * sr;
     sizes[i * 2] = sz; sizes[i * 2 + 1] = rnd2();
   }
   geo.setAttribute('aOff', new THREE.InstancedBufferAttribute(offs, 3));
@@ -129,17 +135,17 @@ export function createFlightWorld(gy: number) {
   const cloudU = {
     uMap: { value: tex }, uCam: { value: new THREE.Vector3() }, uTile: { value: TILE },
     uLit: { value: new THREE.Color('#fff1e0') }, uShade: { value: new THREE.Color('#9aa4b8') }, uHaze: { value: new THREE.Color('#e7c7ac') },
-    uSun: { value: new THREE.Vector3(-0.6, 0.25, 0.75).normalize() }, uFog: { value: 0.00011 }, uOpacity: { value: 1 },
+    uSun: { value: new THREE.Vector3(-0.6, 0.25, 0.75).normalize() }, uFog: { value: 0.00011 }, uOpacity: { value: 1 }, uRel: { value: rel }, uFarNear: { value: rel },
   };
   const cloudM = new THREE.ShaderMaterial({
     uniforms: cloudU, transparent: true, depthWrite: false, fog: false,
     vertexShader: /* glsl */ `
-      attribute vec3 aOff; attribute vec2 aSize; uniform vec3 uCam; uniform float uTile;
+      attribute vec3 aOff; attribute vec2 aSize; uniform vec3 uCam; uniform float uTile; uniform float uRel;
       varying vec2 vUv; varying float vD; varying float vEdge; varying float vSeed; varying float vY;
       void main(){
         vec3 c = aOff;
         vec2 rel = mod(aOff.xz - uCam.xz + 0.5 * uTile, uTile) - 0.5 * uTile;
-        c.xz = uCam.xz + rel;
+        c.xz = uCam.xz + rel; c.y += uCam.y * uRel;
         vEdge = 1.0 - smoothstep(0.36, 0.5, max(abs(rel.x), abs(rel.y)) / uTile);
         vec4 mv = viewMatrix * vec4(c, 1.0);
         float rot = aSize.y * 6.283;
@@ -150,34 +156,39 @@ export function createFlightWorld(gy: number) {
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D uMap; uniform vec3 uLit, uShade, uHaze; uniform float uFog, uOpacity;
+      uniform sampler2D uMap; uniform vec3 uLit, uShade, uHaze; uniform float uFog, uOpacity, uFarNear;
       varying vec2 vUv; varying float vD; varying float vEdge; varying float vSeed; varying float vY;
       void main(){
         vec2 uv = vUv; if (vSeed > 0.5) uv.x = 1.0 - uv.x;
-        float a = texture2D(uMap, uv).r;
-        vec3 col = mix(uShade, uLit, smoothstep(-0.35, 0.4, vY));
+        float a = texture2D(uMap, uv).a * 1.6;
+        vec3 col = mix(uShade * (0.82 + 0.18 * vSeed), uLit, smoothstep(-0.42, 0.32, vY + (a - 0.5) * 0.25));
         float fogF = 1.0 - exp(-pow(vD * uFog, 1.35));
         col = mix(col, uHaze, clamp(fogF * 0.85, 0.0, 1.0));
-        float near = smoothstep(40.0, 260.0, vD);
+        float near = smoothstep(4.0, 26.0, vD) * mix(smoothstep(40.0, 260.0, vD), 1.0, step(0.5, uFarNear));
         gl_FragColor = vec4(col, a * vEdge * near * uOpacity);
         if (gl_FragColor.a < 0.004) discard;
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
   });
-  const clouds = new THREE.Mesh(geo, cloudM);
-  clouds.frustumCulled = false;
-  clouds.renderOrder = 2;
-  group.add(clouds);
+  const mesh = new THREE.Mesh(geo, cloudM);
+  mesh.frustumCulled = false; mesh.renderOrder = 2; group.add(mesh);
+  return { mesh, u: cloudU, dispose: () => { geo.dispose(); base.dispose(); cloudM.dispose(); } };
+  };
+  const clouds = makeClouds(220, 14000, gy + 820, 520, 380, 520, 0, 11);
+  // nuvens próximas na altitude da aeronave: passam rasgando quando a velocidade sobe
+  const wisps = makeClouds(70, 2600, -70, 140, 40, 90, 1, 29);
+  wisps.u.uOpacity.value = 0;
+  const cloudU = clouds.u;
 
   return {
-    group, earthU, cloudU,
+    group, earthU, cloudU, wispU: wisps.u,
     update(cam: THREE.Vector3, time: number) {
       earth.position.x = cam.x; earth.position.z = cam.z;
       earthU.uCam.value.copy(cam); earthU.uTime.value = time;
-      cloudU.uCam.value.copy(cam);
+      cloudU.uCam.value.copy(cam); wisps.u.uCam.value.copy(cam);
     },
-    dispose() { earth.geometry.dispose(); earthM.dispose(); tex.dispose(); geo.dispose(); base.dispose(); cloudM.dispose(); },
+    dispose() { earth.geometry.dispose(); earthM.dispose(); tex.dispose(); clouds.dispose(); wisps.dispose(); },
   };
 }
 export type FlightWorld = ReturnType<typeof createFlightWorld>;

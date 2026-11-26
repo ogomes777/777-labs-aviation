@@ -11,6 +11,7 @@ import { SimFlyAviationSection, SimFlyRoutesGlobe } from '@/components/SimFlyJou
 import FleetShowroom from '@/components/FleetShowroom';
 import Cursor from '@/components/Cursor';
 import FlightHud from '@/components/FlightHud';
+import FinaleGlobe from '@/components/FinaleGlobe';
 import { T, TW } from '@/i18n/T';
 import ServicesList from '@/components/ServicesList';
 import WantedList from '@/components/WantedList';
@@ -107,6 +108,7 @@ export default function Page() {
       </main>
       <svg className="route-layer" aria-hidden="true"><path id="route-path" pathLength={1} /></svg>
       <FlightHud />
+      <FinaleGlobe />
       <ConsentBar />
     </>
   );

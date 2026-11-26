@@ -20,10 +20,12 @@ export default function SimFlyHero(){
  // One opaque, viewport-fixed cloud plate covers the entire physical boundary.
  // Do not fade it out until the shared journey has taken over the whole screen.
  const tail=ramp(p,.865,.975),crossing=clamp(1-n.top/h),after=clamp(-n.top/Math.max(1,next.offsetHeight));
- const clearing=ramp(after,.005,.10);const crossingActive=n.top<=h&&n.bottom>0;
+ const crossingActive=n.top<=h&&n.bottom>0;
+ // V7: as nuvens dissolvem DURANTE a travessia (sem placa parada); a jornada já está montada por baixo
+ const clearing=Math.max(ramp(crossing,.32,.82),ramp(after,0,.02));
  const opacity=reduced.matches?0:crossingActive?1-clearing:r.bottom>0?tail:0;
- const whiten=crossingActive?mix(.12,.94,ramp(crossing,0,1)):.12*tail;
- if(cloud.current){cloud.current.style.opacity=String(opacity);cloud.current.style.visibility=opacity>.002?'visible':'hidden';cloud.current.style.setProperty('--mist',String(whiten));cloud.current.style.setProperty('--cloud-y',`${mix(9,-12,crossingActive?crossing:tail*.22)}%`);cloud.current.style.setProperty('--cloud-zoom',String(mix(1.08,1.35,crossingActive?crossing:tail*.2)));cloud.current.style.setProperty('--cloud-blue',String((1-whiten)*.12));}
+ const whiten=crossingActive?mix(.12,.5,ramp(crossing,0,.7)):.12*tail;
+ if(cloud.current){cloud.current.style.opacity=String(opacity);cloud.current.style.visibility=opacity>.002?'visible':'hidden';cloud.current.style.setProperty('--mist',String(whiten));cloud.current.style.setProperty('--cloud-y',`${mix(9,-22,crossingActive?crossing:tail*.22)}%`);cloud.current.style.setProperty('--cloud-zoom',String(mix(1.08,1.6,crossingActive?crossing:tail*.2)));cloud.current.style.setProperty('--cloud-blue',String((1-whiten)*.12));}
  if(bar.current){bar.current.style.transform=`scaleX(${p})`;bar.current.parentElement!.parentElement!.style.opacity=String(1-ramp(p,.9,.98));}
  };
  const queue=()=>{if(!disposed&&!raf)raf=requestAnimationFrame(draw);};const loaded=()=>{v.pause();queue();};const err=()=>{if(!fallback){fallback=true;fps=30;v.src='/media/simfly-hero-original.mp4';v.load();}else el.dataset.videoError='true';};

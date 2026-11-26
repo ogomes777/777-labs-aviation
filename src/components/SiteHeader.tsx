@@ -67,7 +67,7 @@ export default function SiteHeader() {
         <div className="sfh__left">
           <div className="sfh__theme" role="radiogroup" aria-label={m.header.theme}>
             <button type="button" role="radio" aria-checked={theme === 'sky'} aria-label={m.header.themeSky} className="sfh__dot sfh__dot--sky" onClick={() => setTheme('sky')} />
-            <button type="button" role="radio" aria-checked={theme === 'amber'} aria-label={m.header.themeAmber} className="sfh__dot sfh__dot--amber" onClick={() => setTheme('amber')} />
+            <button type="button" role="radio" aria-checked={theme === 'night'} aria-label={m.header.themeNight} className="sfh__dot sfh__dot--night" onClick={() => setTheme('night')} />
           </div>
           <div className="sfh__langs" role="radiogroup" aria-label={m.header.language}>
             {inline.map((l) => (
@@ -109,7 +109,10 @@ export default function SiteHeader() {
           </div>
           <nav className="sfm__nav" aria-label={m.header.nav}>
             {SECTIONS.map((s, i) => (
-              <a key={s} href={`#${s}`} onClick={(e) => go(e, `#${s}`)} aria-current={current === s ? 'true' : undefined} style={{ ['--i' as string]: i } as React.CSSProperties}>{m.nav[s]}</a>
+              <a key={s} href={`#${s}`} onClick={(e) => go(e, `#${s}`)} aria-current={current === s ? 'true' : undefined} style={{ ['--i' as string]: i } as React.CSSProperties}
+                onTouchStart={(e) => { const a = e.currentTarget; a.dataset.roll = 'true'; window.setTimeout(() => { delete a.dataset.roll; }, 900); }}>
+                <span className="sfm__dice"><span>{m.nav[s]}</span><span aria-hidden="true">{m.nav[s]}</span></span>
+              </a>
             ))}
           </nav>
           <div className="sfm__foot">

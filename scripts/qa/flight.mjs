@@ -5,11 +5,11 @@ const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsaf
 const p = await b.newPage({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.hasTouch });
 p.on('pageerror', e => console.log('PAGEERR', e.message));
 p.on('console', m => { if (m.type() === 'error') console.log('CONSOLE', m.text().slice(0, 200)); });
-await p.goto('http://localhost:7777/?qa=1&quality=balanced&perf=lock&lang=pt#frota', { waitUntil: 'networkidle' });
+await p.goto('http://localhost:7777/?qa=1&quality=balanced&perf=lock&lang=pt&flightx=5#frota', { waitUntil: 'networkidle' });
 await p.waitForTimeout(2500);
 await p.evaluate(() => { const el = document.getElementById('frota'); window.scrollTo(0, el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * 0.06); });
 await p.waitForTimeout(9000);
-await p.locator('.fcard[data-active="true"] .fcard__cta').click({ force: true });
+console.log('open'); await p.locator('.fcard[data-active="true"] .fcard__cta').click({ force: true, timeout: 15000 });
 await p.waitForTimeout(2500);
 await p.getByRole('tab', { name: 'Planta' }).click({ force: true });
 await p.waitForTimeout(1500);

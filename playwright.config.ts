@@ -10,6 +10,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['json', { outputFile: 'qa/e2e-results.json' }]],
   use: {
+    locale: 'pt-BR',
     baseURL: process.env.BASE_URL ?? `http://localhost:${PORT}`,
     trace: 'off',
     launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] },
