@@ -126,3 +126,8 @@ Feito e verificado localmente:
 - Desempenho: o WebGL pausa quando o canvas está 100% coberto (hero em vídeo, jornada/globo opacos, nuvens) — antes renderizava 3D invisível em ~1/3 da rolagem.
 
 Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo traçada de um raster de 360 px (se a SimFly enviar SVG/PNG 4K original, trocar `src/components/SimFlyLogo.tsx`).
+
+### Publicação V7 em produção
+- dpl_YAtz92xhfP4dMAFgFEk1ycCLA5Mf (commit c510c83), READY, alias 777-labs-aviation.vercel.app. Autorizado pelo usuário em 26/11 ("pode subir pra produção… não precisa me pedir").
+- Rollback: dpl_4rHiJTyJyH9LTnXKC2ucqoCQtWRt (V6, b011a5c).
+- Testes: unitários 22/22; E2E da Frota e do menu passando; falhas E2E restantes são as legadas da base V28 (canvas do globo 2D em modo reduzido, link "Explorar", timeouts de cenas cinemáticas no swiftshader).
