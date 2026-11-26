@@ -9,6 +9,7 @@ import { track } from '@/lib/analytics';
 import { usePreview } from './preview/usePreview';
 import HotspotPreview from './preview/HotspotPreview';
 import FloorPlan from './FloorPlan';
+import { nav } from './navigation';
 import { fmt as tf, useM } from '@/i18n';
 
 const SYSTEM_ORDER: SystemId[] = ['fuselagem', 'asas', 'propulsao', 'empenagem', 'trem', 'cabine', 'portas'];
@@ -135,7 +136,10 @@ export default function FleetShowroom() {
     }
     const ch = document.querySelector<HTMLElement>('[data-chapter="3"]'); if (!ch) return;
     const top = ch.getBoundingClientRect().top + scrollY, range = ch.offsetHeight - innerHeight;
-    window.scrollTo({ top: top + range * (0.1 + (t / (FLEET.length - 1)) * 0.76), behavior: 'smooth' });
+    const y = top + range * (0.1 + (t / (FLEET.length - 1)) * 0.76);
+    ui.set({ fleetIndex: t }); // card e hotspots atualizam na hora; a câmera chega em seguida
+    const lenis = nav.lenis;
+    if (lenis) lenis.scrollTo(y, { duration: 0.75 }); else window.scrollTo({ top: y, behavior: motion === 'reduced' ? 'auto' : 'smooth' });
   };
 
   const active = FLEET[index] ?? FLEET[0];

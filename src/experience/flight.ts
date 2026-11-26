@@ -4,8 +4,8 @@ import { createStore } from './store';
  * Test drive — estado compartilhado entre o loop 3D (sim) e a interface (HUD).
  * Valores contínuos vivem em objetos mutáveis (sem re-render); só as mudanças de fase passam pela store.
  */
-export type FlightPhase = 'start' | 'ready' | 'roll' | 'air' | 'approach' | 'rollout' | 'parked';
-export type FlightView = 'chase' | 'cockpit';
+export type FlightPhase = 'start' | 'ready' | 'roll' | 'air' | 'approach' | 'rollout' | 'parked' | 'crashed';
+export type FlightView = 'chase' | 'cockpit' | 'seat';
 
 export const flightUi = createStore({
   phase: 'start' as FlightPhase,
@@ -15,6 +15,10 @@ export const flightUi = createStore({
   sound: true,
   /** retrato no celular: a cena é girada para paisagem automaticamente */
   rotate: false,
+  /** queda: no chão ou na água */
+  crash: null as null | 'ground' | 'water',
+  /** nota do último pouso */
+  landing: null as null | { fpm: number; grade: 'perfect' | 'good' | 'firm' },
 });
 
 /** Comandos do piloto (-1..1). Teclado e manche escrevem aqui. */
@@ -31,6 +35,15 @@ export const flightInput = {
   lookYaw: 0,
   lookPitch: 0,
   lookAt: 0,
+  /** freio aerodinâmico (segurado) */
+  brake: false,
+  /** rampa do manche segurado (0..1) */
+  hold: 0,
+  /** zoom da câmera externa (roda do mouse / pinça) */
+  zoom: 1,
+  /** inércia do olhar 360° */
+  lookVx: 0,
+  lookVy: 0,
 };
 
 /** Telemetria para HUD e áudio. */
@@ -44,8 +57,10 @@ export const flightTel = {
   onGround: true,
   gear: true,
   piston: false,
+  pitch: 0,
+  roll: 0,
 };
 
 export function resetFlightInput() {
-  Object.assign(flightInput, { pitch: 0, roll: 0, throttle: 0, takeoff: false, land: false, restart: false, lookYaw: 0, lookPitch: 0, lookAt: 0 });
+  Object.assign(flightInput, { pitch: 0, roll: 0, throttle: 0, takeoff: false, land: false, restart: false, lookYaw: 0, lookPitch: 0, lookAt: 0, brake: false, hold: 0, zoom: 1, lookVx: 0, lookVy: 0 });
 }

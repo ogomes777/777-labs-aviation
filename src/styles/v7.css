@@ -441,3 +441,37 @@ html[data-theme='dusk'] .simfly-cloud-bridge::after { content: ''; position: abs
 /* kickers da cabine: visíveis sobre o creme (antes quase brancos e sumiam) */
 .sf27-cinema-line > span { display: block !important; color: #ffffff !important; font-weight: 600 !important; letter-spacing: .3em !important; margin-bottom: .45em; font-size: clamp(11px, 1vw, 14px) !important;
   text-shadow: 0 1px 2px rgba(8, 24, 48, .55), 0 0 18px rgba(8, 24, 48, .45); }
+
+/* planta: leitura de scanner/raio-X (varredura azul contínua, sem poluir) */
+.fplan { position: relative; overflow: hidden; }
+.fplan::after { content: ''; position: absolute; top: 0; bottom: 0; width: 22%; left: -25%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(var(--sf-accent-rgb), .10) 40%, rgba(190, 228, 255, .32) 50%, rgba(var(--sf-accent-rgb), .10) 60%, transparent);
+  mix-blend-mode: screen; animation: fplanScan 3.6s cubic-bezier(.45, 0, .55, 1) infinite; }
+@keyframes fplanScan { 0% { left: -25%; } 100% { left: 105%; } }
+.fplan svg { filter: drop-shadow(0 0 6px rgba(var(--sf-accent-rgb), .35)); }
+@media (prefers-reduced-motion: reduce) { .fplan::after { animation: none; display: none; } }
+
+/* test drive V8: acelerador/freio no toque, nota do pouso, queda */
+.sf-flight__pad { position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: 96px; display: none; flex-direction: column; gap: 8px; }
+.sf-flight__pad button { width: 54px; height: 54px; border-radius: 50%; font: 300 1.6rem/1 var(--font-sans); color: #fff; cursor: pointer; touch-action: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06)); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.sf-flight__pad .sf-flight__brake { font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; }
+@media (pointer: coarse) { .sf-flight__pad { display: flex; } .sf-flight__inst { bottom: max(16px, env(safe-area-inset-bottom)); right: 86px; } }
+.sf-flight__toast { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px; padding: 14px 26px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06)); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); animation: sfFlightIn 500ms both; pointer-events: none; }
+.sf-flight__toast b { font: italic 400 1.6rem/1 var(--font-serif); }
+.sf-flight__toast span { font-size: .7rem; letter-spacing: .16em; opacity: .8; }
+.sf-flight__crash { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 18px; text-align: center; z-index: 5;
+  background: radial-gradient(60% 60% at 50% 50%, rgba(8, 10, 18, .55), rgba(8, 10, 18, .82)); animation: sfFlightIn 600ms both; }
+.sf-flight__crash svg { width: 74px; height: 74px; color: #f2f5fa; filter: drop-shadow(0 0 18px rgba(255, 90, 80, .45)); animation: sfSkull 1.6s ease-in-out infinite; }
+@keyframes sfSkull { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.sf-flight__crash strong { font: 400 clamp(1.6rem, 3.4vw, 2.6rem)/1.1 var(--font-serif); color: #fff; }
+.sf-flight__crash div { display: flex; gap: 10px; }
+.sf-flight__crash button { height: 48px; padding: 0 24px; border-radius: 999px; cursor: pointer; color: #fff; font: 500 .66rem/1 var(--font-sans); letter-spacing: .2em; text-transform: uppercase;
+  background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.06)); border: 1px solid rgba(255,255,255,.34); }
+.sf-flight__crash button:first-child { background: linear-gradient(180deg, rgba(var(--sf-accent-rgb), .7), rgba(var(--sf-accent-rgb), .35)); }
+@media (prefers-reduced-motion: reduce) { .sf-flight__crash svg { animation: none; } }
+.fplan__seat { pointer-events: auto !important; cursor: pointer; }
+.fplan__seat rect { transition: fill 200ms, stroke 200ms; }
+.fplan__seat:hover rect, .fplan__seat:focus-visible rect { stroke: rgba(var(--sf-accent-rgb), 1); }
+.fplan__seat[data-on='true'] rect { fill: rgba(var(--sf-accent-rgb), .55); stroke: #e8f6ff; }

@@ -3,6 +3,7 @@ import type { FleetId } from '@/content/fleet';
 import { FLEET_SPECS } from '@/three/fleet/specs';
 import { FLEET } from '@/content/fleet';
 import { fmt as tf, useM } from '@/i18n';
+import { ui } from '@/experience/director';
 
 /**
  * Planta técnica 2D (vista superior, nariz à esquerda), no estilo de planta arquitetônica.
@@ -12,7 +13,9 @@ import { fmt as tf, useM } from '@/i18n';
 const fmt = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function FloorPlan({ id }: { id: FleetId }) {
-  const P = useM().fleet.plan2d;
+  const M = useM(); const P = M.fleet.plan2d;
+  const seat = ui.useStore((st) => st.seat);
+  const pickSeat = (i: number) => ui.set({ seat: seat === i ? null : i });
   const s = FLEET_SPECS[id];
   const name = FLEET.find((f) => f.id === id)?.name ?? id;
   const prop = s.nose === 'prop';
@@ -63,7 +66,8 @@ export default function FloorPlan({ id }: { id: FleetId }) {
         {s.cabin.seats.map((st, i) => {
           const z = st.side * (prop ? R * 0.4 : R * 0.5);
           return (
-            <g key={i} className="fplan__seat" style={{ ['--i' as string]: i } as React.CSSProperties}>
+            <g key={i} className="fplan__seat" data-on={seat === i} role="button" tabIndex={0} aria-pressed={seat === i} aria-label={tf(P.seat, { n: i + 1 })}
+              onClick={() => pickSeat(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickSeat(i); } }} style={{ ['--i' as string]: i } as React.CSSProperties}>
               <rect x={st.d - seatW / 2} y={z - seatW / 2} width={seatW} height={seatW} rx={0.1} />
               <line x1={st.d + (st.facing === 1 ? -1 : 1) * (seatW / 2 - 0.08)} x2={st.d + (st.facing === 1 ? -1 : 1) * (seatW / 2 - 0.08)} y1={z - seatW / 2 + 0.06} y2={z + seatW / 2 - 0.06} className="fplan__back" />
             </g>
@@ -77,7 +81,7 @@ export default function FloorPlan({ id }: { id: FleetId }) {
           {embraer && <><line x1={c0 + 0.32} x2={c0 + 0.32} y1={-1.04} y2={1.04} /><line x1={c0 + 0.2} x2={c0 + 0.44} y1={-1.04} y2={-1.04} /><line x1={c0 + 0.2} x2={c0 + 0.44} y1={1.04} y2={1.04} /><text x={(c0 + c1) / 2} y={-R - 0.45} className="fplan__label fplan__label--sm">{P.width}</text></>}
         </g>
       </svg>
-      <figcaption id="fplan-cap">{tf(P.caption, { n: s.cabin.seats.length })}</figcaption>
+      <figcaption id="fplan-cap">{seat !== null ? tf(M.flight.seatChosen, { n: String(seat + 1).padStart(2, '0') }) : M.flight.seatPick}<br />{tf(P.caption, { n: s.cabin.seats.length })}</figcaption>
     </figure>
   );
 }

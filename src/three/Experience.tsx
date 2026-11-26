@@ -254,7 +254,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     return t;
   }, []);
   useEffect(() => () => apronTex.dispose(), [apronTex]);
-  const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
+  const perfMon = useRef({ bad: 0, acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
   const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, fleetCamX: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true }), []);
@@ -281,7 +281,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const fps = pm.n / pm.acc; pm.acc = 0; pm.n = 0;
         const lvl = ui.get().perf;
         pm.cool -= 1.2;
-        if (fps < 42 && lvl > 0 && pm.cool <= 0) { ui.set({ perf: lvl - 1 }); pm.cool = 3.5; pm.good = 0; }
+        pm.bad = fps < 40 ? (pm.bad ?? 0) + 1 : 0;
+        // só reduz a resolução com FPS baixo sustentado (3 janelas seguidas ≈ 3,6 s) — sem quedas súbitas de qualidade
+        if (((pm.bad ?? 0) >= 3 || fps < 22) && lvl > 1 && pm.cool <= 0) { ui.set({ perf: lvl - 1 }); pm.cool = 6; pm.good = 0; pm.bad = 0; }
         else if (fps > 57) { pm.good += 1.2; if (pm.good > 8 && lvl < pm.max && pm.cool <= 0) { ui.set({ perf: lvl + 1 }); pm.cool = 6; pm.good = 0; } }
         else pm.good = 0;
       }
@@ -697,7 +699,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const target = st.inspect && !st.assembled ? 1 : 0;
     const prevP = inspectP.current;
     inspectP.current = clamp(prevP + Math.sign(target - prevP) * dt / (st.motion === 'reduced' ? 0.25 : 2.0));
-    const xrT = inFleet && st.inspect && st.fleetXray && st.inspectMode === 'parts' ? 1 : 0;
+    const xrT = !st.flight && inFleet && st.inspect && ((st.fleetXray && st.inspectMode === 'parts') || st.inspectMode === 'plan') ? 1 : 0; // planta = raio-X; nunca em voo
     tmp.xray = xrT === 0 && tmp.xray < 0.004 ? 0 : damp(tmp.xray, xrT, st.motion === 'reduced' ? 40 : 1.9, Math.min(rawDt, 0.1));
     if (inFleet || prevP > 0) {
       crafts.current.forEach((c) => {
@@ -711,12 +713,12 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const tx = FLEET[k].x + side * 6 * (1 - w);
         const tz = THREE.MathUtils.lerp(ROW_Z + (st.inspect ? 10 : 2.5), FRONT_Z, w);
         const tyaw = st.inspect ? 0 : 0.42 * w;
-        const lam = st.motion === 'reduced' ? 40 : 3.2;
+        const lam = st.motion === 'reduced' ? 40 : 5.2;
         const rdt = Math.min(rawDt, 0.25); // tempo real: a coreografia não desacelera em aparelhos lentos
         c.group.position.x = damp(c.group.position.x, tx, lam, rdt);
         c.group.position.z = damp(c.group.position.z, tz, lam, rdt);
         c.group.rotation.y = damp(c.group.rotation.y, tyaw, lam, rdt);
-        c.setFade(st.flight ? 1 : st.inspect ? (c.id === st.inspect ? 1 : 0.22) : 0.6 + 0.4 * w);
+        c.setFade(st.flight ? 1 : st.inspect ? (c.id === st.inspect ? 1 : 0.22) : 0.7 + 0.3 * w);
         if (c.halo) (c.halo.material as THREE.MeshBasicMaterial).opacity = (st.inspect || st.flight ? 0 : 1) * w * w * (0.85 + 0.15 * Math.sin(time * 1.6));
         c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
         c.focusPart(c.id === st.inspect && st.inspectMode === 'parts' && st.inspectSystem ? st.inspectPart : null);
@@ -727,9 +729,11 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- V6: hotspots da aeronave ativa (pré-seleção) projetados no DOM -----
     const hl = domRefs.fleetHotLayer;
     if (hl) {
-      const settled = Math.abs(tmp.fleetIdx - Math.round(tmp.fleetIdx)) < 0.09;
+      const settled = Math.abs(tmp.fleetIdx - Math.round(tmp.fleetIdx)) < 0.035;
+      const fsec = document.getElementById('frota'); const fr2 = fsec?.getBoundingClientRect();
+      const fleetOnScreen = !!fr2 && fr2.top <= 2 && fr2.bottom >= size.height - 2 && !st.flight && Number(document.documentElement.style.getPropertyValue('--fleet-out') || 0) < 0.05;
       const tgt = st.inspect ? crafts.current.find((c) => c.id === st.inspect) : settled ? crafts.current.find((c) => c.id === FLEET[Math.round(clamp(tmp.fleetIdx, 0, FLEET.length - 1))].id) : undefined;
-      const show = !!tgt && inFleet && (st.inspect ? st.inspectMode === 'parts' && !st.inspectSystem && tmp.viewW > 0.85 && inspectP.current < 0.02 : tmp.viewW < 0.05 && ramp(raw - 3, 0.0, 0.1) > 0.98);
+      const show = !!tgt && inFleet && fleetOnScreen && (st.inspect ? st.inspectMode === 'parts' && !st.inspectSystem && tmp.viewW > 0.85 && inspectP.current < 0.02 : tmp.viewW < 0.05 && ramp(raw - 3, 0.0, 0.1) > 0.98);
       hl.dataset.visible = show ? 'true' : 'false';
       if (show && tgt) {
         hl.dataset.aircraft = tgt.id;
@@ -843,6 +847,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         sim.stop();
         flightHidden.current?.forEach((o) => { o.visible = true; }); flightHidden.current = null;
         flightWorld.group.visible = false;
+        env.sea.mesh.visible = true; env.puffs.mesh.visible = true;
       }
       if (sim.id && craft) {
         // celular em pé: a câmera gira 90° com lente de paisagem (o canvas não é girado — medição e custo intactos)
@@ -850,15 +855,15 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const portrait = size.width < size.height && !rot;
         const fx2 = Number(new URLSearchParams(location.search).get('flightx')) || 1;
         const sdt = Math.min(rawDt, 0.1) * fx2; const n = Math.ceil(sdt / 0.05);
-        for (let i = 0; i < n; i++) sim.step(sdt / n, time, env.gy, portrait);
-        cam.position.copy(sim.eye); cam.lookAt(sim.target);
+        for (let i = 0; i < n; i++) sim.step(sdt / n, time, env.gy, portrait, st.seat);
+        cam.position.copy(sim.eye); cam.up.copy(sim.camUp); cam.lookAt(sim.target); cam.up.set(0, 1, 0);
         // sensação de velocidade: lente abre com a velocidade, trepidação na pista e na camada de nuvens
         const vk = clamp(sim.V / sim.vmax, 0, 1);
         const agl = sim.pos.y - env.gy;
         const inCloud = clamp(1 - Math.abs(agl - 1080) / 320, 0, 1);
         const shake = (sim.phase === 'roll' || sim.phase === 'rollout' ? 0.0022 * vk : 0) + 0.0016 * inCloud * vk + 0.0005 * vk * vk;
         if (st.motion !== 'reduced' && shake > 0) { cam.rotateX(Math.sin(time * 31.7) * shake + Math.sin(time * 17.3) * shake * 0.6); cam.rotateY(Math.sin(time * 23.1 + 1.3) * shake * 0.7); }
-        const baseFov = flightUi.get().view === 'cockpit' ? 64 : portrait ? 58 : 46;
+        const vw = flightUi.get().view; const baseFov = vw === 'seat' ? 70 : vw === 'cockpit' ? 64 : portrait ? 58 : 46;
         let wantFov = Math.round((baseFov + vk * vk * 9) * 10) / 10;
         if (rot) {
           // fov vertical do canvas em pé = fov horizontal da paisagem equivalente
@@ -866,7 +871,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           wantFov = Math.round(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(wantFov) / 2) * land)) * 10) / 10;
           cam.rotateZ(Math.PI / 2);
         }
-        if (Math.abs(cam.fov - wantFov) > 0.01 || cam.near !== 0.5 || cam.far !== 60000) { cam.fov = wantFov; cam.near = 0.5; cam.far = 60000; cam.updateProjectionMatrix(); }
+        const wantNearF = sim.inside ? 0.04 : 0.5;
+        if (Math.abs(cam.fov - wantFov) > 0.01 || cam.near !== wantNearF || cam.far !== 60000) { cam.fov = wantFov; cam.near = wantNearF; cam.far = 60000; cam.updateProjectionMatrix(); }
         focus.copy(sim.target);
         // cena: aeródromo da Frota + mundo do voo + o céu da janela da cabine (cúpula e mar de nuvens)
         lineup.visible = true; life.group.visible = true; env.hangar.group.visible = true;
@@ -875,7 +881,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         flightWorld.group.visible = true;
         flightWorld.update(cam.position, time);
         const pal = lerpPalette(SKY_PALETTES.dawn, SKY_PALETTES.dusk, 0.55, tmp.pal);
-        env.skyGroup.visible = true;
+        env.skyGroup.visible = false; // o voo usa o céu atmosférico próprio (world.ts)
         const su = env.sky.uniforms, cu = env.sea.uniforms;
         su.uZenith.value.copy(pal.zenith); su.uHorizon.value.copy(pal.horizon); su.uGlow.value.copy(pal.glow); su.uBelow.value.copy(pal.haze); su.uOpacity.value = 1;
         su.uSun.value.copy(lights.sun.position).normalize();
@@ -883,21 +889,23 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         cu.uLit.value.copy(pal.lit); cu.uShade.value.copy(pal.shade); cu.uDeep.value.copy(pal.deep); cu.uHaze.value.copy(pal.haze);
         cu.uOpacity.value = 1; cu.uCinemaOcean.value = 0; cu.uTime.value = time; cu.uCam.value.copy(cam.position);
         // mar de nuvens acima de ~1.300 m: abaixo dele o céu fica aberto e o chão visível
-        env.sea.mesh.position.set(cam.position.x, env.gy + 1300, cam.position.z);
-        env.sea.mesh.visible = cam.position.y > env.gy + 1240;
+        env.sea.mesh.visible = false; // o mar de nuvens 'estalava' ao subir — o voo usa só nuvens volumétricas
         env.puffs.mesh.visible = false;
+        const sk = flightWorld.skyU;
+        sk.uSun.value.copy(lights.sun.position).normalize();
+        sk.uZenith.value.set('#1d4a96'); sk.uHorizon.value.set('#c9dcf0'); sk.uHaze.value.copy(pal.haze).lerp(C('#dfe8f2'), 0.45); sk.uSunCol.value.set('#fff0d4');
         const fu = flightWorld.earthU, ku = flightWorld.cloudU;
         fu.uSun.value.copy(su.uSun.value); ku.uSun.value.copy(su.uSun.value);
-        fu.uHaze.value.copy(pal.haze); ku.uHaze.value.copy(pal.haze); fu.uSky.value.copy(pal.zenith).lerp(pal.horizon, 0.4);
-        ku.uLit.value.copy(pal.lit); ku.uShade.value.copy(pal.shade);
+        fu.uHaze.value.copy(sk.uHaze.value); ku.uHaze.value.copy(sk.uHaze.value); fu.uSky.value.set('#5d86c4');
+        ku.uLit.value.set('#fffaf2'); ku.uShade.value.set('#8d9bb2');
         const fog = scene.fog as THREE.FogExp2;
-        fog.color.copy(pal.haze); fog.density = 0.00016;
-        (scene.background as THREE.Color).copy(pal.horizon);
+        fog.color.copy(sk.uHaze.value); fog.density = 0.00012;
+        (scene.background as THREE.Color).set('#c9dcf0');
         lights.sun.intensity = 2.5; lights.hemi.intensity = 0.62; lights.key.intensity = 0; lights.rim.intensity = 0.8;
         if (fx.dof) fx.dof.bokehScale = 0;
         if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' ? 0 : 0.0032 * vk * vk;
         flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.45) / 0.4, 0, 1) * 0.9 * (agl > 60 ? 1 : 0) : 0;
-        flightWorld.wispU.uLit.value.copy(pal.lit); flightWorld.wispU.uShade.value.copy(pal.shade); flightWorld.wispU.uHaze.value.copy(pal.haze);
+        flightWorld.wispU.uLit.value.set('#fffaf2'); flightWorld.wispU.uShade.value.set('#9aa7bc'); flightWorld.wispU.uHaze.value.copy(sk.uHaze.value); flightWorld.wispU.uSun.value.copy(sk.uSun.value);
       }
     }
     if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown }).__777env = { ...env, gl }; }

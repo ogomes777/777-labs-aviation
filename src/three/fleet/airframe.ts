@@ -743,7 +743,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
       m.opacity = b0.op * k;
       const t = b0.tr || k < 0.999;
       if (m.transparent !== t) { m.transparent = t; m.needsUpdate = true; }
-      if (!b0.tr) m.depthWrite = k > 0.6;
+      if (!b0.tr) m.depthWrite = k > 0.35; // longe de 0,6 (fade dos não escolhidos): sem alternar a cada quadro → sem pisca
     });
   };
   const setXray = (amount: number) => {
