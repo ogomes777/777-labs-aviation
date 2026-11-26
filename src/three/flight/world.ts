@@ -91,7 +91,7 @@ export function createFlightWorld(gy: number) {
         vec2 wd = normalize(vec2(1.0, 0.35)); mat2 wr = mat2(wd.x, wd.y, -wd.y, wd.x);
         vec2 pw = wr * p;
         vec2 w1 = vec2(noise(pw * vec2(0.018, 0.05) + uTime * vec2(0.09, 0.0)), noise(pw * vec2(0.022, 0.06) - uTime * vec2(0.07, 0.01) + 9.0)) - 0.5;
-        g += (wr * w1) * 0.16 * (1.0 - smoothstep(3.0, 18.0, px));
+        g += (wr * w1) * 0.1 * (1.0 - smoothstep(3.0, 18.0, px));
         vec2 rip = vec2(noise(pw * vec2(0.16, 0.42) + uTime * 0.6), noise(pw * vec2(0.19, 0.5) - uTime * 0.5 + 7.0)) - 0.5;
         g += (wr * rip) * 0.12 * micro;
         // ondas não resolvidas viram rugosidade (como numa foto aérea): o reflexo do sol se espalha numa trilha de brilho
@@ -104,12 +104,12 @@ export function createFlightWorld(gy: number) {
         // reflexo do céu com nuvens grandes e suaves (variação de cor em grande escala)
         float cl = smoothstep(0.45, 0.8, fbm(p * 0.00025 + uTime * 0.002));
         vec3 skyR = mix(uHaze * 1.05, uSky, smoothstep(0.0, 0.45, R.y));
-        skyR = mix(skyR, vec3(0.92, 0.94, 0.97), cl * 0.35 * smoothstep(0.05, 0.5, R.y));
+        skyR = mix(skyR, vec3(0.92, 0.94, 0.97), cl * 0.16 * smoothstep(0.05, 0.5, R.y));
         float depth = smoothstep(0.0, 900.0, shore);
         vec3 body = mix(uShallow * 1.15, uDeep * 0.85, depth);
         // manchas de vento (slicks) e correntes: tom da água varia em quilômetros
         float slick = fbm(pw * vec2(0.0006, 0.0018) + 4.0);
-        body *= 0.86 + 0.28 * slick;
+        body *= 0.93 + 0.14 * slick;
         body = mix(body, uShallow * 1.6, smoothstep(220.0, 0.0, shore) * 0.55); // água rasa clara junto à praia
         body += uShallow * 0.22 * max(dot(N.xz, normalize(uSun.xz)), 0.0) * (1.0 - depth * 0.6);
         vec3 water = mix(body, skyR, fres);

@@ -305,7 +305,7 @@ export class FlightSim {
       if (IN.brake) acc -= 14; // freio aerodinâmico (spoilers)
       this.V = clamp(this.V + acc * dt, P.vr * 0.55, vTop * 1.12);
       // trem
-      if (this.gear && agl() > 35 && this.phase === 'air' && this.fwd.y > 0) this.gear = false;
+      if (this.gear && agl() > 30 && this.phase === 'air' && this.fwd.y > -0.03) this.gear = false; // positivo de subida: recolhe
       if (!this.gear && agl() < 90 && this.V < P.vapp * 1.3 && this.fwd.y < 0.05) this.gear = true;
     } else if (onGround) {
       this.roll = damp(this.roll, 0, 4, dt);

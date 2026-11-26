@@ -211,16 +211,19 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
   };
   seedN = 3 + s.R * 1000;
   const clip = opts.clip ?? null;
-  const std = (p: THREE.MeshPhysicalMaterialParameters) => { const m = tr(new THREE.MeshPhysicalMaterial(p)); if (clip) m.clippingPlanes = clip; return m; };
+  // por dentro, o sol não ilumina tudo (sem sombras): luz direta atenuada, interior vive de luz indireta e das sancas
+  const INSIDE = '#include <lights_fragment_end>\n reflectedLight.directDiffuse *= 0.16; reflectedLight.directSpecular *= 0.2; reflectedLight.indirectSpecular *= 0.55;';
+  const dim = (m: THREE.Material) => { if (opts.lux) m.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_end>', INSIDE); }; return m; };
+  const std = (p: THREE.MeshPhysicalMaterialParameters) => { const m = tr(new THREE.MeshPhysicalMaterial(p)); if (clip) m.clippingPlanes = clip; return dim(m) as THREE.MeshPhysicalMaterial; };
   const wTex = opts.lux ? tr(walnutTex()) : null, mTex = opts.lux ? tr(marbleTex()) : null, cTex = opts.lux ? tr(carpetTex()) : null;
   const M = {
     leather: std({ color: '#cdb594', roughness: 0.48, sheen: 0.6, sheenColor: new THREE.Color('#f3dfc2'), sheenRoughness: 0.55 }),
     crew: std({ color: '#2b2928', roughness: 0.55, sheen: 0.4, sheenColor: new THREE.Color('#8a8580') }),
-    trim: std({ color: '#c9ccd0', roughness: 0.16, metalness: 1 }),
-    walnut: std({ color: wTex ? '#ffffff' : '#5a3a26', map: wTex, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.08 }),
+    trim: std({ color: '#d9d3c9', roughness: 0.3, metalness: 0.7, envMapIntensity: 0.35 }),
+    walnut: std({ color: wTex ? '#ffffff' : '#5a3a26', map: wTex, roughness: 0.34, clearcoat: 0.8, clearcoatRoughness: 0.12, envMapIntensity: 0.4 }),
     marble: std({ color: mTex ? '#ffffff' : '#ece8e1', map: mTex, roughness: 0.18, clearcoat: 0.6 }),
     carpet: std({ color: cTex ? '#ffffff' : '#857766', map: cTex, roughness: 0.96 }),
-    lining: std({ color: '#f2ede5', roughness: 0.86, emissive: new THREE.Color('#2a2118'), emissiveIntensity: opts.lux ? 0.55 : 0, side: THREE.DoubleSide }),
+    lining: std({ color: '#f2ede5', roughness: 0.86, emissive: new THREE.Color('#3a2e22'), emissiveIntensity: opts.lux ? 0.9 : 0, side: THREE.DoubleSide }),
     led: std({ color: '#fff3dc', emissive: new THREE.Color('#ffe2b0'), emissiveIntensity: 2.4, roughness: 0.4 }),
     panel: std({ color: '#1b1e22', roughness: 0.6, metalness: 0.3 }),
     suede: std({ color: '#121315', roughness: 0.95 }),
@@ -256,7 +259,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       sh.uniforms.uGeo = { value: new THREE.Vector4(L / 2, s.R - inset, wsD1, shell0) };
       sh.uniforms.uCab = { value: new THREE.Vector2(C.start, prop ? 1 : 0) };
       sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vLoc;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvLoc = position;');
-      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+      sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_end>', INSIDE).replace('#include <common>', `#include <common>
         varying vec3 vLoc; uniform vec4 uWin; uniform vec2 uWinS; uniform vec4 uGeo; uniform vec2 uCab;
         float rbox(vec2 p, vec2 b, float r){ vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }`)
         .replace('#include <color_fragment>', `#include <color_fragment>
@@ -289,6 +292,16 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       const strip = new THREE.BoxGeometry(Math.max(0.1, shell1 - C.start - 0.25), 0.012, 0.035);
       const m = mesh(strip, M.led, 'led'); m.position.set(fx((C.start + shell1) / 2), y, sd * zz);
     }
+  }
+
+  // antepara traseira (cabines sem toalete, ex. Matrix: divisória do bagageiro traseiro)
+  if (opts.lux && !lav) {
+    const d = shell1; const p = f.profile(d); const cy = (p.top + p.bot) / 2, ry = (p.top - p.bot) / 2 - inset;
+    const t0 = Math.asin(Math.max(-0.98, Math.min(0.98, (floorY - cy) / ry)));
+    const pts: THREE.Vector2[] = []; for (let j = 0; j <= 40; j++) { const th = t0 + ((Math.PI - 2 * t0) * j) / 40; const q = f.point(d, th, inset - 0.01); pts.push(new THREE.Vector2(q.z, q.y)); }
+    const g = new THREE.ShapeGeometry(new THREE.Shape(pts), 8); g.rotateY(Math.PI / 2); g.translate(fx(d), 0, 0);
+    mesh(g, M.lining, 'bulkhead');
+    const net = mesh(box(0.02, 0.5, wallZ(d, floorY + 0.4) * 1.6, 0.01), M.suede, 'bulkhead'); net.position.set(fx(d) + 0.02, floorY + 0.35, 0);
   }
 
   // ---------- piso ----------
@@ -359,7 +372,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       for (let j = 0; j <= 40; j++) { const th = t0 + ((Math.PI - 2 * t0) * j) / 40; const q = f.point(d, th, inset - 0.01); pts.push(new THREE.Vector2(q.z, q.y)); }
       const shape = new THREE.Shape(pts);
       const dw = prop ? 0.5 : s.R < 1 ? 0.56 : 0.66, dh = Math.min(1.75, (p.top - inset) - floorY - 0.12);
-      const hole = new THREE.Path(); hole.moveTo(-dw / 2, floorY); hole.lineTo(dw / 2, floorY); hole.lineTo(dw / 2, floorY + dh); hole.lineTo(-dw / 2, floorY + dh); hole.closePath(); shape.holes.push(hole);
+      // antepara fechada (a porta de correr é um painel à frente dela): nada atravessa para fora da cabine
       const g = new THREE.ShapeGeometry(shape, 8); g.rotateY(Math.PI / 2); g.translate(fx(d), 0, 0);
       const wall = mesh(g, M.lining, 'lavatory');
       void wall;
@@ -445,7 +458,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     // painéis de botões (piloto automático no glareshield, inferiores, pedestal) — arranjo por suíte
     if (opts.lux) {
       const suite = cp.suite.includes('Fusion') ? 'fusion' : cp.suite.includes('21') ? 'pl21' : 'g1000';
-      const tm = (t: THREE.Texture) => tr(new THREE.MeshStandardMaterial({ map: t, roughness: 0.55, metalness: 0.2, emissive: new THREE.Color('#ffffff'), emissiveMap: t, emissiveIntensity: 0.32 }));
+      const tm = (t: THREE.Texture) => dim(tr(new THREE.MeshStandardMaterial({ map: t, roughness: 0.55, metalness: 0.2, emissive: new THREE.Color('#ffffff'), emissiveMap: t, emissiveIntensity: 0.32 })));
       const fgp = tr(switchPanelTex('fgp', suite)), low = tr(switchPanelTex('lower', suite)), pedT = tr(switchPanelTex('pedestal', suite));
       const fg = new THREE.PlaneGeometry(pw * 0.62, pw * 0.62 / 8); fg.rotateY(-Math.PI / 2); fg.rotateZ(-0.5);
       const fm = mesh(fg, tm(fgp), 'panel', ck); fm.position.set(fx(panelD) - 0.2, py + ph / 2 + 0.065, 0);
@@ -458,7 +471,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       // standby e luzes de alerta principais
       for (const side of [-1, 1]) { const ma = mesh(box(0.012, 0.03, 0.05, 0.004), M.led, 'panel', ck); ma.position.set(fx(panelD) - 0.21, py + ph / 2 + 0.03, side * Math.abs(pilotZ) * 0.9); }
       // HUD do piloto (Embraer: HGS-3500 + EVS, opcional) — vidro combinador
-      if (cp.control === 'sidestick') { const hg = new THREE.PlaneGeometry(0.16, 0.12); hg.rotateY(-Math.PI / 2); const hm = new THREE.Mesh(tr(hg), tr(new THREE.MeshBasicMaterial({ color: '#7dffb0', transparent: true, opacity: 0.08, depthWrite: false }))); hm.name = 'panel'; hm.position.set(pilotEye.x + 0.28, pilotEye.y + 0.02, pilotZ); ck.add(hm); }
+      if (cp.control === 'sidestick') { const hg = new THREE.PlaneGeometry(0.16, 0.12); hg.rotateY(-Math.PI / 2); const hm = new THREE.Mesh(tr(hg), tr(new THREE.MeshBasicMaterial({ color: '#9dffc4', transparent: true, opacity: 0.025, depthWrite: false }))); hm.name = 'panel'; hm.position.set(pilotEye.x + 0.28, pilotEye.y + 0.02, pilotZ); ck.add(hm); }
       // manete de flaps e speedbrake (jatos)
       if (!prop) { const fl = mesh(box(0.05, 0.08, 0.025, 0.008), M.trim, 'panel', ck); fl.position.set(fx(panelD) - 0.48, floorY + 0.68, 0.11); const sb = mesh(box(0.04, 0.06, 0.02, 0.008), M.suede, 'panel', ck); sb.position.set(fx(panelD) - 0.48, floorY + 0.68, -0.11); }
     }
@@ -509,13 +522,13 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     }
   }
   // primeira pessoa: em pé onde a cabine permite (Embraer 1,83 m; CJ2+ 1,45 m curvado; Matrix 1,19 m agachado)
-  const eyeY = floorY + (prop ? 0.95 : s.R < 1 ? 1.3 : 1.6);
+  const eyeY = floorY + (prop ? 0.92 : s.R < 1 ? 1.2 : 1.5);
   const wd0 = prop ? C.start + 0.85 : crewD + 0.2, wd1 = (lav ? lav.d0 : C.end) - 0.28;
   const walk = {
     eyeY,
     clamp: (q: THREE.Vector3) => {
       const d = Math.min(wd1, Math.max(wd0, L / 2 - q.x));
-      const hw = Math.max(0.05, wallZ(d, eyeY - 0.35) - 0.3);
+      const hw = Math.max(0.04, Math.min(wallZ(d, eyeY + 0.1) - 0.12, wallZ(d, eyeY - 0.35) - 0.3)); // a cabeça não atravessa a curva do teto
       q.x = L / 2 - d; q.z = Math.max(-hw, Math.min(hw, q.z)); q.y = eyeY;
       return q;
     },
