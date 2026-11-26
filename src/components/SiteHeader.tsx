@@ -84,12 +84,11 @@ export default function SiteHeader() {
 
         <a href="#top" className="sfh__brand" onClick={(e) => go(e, '#top')} aria-label={m.meta.home}>
           <span className="sfh__logo3d"><SimFlyLogo className="sfh__logo" gradient /></span>
-          <span className="sfh__orbit" aria-hidden="true"><span className="sfh__jet"><img src="/media/simfly-plane-cutout.png" alt="" width={84} height={26} decoding="async" /></span></span>
         </a>
 
         <div className="sfh__right">
           <a className="sfh__wa" href={wa} target="_blank" rel="noopener noreferrer" aria-label={m.header.contact} title={m.header.contact} onClick={() => track('contact_click', { from: 'header-wa' })}>
-            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M28.5 4.2 3.6 14.1c-.8.3-.8 1.4 0 1.7l7.3 2.7 2.7 8.2c.3.8 1.3.9 1.8.2l3.6-4.9 6.6 4.8c.6.4 1.4.1 1.6-.6l3.7-20.6c.2-.9-.6-1.6-1.4-1.4Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /><path d="m10.9 18.5 13.4-9.6-9.5 11.6-1.2 5.9" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" /></svg>
+            <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="7.5" width="24" height="17" rx="2.6" fill="none" stroke="currentColor" strokeWidth="1.4" /><path d="m5 9 11 8.2L27 9" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" /></svg>
           </a>
           <button ref={menuBtn} type="button" className="sfh__burger" aria-haspopup="dialog" aria-expanded={menu} aria-label={m.header.menu} onClick={() => setMenu(true)}><i /><i /></button>
         </div>

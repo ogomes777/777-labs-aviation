@@ -412,3 +412,29 @@ dialog.sfm::after { content: ''; position: fixed; inset: 0; pointer-events: none
 .sfm__inner { position: relative; z-index: 1; }
 .sfm__nav a { text-shadow: 0 2px 30px color-mix(in srgb, var(--sf-night) 80%, transparent); }
 dialog.sfm::after { z-index: 0; }
+
+/* =================== Header V7.3: barra azul sólida, ponta a ponta, sem borda =================== */
+.sfh { padding: 0 !important; color: #f4f8ff !important; --fg: #f4f8ff !important; }
+.sfh__bar { max-width: none !important; border-radius: 0 !important; height: 64px !important; padding: env(safe-area-inset-top) clamp(14px, 3vw, 44px) 0 !important; box-sizing: content-box;
+  background: linear-gradient(180deg, #0d2a5c 0%, #0a2250 55%, #081c43 100%) !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 12px 34px -16px rgba(2, 10, 28, .7) !important; }
+.sfh__bar::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; top: auto !important; height: 1px; padding: 0 !important; border-radius: 0 !important; -webkit-mask: none !important; mask: none !important;
+  background: linear-gradient(90deg, transparent, rgba(150, 196, 255, .35) 30%, rgba(214, 233, 255, .55) 50%, rgba(150, 196, 255, .35) 70%, transparent) !important; opacity: .55; }
+.sfh__bar::before { background: radial-gradient(60% 160% at 50% -30%, rgba(120, 175, 255, .22), transparent 70%) !important; border-radius: 0 !important; }
+html[data-theme='dusk'] .sfh__bar { background: linear-gradient(180deg, #251a5c 0%, #1e1550 55%, #181145 100%) !important; }
+html[data-theme='dusk'] .sfh__bar::after { background: linear-gradient(90deg, transparent, rgba(190, 175, 255, .35) 30%, rgba(236, 228, 255, .55) 50%, rgba(190, 175, 255, .35) 70%, transparent) !important; }
+.sfh__orbit, .sfh__jet { display: none !important; }
+.sfh__word b:last-child, .sfh__logo { color: #f4f8ff; }
+.sfh__logo { filter: drop-shadow(0 1px 0 rgba(255,255,255,.35)) drop-shadow(0 2px 0 rgba(0,0,0,.35)) drop-shadow(0 3px 0 rgba(0,0,0,.18)) drop-shadow(0 8px 14px rgba(0, 0, 0, .45)) !important; }
+.sfh__lang { color: rgba(244, 248, 255, .55); }
+.sfh__lang[aria-checked='true'], .sfh__lang:hover { color: #fff; }
+.sfh__more { border-color: rgba(244, 248, 255, .28) !important; }
+.sfh__pop { top: calc(env(safe-area-inset-top) + 70px) !important; left: clamp(14px, 3vw, 44px) !important; }
+@media (max-width: 700px) { .sfh__bar { height: 56px !important; } .sfh__pop { top: calc(env(safe-area-inset-top) + 62px) !important; } }
+
+/* Crepúsculo no vídeo: gradação de cinema mais sutil (sem roxo chapado) + véu índigo→rosé */
+html[data-theme='dusk'] { --sf-grade: hue-rotate(13deg) saturate(.9) contrast(1.06) brightness(1.02); }
+html[data-theme='dusk'] .simfly-film::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: soft-light;
+  background: linear-gradient(180deg, rgba(70, 48, 170, .55) 0%, rgba(120, 90, 210, .25) 45%, rgba(255, 170, 160, .32) 100%); }
+html[data-theme='dusk'] .simfly-cloud-bridge::after { content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; background: linear-gradient(180deg, rgba(90, 70, 190, .4), rgba(255, 185, 175, .25)); }
