@@ -7,7 +7,7 @@ import {useM} from '@/i18n';
 
 const split=(t:string):[string,string]=>{const i=t.indexOf(' ');return i<0?['',t]:[t.slice(0,i),t.slice(i+1)];};
 export default function CabinCinema27(){
- const m=useM();const E=m.experience;const chapters=[{kicker:'SimFly',p:[E.t1,E.t2] as [string,string]},...GALLERY.map(g=>({kicker:E.gallery[g.id].kicker,p:split(E.gallery[g.id].title)}))];
+ const m=useM();const E=m.experience;const chapters=[{kicker:'SimFly',p:[E.t1,E.t2] as [string,string]},...GALLERY.map(g=>({kicker:`SimFly / ${E.gallery[g.id].kicker}`,p:split(E.gallery[g.id].title)}))];
  const gw=m.fleet.title.split(' ');const gate:[string,string]=gw.length>2?[gw.slice(0,-2).join(' '),gw.slice(-2).join(' ')]:[m.fleet.title,''];
  const motion=ui.useStore(s=>s.motion), webgl=ui.useStore(s=>s.webgl), quality=ui.useStore(s=>s.quality);
  const live=motion==='cinematic'&&webgl&&quality!=='lite';
