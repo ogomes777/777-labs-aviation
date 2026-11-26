@@ -155,7 +155,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         return;
       }
       let b: FleetCraftBuild;
-      try { b = buildFleetCraft(item.id, { textureSize: quality === 'high' ? 2048 : 1024, detail: quality === 'high' ? 0.85 : 0.6 }); }
+      try { b = buildFleetCraft(item.id, { textureSize: 2048, detail: quality === 'high' ? 1 : 0.85 }); }
       catch (err) { console.error('[simfly] falha ao construir', item.id, err); idle(next); return; }
       b.group.position.set(item.x, env.gy + b.axisH, ROW_Z);
       const c: Craft = Object.assign(b, { x: item.x });
@@ -343,7 +343,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const nx = portrait ? sz * 0.2 : 0;
       tmp.vEye.set(camX + sz * (portrait ? 0.32 : 0.3), gy + eh, FRONT_Z - dist);
       tmp.vTarget.set(camX - sz * 0.04 + nx, gy + eh - Math.tan(look) * (dist + 40), FRONT_Z + 40);
-      const into = ramp(p, 0.0, 0.1);
+      const into = 1; // corte direto para o enquadramento da Frota (o véu do céu mascara a passagem)
       tmp.eye.lerp(tmp.vEye, into); tmp.target.lerp(tmp.vTarget, into);
       fov = THREE.MathUtils.lerp(fov, portrait ? 34 : 40, into);
       // inspeção: atlas da aeronave (órbita 360°, sistema isolado, planta, vista sentado)
@@ -351,7 +351,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       tmp.viewW = damp(tmp.viewW, ins ? 1 : 0, 2.6, dt);
       if (ins) {
         const gp = ins.group.position;
-        if (st.inspectMode === 'plan' && ins.seats.length) {
+        if (ins.seats.length < 0) { // planta 3D desativada: a planta agora é 2D técnica (DOM)
           // planta: de cima, teto cortado na linha das janelas, cabine inteira no quadro (nariz à esquerda)
           let x0 = Infinity, x1 = -Infinity; for (const se of ins.seats) { x0 = Math.min(x0, se.pos.x); x1 = Math.max(x1, se.pos.x); }
           const cx = gp.x + (x0 + x1) / 2, len = x1 - x0 + 2.4;
@@ -370,7 +370,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           if (b) ins.group.localToWorld(c.copy(b.center));
           const rad = b ? b.radius : ins.size * 0.55;
           const d = (b ? rad * 2.5 + 1.4 : rad * 2.2) * (portrait ? 1.65 : 1);
-          const yaw = -1.04 + st.fleetYaw, pitch = clamp(0.2 + st.fleetPitch, 0.02, 1.35);
+          const yaw = -1.04 + frame.orbitYaw, pitch = clamp(0.2 + frame.orbitPitch, 0.02, 1.35);
           tmp.vEye.set(c.x + d * Math.cos(pitch) * Math.cos(yaw), c.y + d * Math.sin(pitch), c.z + d * Math.cos(pitch) * Math.sin(yaw));
           tmp.vTarget.copy(c);
           // composição: libera o painel (direita no desktop, base no celular)
@@ -378,7 +378,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           else { tmp.vEye.y -= rad * 0.5; tmp.vTarget.y -= rad * 0.5; }
         }
       }
-      if (tmp.viewW > 0.001 && (ins || tmp.viewW > 0.01)) { tmp.eye.lerp(tmp.vEye, tmp.viewW); tmp.target.lerp(tmp.vTarget, tmp.viewW); fov = THREE.MathUtils.lerp(fov, st.inspectMode === 'seat' ? 56 : st.inspectMode === 'plan' ? 32 : 36, tmp.viewW); }
+      if (tmp.viewW > 0.001 && (ins || tmp.viewW > 0.01)) { tmp.eye.lerp(tmp.vEye, tmp.viewW); tmp.target.lerp(tmp.vTarget, tmp.viewW); fov = THREE.MathUtils.lerp(fov, st.inspectMode === 'seat' ? 56 : 36, tmp.viewW); }
       // câmera do atlas amortecida (troca de sistema/planta sem salto; órbita com inércia curta)
       if (ins) {
         tmp.camEye = tmp.camEye ?? tmp.eye.clone(); tmp.camTgt = tmp.camTgt ?? tmp.target.clone();
@@ -423,7 +423,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const lateral = tmp.vel.dot(tmp.right);
     tmp.roll = damp(tmp.roll, clamp(-lateral * 0.0035, -0.045, 0.045), 2.5, dt);
     if (!frame.freezeClock && Math.abs(tmp.roll) > 1e-4) cam.rotateZ(tmp.roll);
-    if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix(); }
+    const wantNear = inFleet && !(st.inspect && st.inspectMode === 'seat') ? 0.5 : 0.02;
+    if (Math.abs(cam.fov - fov) > 0.01 || cam.near !== wantNear) { cam.fov = fov; cam.near = wantNear; cam.updateProjectionMatrix(); }
 
     // ----- pesos de cena -----
     const skyA = 1 - ramp(t, 1.755, 1.765);
@@ -546,7 +547,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // planta: teto cortado na linha das janelas; vista sentado: teto volta quando a câmera está abaixo dele
       const insC = crafts.current.find((c) => c.id === st.inspect);
       const cy = insC ? insC.group.position.y + insC.cutY : 0.32;
-      cut = st.inspectMode === 'seat' && cam.position.y < cy + 0.55 ? 100 : cy;
+      cut = st.inspectMode === 'seat' ? (cam.position.y < cy + 0.55 ? 100 : cy) : 100;
     }
     if (anatomyActive && st.part === 'cabine') cut = 100;
     CUT.constant = cut;

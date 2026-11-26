@@ -86,3 +86,14 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - Deploy Vercel `dpl_49ZcMZNhrKGdUPCiB2i22KW2b4bA` (target production) a partir de `simfly/v6-master` @ `55fc8f7`, via conector Vercel (fonte GitHub).
 - Verificado em https://777-labs-aviation.vercel.app: HTML com a frota real (Legacy 450 … Matrix, sem Meridian/Solstice), `/lab/preview` = 404, previews WebP = 200.
 - Rollback: promover o deploy de produção anterior `dpl_H2bHBUndXNE8hRJVqBgnewRqxaaa` no painel da Vercel (marcado como candidato a rollback).
+
+## Rodada de correções (26/11/2026, pós-produção)
+- Câmera: corte direto para o enquadramento da Frota (removida a mistura de 2–3 s com a pose do capítulo anterior).
+- Piscar (linhas, vidros, portões): plano próximo da câmera = 0,5 m na Frota (0,02 m só na cabine/vista sentado) + marcações com polygonOffset e camadas separadas.
+- PNG SimFly entra junto com "A frota." (amarrado ao progresso do capítulo).
+- 360°: rotação no loop 3D (frame.orbitYaw/Pitch), sem re-render React ao arrastar — verificada.
+- "Ver por dentro": raio-X automático (~2,2 s) e volta ao normal; depois a pessoa escolhe sistema/peça — verificado.
+- Planta: substituída por planta técnica 2D (SVG em metros, mesma especificação do 3D): casco, cockpit, porta, janelas, poltronas clicáveis → vista sentado, lavatório só no Legacy, cotas só com fonte.
+- Cards: ano e "Detalhes" não cortam mais. Aeronaves em resolução maior (textura 2048, detalhe 0,85–1).
+- Removidos a seção Destinos (globo de baixo) e o formulário de viagem; contato direto SimFly (WhatsApp/e-mail) mantém #planejar; testes dos recursos removidos excluídos.
+- Testes: tsc OK, vitest 19/19, build OK; E2E subset 12 passaram; "menu abre/fecha" no mobile é instável (2/3 passam isolado; menu não foi alterado).

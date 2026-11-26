@@ -11,7 +11,6 @@ export const NAV = [
   { href: '#aeronave', label: 'Aeronave' },
   { href: '#frota', label: 'Frota' },
   { href: '#experiencia', label: 'Experiência' },
-  { href: '#destinos', label: 'Destinos' },
   { href: '#planejar', label: 'Contato' },
 ] as const;
 

@@ -25,7 +25,7 @@ export function createHangar(groundY: number) {
     const g = mergeGeometries(geos.map((q) => (q.index ? q.toNonIndexed() : q)))!; geos.forEach((q) => q.dispose());
     const m = new THREE.Mesh(T(g), mat); m.name = name; parent.add(m); return m;
   };
-  const flat = (w: number, d: number, x: number, z: number, y = 0.01) => { const g = new THREE.PlaneGeometry(w, d); g.rotateX(-Math.PI / 2); g.translate(x, gy + y, z); return g; };
+  const flat = (w: number, d: number, x: number, z: number, y = 0.01) => { y = y * 4; const g = new THREE.PlaneGeometry(w, d); g.rotateX(-Math.PI / 2); g.translate(x, gy + y, z); return g; };
   const canvasTex = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void, srgb = true) => {
     const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d')!);
     const t = T(new THREE.CanvasTexture(c)); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
@@ -62,7 +62,7 @@ export function createHangar(groundY: number) {
     // zona de toque (pares de faixas) e ponto de visada
     for (const [x, n] of [[RW_X0 - 210, 3], [RW_X0 - 360, 2], [RW_X0 - 510, 2], [RW_X0 - 660, 1]] as const) for (const s of [-1, 1]) for (let k = 0; k < n; k++) white.push(flat(22.5, 1.8, x, RW_Z + s * (6 + k * 3.3), 0.02));
     for (const s of [-1, 1]) white.push(flat(48, 9, RW_X0 - 420, RW_Z + s * 10, 0.021));
-    merge(white, M(new THREE.MeshBasicMaterial({ color: '#d9d7d0' })), 'runway-markings');
+    merge(white, M(new THREE.MeshBasicMaterial({ color: '#d9d7d0', polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 })), 'runway-markings');
     // número da pista "27" (aproximação vindo de +x)
     const num = canvasTex(256, 512, (g) => { g.clearRect(0, 0, 256, 512); g.fillStyle = '#e4e2da'; g.font = 'bold 300px Arial, Helvetica, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.save(); g.translate(128, 256); g.rotate(Math.PI / 2); g.fillText('27', 0, 0); g.restore(); });
     const nm = new THREE.Mesh(T(flat(18, 9, RW_X0 - 58, RW_Z, 0.022)), M(new THREE.MeshBasicMaterial({ map: num, transparent: true, depthWrite: false }))); nm.name = 'runway-designator'; group.add(nm);
@@ -78,7 +78,7 @@ export function createHangar(groundY: number) {
     }
     // limite do pátio (as linhas de cada posição são desenhadas por setStands)
     yellow.push(flat(240, 0.18, -60, 52));
-    merge(yellow, M(new THREE.MeshBasicMaterial({ color: '#c99a26' })), 'taxi-markings');
+    merge(yellow, M(new THREE.MeshBasicMaterial({ color: '#c99a26', polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 })), 'taxi-markings');
   }
   // ---------- luzes do aeródromo (instanciadas; acendem com o bloom) ----------
   const lamp = T(new THREE.SphereGeometry(0.22, 8, 6));
@@ -135,7 +135,7 @@ export function createHangar(groundY: number) {
     const gm = M(new THREE.MeshStandardMaterial({ map: glass, emissiveMap: glass, emissive: new THREE.Color('#ffffff'), emissiveIntensity: 1.1, roughness: 0.2, metalness: 0.5 }));
     const body = M(new THREE.MeshStandardMaterial({ color: '#2b3036', roughness: 0.6, metalness: 0.6 }));
     const tb = new THREE.Group(); tb.name = 'terminal'; tb.position.set(-140, gy, 250); group.add(tb);
-    const front = new THREE.Mesh(T(new THREE.PlaneGeometry(220, 12)), gm); front.position.set(0, 7, -9.1); front.rotation.y = Math.PI; tb.add(front);
+    const front = new THREE.Mesh(T(new THREE.PlaneGeometry(220, 12)), gm); front.position.set(0, 7, -9.8); front.rotation.y = Math.PI; tb.add(front);
     const box = new THREE.Mesh(T(new THREE.BoxGeometry(224, 15, 18)), body); box.position.y = 7.5; tb.add(box);
     const canopy = new THREE.Mesh(T(new THREE.BoxGeometry(230, 0.8, 26)), body); canopy.position.set(0, 15.4, -3); tb.add(canopy);
     const edge = new THREE.Mesh(T(new THREE.BoxGeometry(228, 0.15, 0.3)), M(new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 2.2, 1.9) }))); edge.position.set(0, 15, -16); tb.add(edge);
@@ -149,12 +149,12 @@ export function createHangar(groundY: number) {
     const bx = (w: number, h: number, d: number, x: number, y: number, z: number) => { const g = new THREE.BoxGeometry(w, h, d); g.translate(x, y, z); geos.push(g); };
     bx(W, 0.6, D, 0, H, D / 2); bx(0.6, H, D, -W / 2, H / 2, D / 2); bx(0.6, H, D, W / 2, H / 2, D / 2); bx(W, H, 0.6, 0, H / 2, D);
     bx(W + 2, 3.5, 1.2, 0, H - 1.75, 0);                                                       // verga do portão
-    for (const s of [-1, 1]) for (let i = 0; i < 3; i++) bx(4.2, H - 3.5, 0.5, s * (W / 2 + 2.4 + i * 4.3), (H - 3.5) / 2, -0.6 - i * 0.7); // folhas recolhidas
+    for (const s of [-1, 1]) for (let i = 0; i < 3; i++) bx(4.2, H - 3.5, 0.5, s * (W / 2 + 2.4 + i * 4.3), (H - 3.5) / 2, -1.2 - i * 1.4); // folhas recolhidas (separadas: sem conflito de profundidade)
     merge(geos, shell, 'hangar-shell', hg);
     // interior iluminado: piso epóxi claro, luminárias, parede do fundo quente
     const floorMat = M(new THREE.MeshStandardMaterial({ color: '#d7d4cc', roughness: 0.25, metalness: 0.1, emissive: new THREE.Color('#5a4630'), emissiveIntensity: 0.25 }));
-    const fl = new THREE.Mesh(T(new THREE.PlaneGeometry(W - 1, D - 1)), floorMat); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0.03, D / 2); hg.add(fl);
-    const back = new THREE.Mesh(T(new THREE.PlaneGeometry(W - 1, H - 1)), M(new THREE.MeshStandardMaterial({ color: '#c7b49a', emissive: new THREE.Color('#ffb36b'), emissiveIntensity: 0.45 }))); back.position.set(0, H / 2, D - 0.4); back.rotation.y = Math.PI; hg.add(back);
+    const fl = new THREE.Mesh(T(new THREE.PlaneGeometry(W - 1, D - 1)), floorMat); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0.12, D / 2); hg.add(fl);
+    const back = new THREE.Mesh(T(new THREE.PlaneGeometry(W - 1, H - 1)), M(new THREE.MeshStandardMaterial({ color: '#c7b49a', emissive: new THREE.Color('#ffb36b'), emissiveIntensity: 0.45 }))); back.position.set(0, H / 2, D - 1.2); back.rotation.y = Math.PI; hg.add(back);
     const lights: THREE.BufferGeometry[] = []; for (let z = 6; z < D; z += 8) for (const x of [-18, 0, 18]) { const g = new THREE.BoxGeometry(10, 0.12, 0.5); g.translate(x, H - 0.5, z); lights.push(g); }
     merge(lights, M(new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 2.8, 2.5) })), 'hangar-lights', hg);
     const spill = new THREE.Mesh(T(flat(W, 36, 0, -16, 0.015).translate(0, -gy, 0)), M(new THREE.MeshBasicMaterial({ map: glowTex('rgba(255,210,150,0.55)', 'rgba(255,190,120,0.25)'), blending: THREE.AdditiveBlending, depthWrite: false }))); spill.scale.set(1, 1, 1); hg.add(spill);
@@ -221,7 +221,7 @@ export function createHangar(groundY: number) {
     new THREE.InstancedMesh(coneBase, M(new THREE.MeshStandardMaterial({ color: '#16181b', roughness: 0.8 })), CONE_MAX),
   ];
   cones.forEach((c) => { c.count = 0; c.name = 'apron-cones'; group.add(c); });
-  const standMat = M(new THREE.MeshBasicMaterial({ color: '#c99a26' }));
+  const standMat = M(new THREE.MeshBasicMaterial({ color: '#c99a26', polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
   let standMesh: THREE.Mesh | null = null;
   /** posições de estacionamento: eixo sob a aeronave, barra de parada à frente do nariz, cones nas pontas de asa e cauda */
   const setStands = (stands: { x: number; z: number; length: number; span: number; noseX: number; tipX: number }[]) => {

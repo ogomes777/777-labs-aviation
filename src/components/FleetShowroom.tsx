@@ -8,6 +8,7 @@ import { domRefs } from '@/experience/domRefs';
 import { track } from '@/lib/analytics';
 import { usePreview } from './preview/usePreview';
 import HotspotPreview from './preview/HotspotPreview';
+import FloorPlan from './FloorPlan';
 
 const SYSTEM_ORDER: SystemId[] = ['fuselagem', 'asas', 'propulsao', 'empenagem', 'trem', 'cabine', 'portas'];
 const fmt = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -36,6 +37,7 @@ export default function FleetShowroom() {
   const swipe = useRef(false);
   const programmatic = useRef(0);
   const timer = useRef<number | null>(null);
+  const xrayTimer = useRef<number | null>(null);
   const opener = useRef<HTMLElement | null>(null);
   const panel = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; id: number } | null>(null);
@@ -78,7 +80,11 @@ export default function FleetShowroom() {
   const open = useCallback((id: FleetId, from: HTMLElement | null, sys: SystemId | null = null) => {
     opener.current = from;
     preview.close();
-    ui.set({ inspect: id, assembled: true, inspectPart: null, inspectMode: 'parts', seat: null, inspectSystem: sys, fleetXray: false, fleetYaw: 0, fleetPitch: 0, fleetPreview: null });
+    frame.orbitYaw = 0; frame.orbitPitch = 0;
+    // raio-X automático de apresentação ao entrar; depois volta ao normal e a pessoa escolhe sistema/peça
+    ui.set({ inspect: id, assembled: true, inspectPart: null, inspectMode: 'parts', seat: null, inspectSystem: sys, fleetXray: !sys && motion !== 'reduced', fleetPreview: null });
+    if (xrayTimer.current) window.clearTimeout(xrayTimer.current);
+    if (!sys && motion !== 'reduced') xrayTimer.current = window.setTimeout(() => { if (ui.get().inspect === id) ui.set({ fleetXray: false }); }, 2200);
     track('aircraft_explore_start', { inspect: id, system: sys ?? 'all' });
     if (timer.current) window.clearTimeout(timer.current);
     requestAnimationFrame(() => panel.current?.focus());
@@ -87,7 +93,8 @@ export default function FleetShowroom() {
     if (timer.current) window.clearTimeout(timer.current);
     preview.close();
     ui.set({ assembled: true, inspectPart: null, inspectMode: 'parts', seat: null, inspectSystem: null, fleetXray: false, fleetPreview: null });
-    timer.current = window.setTimeout(() => ui.set({ inspect: null, fleetYaw: 0, fleetPitch: 0 }), motion === 'reduced' ? 0 : 900);
+    if (xrayTimer.current) window.clearTimeout(xrayTimer.current);
+    timer.current = window.setTimeout(() => { frame.orbitYaw = 0; frame.orbitPitch = 0; ui.set({ inspect: null }); }, motion === 'reduced' ? 0 : 900);
     opener.current?.focus();
   }, [motion, preview]);
   useEffect(() => {
@@ -125,7 +132,7 @@ export default function FleetShowroom() {
   const selSys = systems.find((s) => s.id === system) ?? null;
   const selPart = selSys?.parts.find((p) => p.id === part) ?? null;
   const spec = inspect ? FLEET_SPECS[inspect] : null;
-  const selectSystem = (sid: SystemId | null) => { preview.close(); ui.set({ inspectSystem: sid, inspectPart: null, fleetYaw: 0, fleetPitch: 0, fleetPreview: null }); if (sid) track('fleet_system', { inspect: inspect ?? undefined, system: sid }); };
+  const selectSystem = (sid: SystemId | null) => { preview.close(); frame.orbitYaw = 0; frame.orbitPitch = 0; ui.set({ inspectSystem: sid, inspectPart: null, fleetPreview: null }); if (sid) track('fleet_system', { inspect: inspect ?? undefined, system: sid }); };
   const seatCount = item ? FLEET_SPECS[item.id].cabin.seats.length : 0;
 
   // órbita 360°: arrastar (mouse/dedo) ou setas do teclado
@@ -134,13 +141,13 @@ export default function FleetShowroom() {
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
       const d = drag.current; if (!d || d.id !== e.pointerId) return;
       const dx = e.clientX - d.x, dy = e.clientY - d.y; d.x = e.clientX; d.y = e.clientY;
-      ui.set((s) => ({ fleetYaw: s.fleetYaw + dx * 0.0085, fleetPitch: Math.max(-0.18, Math.min(1.15, s.fleetPitch - dy * 0.006)) }));
+      frame.orbitYaw += dx * 0.0085; frame.orbitPitch = Math.max(-0.18, Math.min(1.15, frame.orbitPitch - dy * 0.006));
     },
     onPointerUp: () => { drag.current = null; }, onPointerCancel: () => { drag.current = null; }, onLostPointerCapture: () => { drag.current = null; },
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
       e.preventDefault();
-      ui.set((s) => ({ fleetYaw: s.fleetYaw + (e.key === 'ArrowLeft' ? 0.18 : e.key === 'ArrowRight' ? -0.18 : 0), fleetPitch: Math.max(-0.18, Math.min(1.15, s.fleetPitch + (e.key === 'ArrowUp' ? 0.12 : e.key === 'ArrowDown' ? -0.12 : 0))) }));
+      frame.orbitYaw += e.key === 'ArrowLeft' ? 0.18 : e.key === 'ArrowRight' ? -0.18 : 0; frame.orbitPitch = Math.max(-0.18, Math.min(1.15, frame.orbitPitch + (e.key === 'ArrowUp' ? 0.12 : e.key === 'ArrowDown' ? -0.12 : 0)));
     },
   };
 
@@ -189,12 +196,8 @@ export default function FleetShowroom() {
 
       {live && inspect && mode === 'parts' && <div className="fleet-orbit" role="application" aria-label="Arraste para girar a aeronave em 360°; teclado: setas" tabIndex={0} data-lenis-prevent {...orbitHandlers}><span>Arraste para girar · 360°</span></div>}
 
-      <div ref={seatLayer} className="seats" data-visible="false" aria-hidden={mode !== 'plan'}>
-        {Array.from({ length: 12 }, (_, i) => (
-          <button key={i} type="button" className="seat-pin" data-cursor="Sentar" aria-label={`Sentar na poltrona ${i + 1}`} aria-pressed={seat === i} tabIndex={mode === 'plan' && i < seatCount ? 0 : -1}
-            onClick={() => ui.set({ inspectMode: 'seat', seat: i })}><span>{String(i + 1).padStart(2, '0')}</span></button>
-        ))}
-      </div>
+      {item && mode === 'plan' && <div className="fplan-wrap"><FloorPlan id={item.id} seat={seat} onSeat={(i) => ui.set({ inspectMode: 'seat', seat: i })} /></div>}
+      <div ref={seatLayer} className="seats" data-visible="false" aria-hidden="true" hidden />
 
       <div ref={panel} className="inspect" role="dialog" aria-modal="false" aria-label={item ? `Atlas do ${item.make} ${item.name}` : 'Atlas'} data-open={inspect ? 'true' : 'false'} tabIndex={-1} hidden={!inspect}>
         {item && spec && (
@@ -219,11 +222,11 @@ export default function FleetShowroom() {
               {live && <div className="inspect__actions" role="group" aria-label="Visualização">
                 <button type="button" className="pill pill--tool" aria-pressed={xray} onClick={() => ui.set({ fleetXray: !xray })}>Raio-X</button>
                 <button type="button" className="pill pill--tool" aria-pressed={!assembled} onClick={() => ui.set({ assembled: !assembled })}>{assembled ? 'Abrir em camadas' : 'Montar aeronave'}</button>
-                <button type="button" className="pill pill--tool" onClick={() => ui.set({ fleetYaw: 0, fleetPitch: 0 })}>Redefinir vista</button>
+                <button type="button" className="pill pill--tool" onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; }}>Redefinir vista</button>
               </div>}
               {selSys && <ul className="inspect__parts">
                 {selSys.parts.map((p) => (
-                  <li key={p.id}><button type="button" aria-pressed={part === p.id} onClick={() => ui.set({ inspectPart: part === p.id ? null : p.id, fleetYaw: 0, fleetPitch: 0 })}>{p.label}</button></li>
+                  <li key={p.id}><button type="button" aria-pressed={part === p.id} onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; ui.set({ inspectPart: part === p.id ? null : p.id }); }}>{p.label}</button></li>
                 ))}
               </ul>}
               <p className="inspect__text" aria-live="polite">{selPart ? selPart.text : selSys ? selSys.text : `${item.category}. ${item.engine}. Passe pelos pontos da aeronave para pré-visualizar cada sistema; clique para isolar.`}</p>

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ui } from '@/experience/director';
+import { frame, ui } from '@/experience/director';
 
 /**
  * V6 — o jato SimFly (PNG aprovado da marca, mesmo do hero) cruza da esquerda para a direita ao entrar no hangar,
@@ -12,14 +12,18 @@ export default function FleetTitlePlane() {
   const [state, setState] = useState<'out' | 'in'>('out');
   const inspect = ui.useStore((s) => s.inspect);
   useEffect(() => {
-    const sec = document.getElementById('frota'); if (!sec) return;
-    const io = new IntersectionObserver(([e]) => {
-      const r = e.boundingClientRect;
-      // dentro do capítulo: topo já passou da metade da tela e o fim ainda não saiu
-      setState(r.top < innerHeight * 0.35 && r.bottom > innerHeight * 0.6 ? 'in' : 'out');
-    }, { threshold: Array.from({ length: 41 }, (_, i) => i / 40) });
-    io.observe(sec);
-    return () => io.disconnect();
+    // amarrado ao progresso do capítulo: entra exatamente quando "A frota." é revelada e sai com ela
+    let raf = 0, last = '';
+    const tick = () => {
+      const p = frame.chapters[3];
+      const sec = document.getElementById('frota');
+      const inView = !!sec && sec.getBoundingClientRect().top <= 1 && sec.getBoundingClientRect().bottom >= innerHeight - 1;
+      const next = (inView || (p > 0.012 && p < 0.985)) && p > 0.012 && p < 0.985 ? 'in' : 'out';
+      if (next !== last) { last = next; setState(next as 'in' | 'out'); }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
   return (
     <div ref={ref} className="fleet__plane" data-state={state} data-inspecting={inspect ? 'true' : 'false'} aria-hidden="true">

@@ -634,7 +634,7 @@ html[data-motion=cinematic] #experiencia:has(.sf27-cabin-cinema) :is(.gallery__h
 .fleet__title em .wi { animation-delay: .35s, .2s; }
 @keyframes sfBreathe { 0%, 100% { filter: drop-shadow(0 0 4px rgba(115, 198, 255, .35)) drop-shadow(0 0 10px rgba(64, 141, 255, .18)); } 50% { filter: drop-shadow(0 0 7px rgba(115, 198, 255, .65)) drop-shadow(0 0 18px rgba(64, 141, 255, .38)); } }
 /* jato SimFly atrás da copy: entra da esquerda, freia e flutua pulsando */
-.fleet__plane { position: absolute; left: clamp(168px, 14.6vw, 240px); top: clamp(80px, 10.5svh, 108px); width: clamp(88px, 7.4vw, 130px); z-index: 0; pointer-events: none; opacity: 0; transform: translate3d(-60vw, 14px, 0) scale(.8); transition: transform 2.4s cubic-bezier(.16, 1, .3, 1), opacity 1.1s ease; }
+.fleet__plane { position: absolute; left: clamp(168px, 14.6vw, 240px); top: clamp(80px, 10.5svh, 108px); width: clamp(88px, 7.4vw, 130px); z-index: 0; pointer-events: none; opacity: 0; transform: translate3d(-34vw, 10px, 0) scale(.86); transition: transform 1.5s cubic-bezier(.16, 1, .3, 1) .15s, opacity .7s ease .15s; }
 .fleet__plane[data-state='in'] { opacity: .95; transform: none; }
 .fleet__plane[data-inspecting='true'] { opacity: 0; transition-duration: .6s; }
 .fleet__plane-fly { animation: sfPlaneFloat 5.2s ease-in-out infinite; }
@@ -785,3 +785,41 @@ html:not([data-motion='cinematic']) .fleet__title .wi { animation: none; }
   .fleet .fcard__cta, .fleet .fcard__quote { padding: 0 12px; font-size: .6rem; letter-spacing: .16em; white-space: nowrap; }
   .fleet .fcard__more { font-size: .56rem; }
 }
+
+/* V6 — cards: ano e "Detalhes" nunca cortados */
+.fleet .fcard__top { min-width: 0; }
+.fleet .fcard__kind { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fleet .fcard__year { flex: none; padding-left: 8px; }
+.fleet .fcard__actions { flex-wrap: wrap; row-gap: 6px; }
+.fleet .fcard__more { margin-left: auto; flex: none; }
+/* planta técnica 2D (estilo planta arquitetônica) */
+.fplan-wrap { position: absolute; left: var(--gutter); right: min(440px, 33vw); top: clamp(120px, 17svh, 170px); bottom: clamp(40px, 7svh, 80px); z-index: 4; display: grid; place-items: center; pointer-events: none; }
+.fplan { margin: 0; width: 100%; max-height: 100%; padding: 18px 20px 14px; border-radius: 18px; pointer-events: auto; color: #cfe2ff;
+  background: linear-gradient(160deg, rgba(12, 24, 44, .93), rgba(6, 12, 24, .96)); border: 1px solid rgba(150, 196, 255, .26);
+  box-shadow: inset 0 1px 0 rgba(210, 232, 255, .25), 0 30px 80px -30px rgba(0, 0, 0, .7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); animation: hpIn .5s var(--ease-ui) both; }
+.fplan svg { display: block; width: 100%; height: auto; max-height: 52svh; }
+.fplan__hull { fill: rgba(120, 170, 240, .06); stroke: #e8f1ff; stroke-width: .045; }
+.fplan__floor { fill: rgba(63, 140, 255, .1); stroke: rgba(150, 196, 255, .45); stroke-width: .02; }
+.fplan__wall { stroke: #e8f1ff; stroke-width: .05; }
+.fplan__win { stroke: #7fc0ff; stroke-width: .09; stroke-linecap: round; }
+.fplan__door line, .fplan__door path { stroke: #ffd59a; stroke-width: .04; fill: none; }
+.fplan__room { fill: rgba(255, 213, 154, .08); stroke: #ffd59a; stroke-width: .03; }
+.fplan__seat { cursor: pointer; outline: none; }
+.fplan__seat rect { fill: rgba(232, 241, 255, .1); stroke: #cfe2ff; stroke-width: .03; transition: fill .25s, stroke .25s; }
+.fplan__seat:hover rect, .fplan__seat:focus-visible rect, .fplan__seat[data-on='true'] rect { fill: rgba(63, 140, 255, .55); stroke: #ffffff; }
+.fplan__back { stroke: #cfe2ff; stroke-width: .05; }
+.fplan__num { font: 600 .2px var(--font-sans); fill: #ffffff; text-anchor: middle; pointer-events: none; }
+.fplan__label { font: 500 .34px var(--font-sans); fill: rgba(232, 241, 255, .85); text-anchor: middle; letter-spacing: .02px; }
+.fplan__label--sm { font-size: .27px; }
+.fplan__label--start { text-anchor: start; }
+.fplan__dim line { stroke: rgba(232, 241, 255, .6); stroke-width: .02; }
+.fplan figcaption { margin-top: 8px; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(190, 214, 245, .72); text-align: center; }
+@media (max-width: 760px) { .fplan-wrap { left: 10px; right: 10px; top: 92px; bottom: auto; height: 38svh; } .fplan { padding: 12px; } }
+/* previews mais fluidos ao passar/tocar nos pontinhos */
+.hp-card { animation: hpIn2 .34s cubic-bezier(.2, .9, .25, 1) both; will-change: transform, opacity; }
+@keyframes hpIn2 { from { opacity: 0; filter: blur(6px); clip-path: inset(6% 4% 6% 4% round 16px); } to { opacity: 1; filter: none; clip-path: inset(0 round 16px); } }
+.fhot i { transition: transform .35s cubic-bezier(.2, .9, .25, 1), box-shadow .35s; }
+.fhot span { transition: opacity .3s cubic-bezier(.2, .9, .25, 1), transform .3s cubic-bezier(.2, .9, .25, 1); }
+
+.inquiry--contact .inquiry__grid { grid-template-columns: 1fr; max-width: 760px; }
+.contact-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; }

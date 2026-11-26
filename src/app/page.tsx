@@ -4,8 +4,7 @@ import SceneProgress from '@/components/SceneProgress';
 import AnatomyPanel, { HotspotLayer } from '@/components/AnatomyPanel';
 import CabinGallery from '@/components/CabinGallery';
 import CabinCinema27 from '@/components/CabinCinema27';
-import DestinationsPanel from '@/components/DestinationsPanel';
-import CharterInquiry from '@/components/CharterInquiry';
+import ContactActions from '@/components/ContactActions';
 import Epilogue from '@/components/Epilogue';
 import ConsentBar from '@/components/ConsentBar';
 import SimFlyHero from '@/components/SimFlyHero';
@@ -90,21 +89,14 @@ export default function Page() {
           </div>
         </section>
 
-        <section id="destinos" className="chapter destinations" data-chapter="7" style={L(240)} aria-labelledby="destinos-title">
-          <div className="chapter__sticky">
-            <Still id="destinos" scrim="rgba(7,11,18,0.35)" />
-            <DestinationsPanel />
-          </div>
-        </section>
-
         <div className="finale" data-chapter="8">
-          <section id="planejar" className="inquiry" aria-labelledby="planejar-title">
+          <section id="planejar" className="inquiry inquiry--contact" aria-labelledby="planejar-title">
             <div className="inquiry__grid">
               <div className="inquiry__intro reveal-soft">
                 <h2 id="planejar-title" data-split data-focus-target><Words>Comece por</Words> <em><Words>uma conversa.</Words></em></h2>
-                <p className="lede">Demonstração: nenhuma reserva é feita e nenhum dado vai a uma operadora.</p>
+                <p className="lede">Fale direto com a SimFly sobre qualquer aeronave do portfólio. Disponibilidade e condições sob consulta.</p>
+                <ContactActions />
               </div>
-              <CharterInquiry />
             </div>
           </section>
           <section id="epilogo" className="epilogue" aria-label="Epílogo">

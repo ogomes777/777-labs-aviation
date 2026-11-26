@@ -44,6 +44,9 @@ export const frame = {
   /** tempo de animação (s) — pode ser congelado para render determinístico */
   clock: 0,
   freezeClock: false,
+  /** V6: órbita 360° do atlas (lida pelo loop 3D; arrastar não re-renderiza o React) */
+  orbitYaw: 0,
+  orbitPitch: 0,
 };
 
 export interface UIState {

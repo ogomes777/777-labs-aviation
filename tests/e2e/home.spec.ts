@@ -74,9 +74,9 @@ test.describe('navegação', () => {
     await expect(btn).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(dlg).toBeVisible();
-    await dlg.getByRole('link', { name: 'Destinos' }).click();
+    await dlg.getByRole('link', { name: 'Frota' }).click();
     await expect(dlg).toBeHidden();
-    await expect(page).toHaveURL(/#destinos/);
+    await expect(page).toHaveURL(/#frota/);
   });
 
   test('scroll reverso rápido não congela e o tempo do filme volta', async ({ page }) => {
@@ -141,17 +141,6 @@ test.describe('interações reais', () => {
     await expect(page.getByRole('button', { name: 'Montar aeronave' })).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('destinos: filtro, seleção, distância e envio ao formulário', async ({ page }) => {
-    await page.goto('/?motion=reduced');
-    await page.locator('#destinos').scrollIntoViewIfNeeded();
-    await page.getByRole('button', { name: 'Europa' }).click();
-    await expect(page.getByRole('list', { name: 'Destinos de inspiração' }).getByRole('button')).toHaveCount(3);
-    await page.getByRole('button', { name: /Lisboa/ }).click();
-    await expect(page.locator('.dest-card')).toContainText('km em linha reta');
-    await page.getByRole('button', { name: /Usar como destino/ }).click();
-    await expect(page).toHaveURL(/#planejar/);
-    await expect(page.locator('#f-to')).toHaveValue('Lisboa, Portugal');
-  });
 });
 
 test.describe('frota', () => {
@@ -176,50 +165,7 @@ test.describe('frota', () => {
 });
 
 test.describe('formulário', () => {
-  test('rejeita origem=destino, data passada, passageiros inválidos e falta de consentimento', async ({ page }) => {
-    await page.goto('/?motion=reduced#planejar');
-    const form = page.locator('form.form');
-    await form.locator('#f-from').fill('São Paulo');
-    await form.locator('#f-to').fill('sao paulo');
-    await form.locator('#f-date').fill('2020-01-01');
-    await form.locator('#f-passengers').fill('25');
-    await form.getByRole('button', { name: 'Continuar' }).click();
-    await expect(form.locator('#e-to')).toContainText('diferente da origem');
-    await expect(form.locator('#e-date')).toContainText('passado');
-    await expect(form.locator('#e-passengers')).toContainText('20');
-    await expect(form.locator('#f-to')).toBeFocused();
-    await form.locator('#f-to').fill('Lisboa');
-    const d = new Date(Date.now() + 20 * 86400000).toISOString().slice(0, 10);
-    await form.locator('#f-date').fill(d);
-    await form.locator('#f-passengers').fill('4');
-    await form.getByRole('button', { name: 'Continuar' }).click();
-    await expect(form.getByRole('heading', { name: 'Como falamos com você?' })).toBeVisible();
-    await form.locator('#f-name').fill('Teste QA');
-    await form.locator('#f-email').fill('qa@example.com');
-    await form.locator('#f-purpose').selectOption('Lazer');
-    await form.getByRole('button', { name: 'Revisar' }).click();
-    await expect(form.locator('#e-consent')).toContainText('consentir');
-  });
 
-  test('modo demo: valida no servidor e nunca promete envio', async ({ page }) => {
-    await page.goto('/?motion=reduced#planejar');
-    const form = page.locator('form.form');
-    await form.locator('#f-from').fill('São Paulo');
-    await form.locator('#f-to').fill('Lisboa');
-    await form.locator('#f-date').fill(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
-    await form.locator('#f-passengers').fill('3');
-    await form.getByRole('button', { name: 'Continuar' }).click();
-    await form.locator('#f-name').fill('Teste QA');
-    await form.locator('#f-email').fill('qa@example.com');
-    await form.locator('#f-purpose').selectOption('Negócios');
-    await form.locator('input[name="consent"]').check();
-    await form.getByRole('button', { name: 'Revisar' }).click();
-    await expect(form.locator('.summary')).toContainText('São Paulo → Lisboa');
-    await page.waitForTimeout(1600); // anti-bot: envio instantâneo é descartado
-    await form.getByRole('button', { name: /Enviar interesse/ }).click();
-    await expect(form.locator('.status')).toContainText('nenhum pedido foi enviado');
-    await expect(form.locator('.status')).not.toContainText(/confirmad|reserva realizada/i);
-  });
 
   test('API: 422 para payload inválido, demo para válido', async ({ request }) => {
     const bad = await request.post('/api/inquiries', { data: { journey: { from: 'A', to: 'A' } } });
@@ -240,7 +186,7 @@ test.describe('resiliência', () => {
     await expect(page.locator('canvas')).toHaveCount(0);
     const h = await page.locator('[data-chapter="2"]').evaluate((el) => el.getBoundingClientRect().height);
     expect(h).toBeLessThan(2000);
-    for (const id of ['aeronave-title', 'engenharia-title', 'interior-title', 'experiencia-title', 'destinos-title', 'planejar-title']) await expect(page.locator(`#${id}`)).toBeAttached();
+    for (const id of ['aeronave-title', 'engenharia-title', 'interior-title', 'experiencia-title', 'planejar-title']) await expect(page.locator(`#${id}`)).toBeAttached();
     await expect(page.getByRole('link', { name: 'Planejar jornada', exact: true }).first()).toBeVisible();
     expect(await noHScroll(page)).toBe(true);
   });
