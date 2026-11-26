@@ -33,12 +33,13 @@ export function SimFlyAviationSection(){
  const project=(v:Vec)=>{const x=v[0]*cs+v[2]*sn,z=-v[0]*sn+v[2]*cs,y=v[1]*ct-z*st,depth=v[1]*st+z*ct;return{x:cx+x*R,y:cy-y*R,z:depth,rho:x*x+y*y};};
  const disk=(r:number)=>{ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);};
  // Optical atmosphere + directional sphere illumination, independent of the original global WebGL scene.
- const bo=glow.current,HR=R*(1.42+bo*.55);let g=ctx.createRadialGradient(cx,cy,R*.97,cx,cy,HR);g.addColorStop(0,`rgba(140,205,255,${.42+.45*bo})`);g.addColorStop(.18,`rgba(92,170,255,${.2+.3*bo})`);g.addColorStop(.5,`rgba(60,140,240,${.06+.14*bo})`);g.addColorStop(1,'rgba(24,118,223,0)');ctx.fillStyle=g;disk(HR);ctx.fill();
+ // halo sempre DENTRO do canvas (sem recorte nas bordas) e apagando em degradê quando o avião assume a cena
+const fade=1-glow.current,HR=Math.min(R*1.4,Math.min(w-cx,cx,h-cy,cy)-1);let g=ctx.createRadialGradient(cx,cy,R*.97,cx,cy,HR);g.addColorStop(0,`rgba(140,205,255,${.42*fade})`);g.addColorStop(.22,`rgba(92,170,255,${.2*fade})`);g.addColorStop(.6,`rgba(60,140,240,${.05*fade})`);g.addColorStop(1,'rgba(24,118,223,0)');ctx.fillStyle=g;disk(HR);ctx.fill();
  g=ctx.createRadialGradient(cx-R*.35,cy-R*.46,R*.02,cx+R*.16,cy+R*.13,R*1.23);g.addColorStop(0,'#386f9e');g.addColorStop(.33,'#1b426b');g.addColorStop(.68,'#102b48');g.addColorStop(1,'#061322');ctx.fillStyle=g;disk(R);ctx.fill();
  ctx.save();disk(R);ctx.clip();const trace=(vs:Vec[],color:string,width:number)=>{ctx.beginPath();let pen=false;for(const v of vs){const q=project(v);if(q.z<0){pen=false;continue;}if(!pen)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y);pen=true;}ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();};for(const vs of grids)trace(vs,'#a2d1ff17',.55);
  const bins:Array<Array<{x:number;y:number;s:number}>>=Array.from({length:5},()=>[]);for(let j=0;j<land.length;j++){const q=project(land[j]);if(q.z<=.015)continue;const shimmer=j%9===0?.13*Math.sin(ambient.current*.85+j*.73):0;const light=clamp(.45+q.z*.52-(q.x-cx)/R*.13-(q.y-cy)/R*.1+shimmer);bins[Math.min(4,Math.floor(light*5))].push({x:q.x,y:q.y,s:.7+q.z*1.1});}bins.forEach((bin,i)=>{ctx.beginPath();for(const q of bin){ctx.moveTo(q.x+q.s,q.y);ctx.arc(q.x,q.y,q.s,0,Math.PI*2);}ctx.fillStyle=`rgba(153,201,245,${.32+i*.12})`;ctx.fill();});
  const shade=ctx.createRadialGradient(cx-R*.30,cy-R*.36,R*.12,cx+R*.1,cy+R*.15,R*1.16);shade.addColorStop(0,'#07132200');shade.addColorStop(.65,'#07132200');shade.addColorStop(1,'#0713228c');ctx.fillStyle=shade;disk(R);ctx.fill();ctx.restore();
- {ctx.save();disk(R);ctx.clip();const rim=ctx.createRadialGradient(cx-R*.12,cy-R*.1,R*.62,cx,cy,R*1.01);rim.addColorStop(0,'rgba(150,210,255,0)');rim.addColorStop(.82,'rgba(150,210,255,.06)');rim.addColorStop(1,`rgba(190,230,255,${.5+.3*bo})`);ctx.fillStyle=rim;disk(R);ctx.fill();ctx.restore();}ctx.strokeStyle=`rgba(200,232,255,${.62+.3*bo})`;ctx.lineWidth=1.2;disk(R);ctx.stroke();
+ {ctx.save();disk(R);ctx.clip();const rim=ctx.createRadialGradient(cx-R*.12,cy-R*.1,R*.62,cx,cy,R*1.01);rim.addColorStop(0,'rgba(150,210,255,0)');rim.addColorStop(.82,'rgba(150,210,255,.06)');rim.addColorStop(1,`rgba(190,230,255,${.5*fade})`);ctx.fillStyle=rim;disk(R);ctx.fill();ctx.restore();}ctx.strokeStyle=`rgba(200,232,255,${.62*(.35+.65*fade)})`;ctx.lineWidth=1.2;disk(R);ctx.stroke();
  const reveal=ramp(p,.06,.74);const visible=(q:ReturnType<typeof project>)=>q.z>=0||q.rho>1.002;
  // Restore V10 stroke weights. One scroll-controlled, tapered light INSIDE each stroke.
  routes.forEach((vs,k)=>{
@@ -127,7 +128,7 @@ export function SimFlyAviationSection(){
    // Otherwise a strip of the old section is visible above the fixed studio canvas.
    if(handoff>=.79||(reduced.matches&&u>0))second.dataset.simflyHandoff='true';else delete second.dataset.simflyHandoff;
    if(optical.current){optical.current.style.opacity=String(ramp(handoff,.48,.66)*(1-ramp(handoff,.72,.79))*.42);optical.current.style.setProperty('--sf-light-x',`${mix(130,43,ramp(handoff,.48,.79))}%`);}
-   if(pearl.current)pearl.current.style.opacity=String(white);glow.current=reduced.matches?0:ramp(handoff,.04,.4);
+   if(pearl.current)pearl.current.style.opacity=String(white);glow.current=reduced.matches?0:ramp(handoff,.03,.42);
    const dark=ramp(p,.76,.985),globeAlpha=ramp(p,.84,1),cityAlpha=ramp(g,0,.25)*globeAlpha;
    el.style.visibility='visible';el.style.opacity=String(exit);el.inert=false;el.dataset.visible='true';el.style.transform='translate3d(0,0,0)';
    if(a.top<=1){document.documentElement.dataset.simflyZone=handoff>=.79?'aircraft':dark>.55?'globe':'aircraft';}

@@ -64,7 +64,7 @@ export default function Page() {
         <section id="interior" className="chapter" data-chapter="5" style={L(230)} aria-labelledby="interior-title">
           <div className="chapter__sticky">
             <Still id="interior" alt="Planta em corte da cabine vista de cima" />
-            <div className="panel panel--services reveal" data-in="0.04" data-out="0.72">
+            <div className="panel panel--services reveal" data-in="0.04" data-out="0.4">
               <h2 id="interior-title" data-split data-focus-target><TW k="services.t1" /> <em><TW k="services.t2" /></em></h2>
               <ServicesList />
             </div>

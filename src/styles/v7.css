@@ -319,7 +319,7 @@ html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100
 .sf-services li { border-top: 0 !important; padding: 12px 0 !important; }
 .sf-foot__row, .sfm__foot { border-top: 0 !important; }
 .part-card, #engenharia .anatomy24-panel[data-focused=true] .part-card { border-top: 0 !important; }
-.card__kicker, .sf27-cinema-line > span, .hp-card__kicker b, .hp-card__hint, .fleet-orbit span, .anatomy25-orbit span,
+.card__kicker, .hp-card__kicker b, .hp-card__hint, .fleet-orbit span, .anatomy25-orbit span,
 .fcard__status i, .anatomy26-eyebrow, .fcard__kind { display: none !important; }
 .hp-card__media { border-bottom: 0 !important; border-right: 0 !important; }
 .sf-wanted__kind { font-size: .8rem !important; letter-spacing: 0 !important; text-transform: none !important; opacity: .8; }

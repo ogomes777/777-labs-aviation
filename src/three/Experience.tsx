@@ -274,7 +274,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const dt = Math.min(rawDt, 1 / 20);
     // ----- regulador de desempenho: mede o FPS real e ajusta o nível (com histerese) -----
     const pm = perfMon.current;
-    if (!pm.lock && !frame.freezeClock && !document.hidden) {
+    if (rawDt > 0.25) { pm.acc = 0; pm.n = 0; pm.cool = Math.max(pm.cool, 2); } // volta de pausa/aba: não conta como FPS baixo
+    else if (!pm.lock && !frame.freezeClock && !document.hidden) {
       pm.acc += rawDt; pm.n += 1;
       if (pm.acc > 1.2) {
         const fps = pm.n / pm.acc; pm.acc = 0; pm.n = 0;
@@ -976,7 +977,8 @@ function RenderGate() {
       if (ui.get().flight || !frame.ready) return false;
       const op = (el: Element | null) => { if (!el) return 0; const st = (el as HTMLElement).style; return st.visibility === 'hidden' ? 0 : Number(st.opacity || 0); };
       if (document.querySelector('dialog.sfm[open]')) return true; // menu opaco aberto: nada roda por trás
-      if (op(document.querySelector('.simfly-continuum')) >= 0.999) return true;
+      const cont = document.querySelector<HTMLElement>('.simfly-continuum');
+      if (cont && cont.dataset.handoff !== 'true' && op(cont) >= 0.999) return true; // na passagem para a anatomia o 3D já acorda aquecido
       if (op(document.querySelector('.simfly-cloud-bridge')) >= 0.999) return true;
       const hero = document.getElementById('top');
       if (hero) { const r = hero.getBoundingClientRect(); if (r.top <= 0 && r.bottom >= innerHeight) return true; }
