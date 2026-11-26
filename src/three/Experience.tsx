@@ -37,7 +37,7 @@ class FXBoundary extends Component<{ children: ReactNode }, { failed: boolean }>
 }
 const C = (hex: string) => new THREE.Color(hex);
 /** V6: fila de estacionamento no pátio (z) e posição de destaque da aeronave escolhida (mais perto da câmera) */
-const ROW_Z = 34, FRONT_Z = -14;
+const ROW_Z = 30, FRONT_Z = 6;
 const BG = { hangar: C('#06080b'), studio: C('#f1eee7'), cabin: C('#20170f'), globe: C('#070b12') };
 
 
@@ -80,6 +80,14 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     env.maps.dispose();
   }, [env]);
 
+  // posições de estacionamento do pátio calculadas das dimensões reais de cada tipo
+  useEffect(() => {
+    env.hangar.setStands(FLEET.map((f) => {
+      const sp = FLEET_SPECS[f.id]; const L = sp.fusL ?? sp.envelope.length;
+      const tipD = sp.wing.d + (sp.envelope.span / 2) * Math.tan(THREE.MathUtils.degToRad(sp.wing.sweep)) + sp.wing.tip * 0.5;
+      return { x: f.x, z: ROW_Z, length: sp.envelope.length, span: sp.envelope.span, noseX: f.x + L / 2 + (sp.nose === 'prop' ? 0.4 : 0), tipX: f.x + L / 2 - tipD };
+    }));
+  }, [env]);
   const contrails = useMemo(() => createContrails(), []);
   useEffect(() => { contrails.place(jet.exhausts); jet.group.add(contrails.group); return () => { jet.group.remove(contrails.group); }; }, [jet, contrails]);
   useEffect(() => () => contrails.dispose(), [contrails]);
@@ -92,6 +100,32 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   type Craft = FleetCraftBuild & { x: number };
   const lineup = useMemo(() => { const g = new THREE.Group(); g.name = 'lineup'; return g; }, []);
   const crafts = useRef<Craft[]>([]);
+  // ---------- vida do aeroporto: tráfego pousando (mesmo gerador da frota) e carrinhos de pátio ----------
+  const life = useMemo(() => {
+    const g = new THREE.Group(); g.name = 'airport-life';
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const x = c.getContext('2d')!; const r = x.createRadialGradient(64, 64, 1, 64, 64, 64); r.addColorStop(0, 'rgba(255,250,240,1)'); r.addColorStop(0.22, 'rgba(255,235,200,0.4)'); r.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = r; x.fillRect(0, 0, 128, 128);
+    const glow = new THREE.CanvasTexture(c); glow.colorSpace = THREE.SRGBColorSpace;
+    const spr = (color: string, size: number) => { const s2 = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); s2.scale.set(size, size, 1); return s2; };
+    // carrinhos de pátio (estilo golf cart de apoio): carroceria, assento, capota, rodas, faróis e lanternas
+    const body = new THREE.MeshStandardMaterial({ color: '#f1f0ec', roughness: 0.35, metalness: 0.2 });
+    const dark = new THREE.MeshStandardMaterial({ color: '#1b1d20', roughness: 0.7 });
+    const carts: { obj: THREE.Group; off: number }[] = [];
+    for (let i = 0; i < 3; i++) {
+      const cart = new THREE.Group();
+      const b = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.7, 1.25), body); b.position.y = 0.65; cart.add(b);
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 1.1), dark); seat.position.set(-0.3, 1.2, 0); cart.add(seat);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.08, 1.3), body); roof.position.set(-0.1, 2.05, 0); cart.add(roof);
+      for (const [px, pz] of [[0.75, 0.55], [0.75, -0.55], [-0.95, 0.55], [-0.95, -0.55]]) { const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 6), dark); p2.position.set(px, 1.5, pz); cart.add(p2); }
+      for (const [px, pz] of [[0.8, 0.62], [0.8, -0.62], [-0.8, 0.62], [-0.8, -0.62]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.2, 14), dark); w.rotation.x = Math.PI / 2; w.position.set(px, 0.28, pz); cart.add(w); }
+      for (const pz of [0.4, -0.4]) { const h = spr('#fff6e0', 1.6); h.position.set(1.25, 0.7, pz); cart.add(h); const t2 = spr('#ff3a2a', 0.8); t2.position.set(-1.25, 0.7, pz); cart.add(t2); }
+      g.add(cart); carts.push({ obj: cart, off: i / 3 });
+    }
+    return { group: g, carts, spr, dispose: () => { glow.dispose(); body.dispose(); dark.dispose(); } };
+  }, []);
+  useEffect(() => () => life.dispose(), [life]);
+  type Traffic = FleetCraftBuild & { off: number; land: THREE.Sprite; strobes: THREE.Sprite[] };
+  const traffic2 = useRef<Traffic[]>([]);
   useEffect(() => {
     let cancelled = false;
     const todo = [...FLEET];
@@ -103,7 +137,20 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     };
     const next = () => {
       if (cancelled) return;
-      const item = todo.shift(); if (!item) return;
+      const item = todo.shift();
+      if (!item) {
+        // depois da frota: dois jatos de tráfego em ciclo de pouso (ilustração do mesmo gerador, sem rótulo comercial)
+        (['praetor-600', 'citation-cj2-plus'] as const).forEach((id, i) => {
+          if (cancelled) return;
+          const tb = buildFleetCraft(id, { textureSize: 512, detail: 0.45 });
+          tb.group.traverse((o) => { if (o.name.startsWith('contact-shadow')) o.visible = false; });
+          const land = life.spr('#fffaf0', 16); land.position.set(tb.size / 2 + 0.6, -0.4, 0); tb.group.add(land);
+          const strobes = [-1, 1].map((sd) => { const st2 = life.spr('#ffffff', 5); st2.position.set(0, 0, sd * FLEET_SPECS[id].envelope.span * 0.5); tb.group.add(st2); return st2; });
+          life.group.add(tb.group);
+          traffic2.current.push(Object.assign(tb, { off: i * 0.5, land, strobes }));
+        });
+        return;
+      }
       let b: FleetCraftBuild;
       try { b = buildFleetCraft(item.id, { textureSize: quality === 'high' ? 2048 : 1024, detail: quality === 'high' ? 0.85 : 0.6 }); }
       catch (err) { console.error('[simfly] falha ao construir', item.id, err); idle(next); return; }
@@ -123,8 +170,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       compile().then(() => { c.setFade(1); return compile(); }).then(done, done);
     };
     const start = window.setTimeout(() => idle(next), 1800);
-    return () => { cancelled = true; window.clearTimeout(start); crafts.current.forEach((c) => { lineup.remove(c.group); c.dispose(); }); crafts.current = []; };
-  }, [lineup, quality, gl, camera, scene, env.gy]);
+    return () => { cancelled = true; window.clearTimeout(start); crafts.current.forEach((c) => { lineup.remove(c.group); c.dispose(); }); crafts.current = []; traffic2.current.forEach((t) => { life.group.remove(t.group); t.dispose(); }); traffic2.current = []; };
+  }, [lineup, quality, gl, camera, scene, env.gy, life]);
   const traffic = useMemo(() => createTraffic(), []);
   useEffect(() => () => traffic.dispose(), [traffic]);
   const inspectP = useRef(0);
@@ -161,6 +208,20 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   }, [jet, lights]);
 
   const floorRef = useRef<THREE.Mesh>(null);
+  // concreto do pátio: placas de 5 m com juntas, variação de tom, manchas de óleo e marcas de pneu (textura original)
+  const apronTex = useMemo(() => {
+    const c = document.createElement('canvas'); c.width = c.height = 1024;
+    const g = c.getContext('2d')!;
+    g.fillStyle = '#8a8780'; g.fillRect(0, 0, 1024, 1024);
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { g.fillStyle = `rgba(${Math.random() > 0.5 ? '255,250,240' : '30,28,24'},${0.03 + Math.random() * 0.05})`; g.fillRect(i * 256, j * 256, 256, 256); }
+    for (let k = 0; k < 26000; k++) { g.fillStyle = `rgba(${Math.random() > 0.5 ? '255,255,250' : '20,18,16'},${Math.random() * 0.07})`; g.fillRect(Math.random() * 1024, Math.random() * 1024, 2, 2); }
+    for (let k = 0; k < 7; k++) { const x = Math.random() * 1024, y = Math.random() * 1024, r = 18 + Math.random() * 46; const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(30,26,22,0.28)'); gr.addColorStop(1, 'rgba(30,26,22,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+    g.strokeStyle = 'rgba(40,36,32,0.18)'; g.lineWidth = 9; for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(0, 300 + k * 160); g.bezierCurveTo(340, 260 + k * 170, 680, 380 + k * 120, 1024, 320 + k * 160); g.stroke(); }
+    g.strokeStyle = 'rgba(28,26,24,0.24)'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 256, 0); g.lineTo(i * 256, 1024); g.stroke(); g.beginPath(); g.moveTo(0, i * 256); g.lineTo(1024, i * 256); g.stroke(); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(380 / 20, 108 / 20); t.anisotropy = 8;
+    return t;
+  }, []);
+  useEffect(() => () => apronTex.dispose(), [apronTex]);
   const perfMon = useRef({ acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
@@ -247,16 +308,23 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const i1 = Math.min(FLEET.length - 1, i0 + 1);
       const portrait = window.innerWidth < window.innerHeight;
       const gy = env.gy;
-      // pátio: a câmera enxerga a fila inteira; acompanha a escolhida só parcialmente (as cinco ficam no quadro)
+      // câmera-protagonista: dolly até a escolhida, distância pelo tamanho real dela (Matrix e CJ2+ também ficam grandes),
+      // enquadramento vertical pela lente: escolhida no terço superior, acima dos cards; a fila fica atrás como cenário
       const selX = THREE.MathUtils.lerp(FLEET[i0].x, FLEET[i1].x, f0);
-      const mid = (FLEET[0].x + FLEET[FLEET.length - 1].x) / 2;
-      const camX = mid + (selX - mid) * (portrait ? 0.9 : 0.3);
+      const sz = THREE.MathUtils.lerp(FLEET_SPECS[FLEET[i0].id].envelope.length, FLEET_SPECS[FLEET[i1].id].envelope.length, f0);
+      const span = THREE.MathUtils.lerp(FLEET_SPECS[FLEET[i0].id].envelope.span, FLEET_SPECS[FLEET[i1].id].envelope.span, f0);
+      const aspect = window.innerWidth / window.innerHeight;
+      const vf = THREE.MathUtils.degToRad(portrait ? 34 : 40) / 2;
+      const fit = (Math.max(sz, span * 0.8) * 0.62) / (Math.tan(vf) * aspect);
+      const dist = Math.max(14, fit) * (portrait ? 1.05 : 1.12);
+      const camX = selX;
       tmp.fleetCamX = camX;
       tmp.fogK = 1;
-      // plano baixo de cinema: escolhida grande no primeiro plano (acima dos cards), fila inteira ao fundo
-      const back = portrait ? 70 : 33;
-      tmp.vEye.set(camX + 6, gy + (portrait ? 6.5 : 4.6), FRONT_Z - back);
-      tmp.vTarget.set(camX, gy - (portrait ? 19 : 9.5), 22);
+      const eh = 2.6 + sz * 0.16;
+      const angSel = Math.atan2(eh - 2.1, dist);
+      const look = angSel + (portrait ? 0.11 : 0.055);
+      tmp.vEye.set(camX + sz * 0.3, gy + eh, FRONT_Z - dist);
+      tmp.vTarget.set(camX - sz * 0.04, gy + eh - Math.tan(look) * (dist + 40), FRONT_Z + 40);
       const into = ramp(p, 0.0, 0.1);
       tmp.eye.lerp(tmp.vEye, into); tmp.target.lerp(tmp.vTarget, into);
       fov = THREE.MathUtils.lerp(fov, portrait ? 34 : 40, into);
@@ -372,12 +440,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     }
     // névoa atmosférica
     const fog = scene.fog as THREE.FogExp2;
-    fog.color.copy(skyW > 0.5 ? tmp.pal.haze ?? C('#efd3cc') : inFleet ? C('#8f7560') : tmp.bg);
-    fog.density = skyA > 0.5 ? 0.0019 : epi > 0 ? 0.0018 : hangarW > 0.5 ? (inFleet ? 0.0035 * tmp.fogK : 0.012) : 0.0;
+    fog.color.copy(skyW > 0.5 ? tmp.pal.haze ?? C('#efd3cc') : inFleet ? C('#a2826a') : tmp.bg);
+    fog.density = skyA > 0.5 ? 0.0019 : epi > 0 ? 0.0018 : hangarW > 0.5 ? (inFleet ? 0.0013 * tmp.fogK : 0.012) : 0.0;
 
     // hangar / estúdio
     env.hangar.group.visible = hangarW > 0.001 || (t > 1.75 && t < 3.25);
     env.hangar.setOpacity(hangarW);
+    if (hangarW > 0.01) env.hangar.update(time);
     env.hangar.bars.visible = !(inFleet && st.inspect && st.inspectMode !== 'parts');
     env.grid.mesh.visible = studioW > 0.001;
     env.grid.uniforms.uOpacity.value = studioW;
@@ -387,8 +456,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (floorRef.current) {
       floorRef.current.visible = hangarW > 0.02;
       const fm = floorRef.current.material as THREE.MeshStandardMaterial & { mixStrength?: number };
-      fm.color.set('#3c3d3f').lerp(BG.studio, 1 - hangarW);
-      if (fm.mixStrength !== undefined) fm.mixStrength = 1.7 * hangarW; // concreto do pátio com leve brilho de umidade
+      fm.color.set('#cfcbc3').lerp(BG.studio, 1 - hangarW);
+      if (fm.mixStrength !== undefined) fm.mixStrength = 0.9 * hangarW; // concreto do pátio com leve brilho de umidade
     }
 
     // globo
@@ -541,6 +610,35 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
     // ----- frota: visibilidade, rotores ociosos, desmontagem -----
     lineup.visible = hangarW > 0.01 && t < 3.2;
+    // ----- vida do aeroporto -----
+    life.group.visible = lineup.visible;
+    if (life.group.visible) {
+      const gy = env.gy;
+      // carrinhos: circuito retangular no pátio (frente da fila ↔ limite do pátio)
+      const loop = [[70, -34], [-170, -34], [-170, 48], [70, 48]] as const;
+      const per = [240, 82, 240, 82], total = 644;
+      life.carts.forEach((c) => {
+        let d = ((time * 6.5) / total + c.off) % 1 * total, k = 0;
+        while (d > per[k]) { d -= per[k]; k = (k + 1) % 4; }
+        const a = loop[k], b2 = loop[(k + 1) % 4], f = d / per[k];
+        c.obj.position.set(a[0] + (b2[0] - a[0]) * f, gy, a[1] + (b2[1] - a[1]) * f);
+        c.obj.rotation.y = Math.atan2(-(b2[1] - a[1]), b2[0] - a[0]);
+      });
+      // tráfego: aproximação a 3°, arredondamento, toque e frenagem na pista 27 (z = 122)
+      traffic2.current.forEach((tr) => {
+        const u = ((time / 40 + tr.off) % 1);
+        const xT = -270, x0 = 1600;
+        let x: number, y: number, pitch: number;
+        if (u < 0.62) { const q = u / 0.62; x = x0 + (xT - x0) * q; const h = Math.tan(THREE.MathUtils.degToRad(3)) * (x - xT); const flare = Math.min(1, Math.max(0, (x - xT) / 160)); y = h * (0.35 + 0.65 * flare) + tr.axisH; pitch = 0.05 + 0.04 * (1 - flare); }
+        else { const q = (u - 0.62) / 0.38; x = xT - 900 * (1 - (1 - q) * (1 - q)); y = tr.axisH; pitch = 0.0; }
+        tr.group.position.set(x, gy + y, 122);
+        tr.group.rotation.set(0, Math.PI, pitch);
+        tr.group.visible = x < 1500 && x > -1150;
+        (tr.land.material as THREE.SpriteMaterial).opacity = u < 0.7 ? 1 : 0.25;
+        const on = (time * 1.15 + tr.off) % 1 < 0.06 ? 1 : 0;
+        tr.strobes.forEach((sp) => { (sp.material as THREE.SpriteMaterial).opacity = on; });
+      });
+    }
     const target = st.inspect && !st.assembled ? 1 : 0;
     const prevP = inspectP.current;
     inspectP.current = clamp(prevP + Math.sign(target - prevP) * dt / (st.motion === 'reduced' ? 0.25 : 2.0));
@@ -555,15 +653,15 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const near = st.inspect ? (c.id === st.inspect ? 1 : 0) : Math.max(0, 1 - Math.abs(tmp.fleetIdx - k));
         const w = near * near * (3 - 2 * near);
         const side = Math.sign(k - tmp.fleetIdx);
-        const tx = THREE.MathUtils.lerp(FLEET[k].x + side * 5.5, THREE.MathUtils.lerp(FLEET[k].x, tmp.fleetCamX, 0.82), w);
-        const tz = THREE.MathUtils.lerp(ROW_Z + (st.inspect ? 14 : 4), FRONT_Z, w);
-        const tyaw = st.inspect ? 0 : 0.52 * w;
+        const tx = FLEET[k].x + side * 6 * (1 - w);
+        const tz = THREE.MathUtils.lerp(ROW_Z + (st.inspect ? 10 : 2.5), FRONT_Z, w);
+        const tyaw = st.inspect ? 0 : 0.42 * w;
         const lam = st.motion === 'reduced' ? 40 : 3.2;
         const rdt = Math.min(rawDt, 0.25); // tempo real: a coreografia não desacelera em aparelhos lentos
         c.group.position.x = damp(c.group.position.x, tx, lam, rdt);
         c.group.position.z = damp(c.group.position.z, tz, lam, rdt);
         c.group.rotation.y = damp(c.group.rotation.y, tyaw, lam, rdt);
-        c.setFade(st.inspect ? (c.id === st.inspect ? 1 : 0.16) : 0.3 + 0.7 * w);
+        c.setFade(st.inspect ? (c.id === st.inspect ? 1 : 0.22) : 0.6 + 0.4 * w);
         c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
         c.focusPart(c.id === st.inspect && st.inspectMode === 'parts' && st.inspectSystem ? st.inspectPart : null);
       });
@@ -690,14 +788,15 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={globeHolder} />
       <primitive object={jet.group} />
       <primitive object={lineup} />
+      <primitive object={life.group} />
       <primitive object={traffic.group} />
       {fxOn ? <FXBoundary><PostFX quality={quality} level={perf} focus={focus} dof={dofOn} /></FXBoundary> : null}
-      {floorOn && <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-50, env.gy, 0]} visible={false}>
-        <planeGeometry args={[380, 208]} />
+      {floorOn && <mesh ref={floorRef} rotation-x={-Math.PI / 2} position={[-50, env.gy, -2]} visible={false}>
+        <planeGeometry args={[380, 108]} />
         {quality === 'high' && perf >= 3 ? (
-          <MeshReflectorMaterial blur={[400, 120]} resolution={768} mixBlur={1} mixStrength={3.2} roughness={0.75} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#3c3d3f" metalness={0.25} mirror={0.4} />
+          <MeshReflectorMaterial blur={[400, 120]} resolution={768} mixBlur={1} mixStrength={3.2} roughness={0.75} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#cfcbc3" metalness={0.1} mirror={0.3} map={apronTex} />
         ) : (
-          <meshStandardMaterial color="#3c3d3f" roughness={0.55} metalness={0.15} />
+          <meshStandardMaterial color="#cfcbc3" roughness={0.8} metalness={0.05} map={apronTex} />
         )}
       </mesh>}
     </>

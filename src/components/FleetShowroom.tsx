@@ -150,7 +150,7 @@ export default function FleetShowroom() {
         onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); } }}>
         <div className="fleet__track" data-fleet-track>
           {FLEET.map((f, i) => (
-            <article key={f.id} className="fcard" data-active={i === index ? 'true' : 'false'} data-exclusive={f.exclusive ? 'true' : 'false'} aria-label={`${f.make} ${f.name} ${f.year}, ${f.category}`}>
+            <article key={f.id} className="fcard" data-active={i === index ? 'true' : 'false'} data-exclusive={f.exclusive ? 'true' : 'false'} data-expanded={expanded === f.id ? 'true' : 'false'} aria-label={`${f.make} ${f.name} ${f.year}, ${f.category}`}>
               <div className="fcard__top"><span className="fcard__kind">{f.make} · {f.type}</span><span className="fcard__year">{f.year}</span></div>
               <h3 className="fcard__name">{f.name}</h3>
               <p className="fcard__cat">{f.category} · {f.condition}</p>

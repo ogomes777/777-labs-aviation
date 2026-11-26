@@ -57,6 +57,13 @@ Pacote V6: `simfly-fleet-pack/` (docs, data, starter, scripts, referências). Ag
 - Coreografia: as cinco aeronaves estacionadas lado a lado (fila em z=34) sempre no quadro; a escolhida pelo scroll/toque **taxia para frente** (z=−14), centraliza e gira para 3/4; as demais **recuam, se afastam lateralmente e ficam translúcidas** (opacidade 0,3; 0,16 durante o atlas). Interpolação contínua com o índice da galeria; movimento em tempo real (independe do FPS); variantes de shader pré-compiladas.
 - "A frota.": varredura azul + brilho que respira (mesma linguagem das copys acima). Jato SimFly em PNG (asset aprovado) entra da esquerda, freia e flutua pulsante atrás da copy, menor/minimalista; some no atlas; estático com reduced motion.
 
+
+## Rodada "aeroporto vivo" (26/11/2026)
+- Cenário refeito como **campo de aviação executiva** com elementos que só existem em aeroporto, seguindo a lógica visual ICAO Anexo 14 (ilustrativo): pista 45 m com eixo 30/20 m, 12 faixas de cabeceira, "27", zona de toque e ponto de visada, luzes de borda/cabeceira, PAPI, luzes de aproximação com lampejo sequencial; táxi com eixo amarelo, luzes azuis e marcação de espera; torre de controle com farol giratório e luz de obstáculo; terminal envidraçado aceso; hangar de portão aberto com interior iluminado e jato dentro; torres de holofote com feixe e poça de luz; biruta; cones reais (corpo laranja, faixas refletivas, base) nas pontas de asa/cauda de cada posição; linha de eixo e barra de parada por aeronave calculadas pelas dimensões do tipo; concreto em placas com juntas, manchas e marcas de pneu.
+- Vida: dois jatos de tráfego (mesmo gerador da frota, sem rótulo comercial) em ciclos de pouso defasados — aproximação a 3°, arredondamento, toque e frenagem, farol de pouso e strobes; três carrinhos de pátio circulando com faróis e lanternas.
+- Câmera-protagonista: dolly até a escolhida com distância calculada pelo tamanho real dela (Matrix/CJ2+ não ficam menores que os jatos ao fundo); enquadramento vertical pela lente acima dos cards; não escolhidas mais visíveis (opacidade 0,6).
+- PNG SimFly menor e mais vívido (saturação + glow pulsante), mesma animação; cards mobile enxutos (1 fato visível, ações compactas).
+
 ## Atlas de peças (V6)
 - Toda malha tem ID de peça ligado ao catálogo; cobertura verificada no navegador: 100% dos itens listados no atlas têm malha real em cada aeronave (Matrix sem winglet/turbina; CJ2+ sem winglet; lavatório só no Legacy, conforme anúncio).
 - Novas micropeças: radome/capô, luzes de navegação, pitots/antenas, freios, cockpit (painel + assentos de tripulação), compressor/câmara/turbina/eixo/caixa de acessórios, cárter/cilindros/turbo/intercooler, tanques de combustível.
