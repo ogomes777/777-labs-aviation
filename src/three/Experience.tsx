@@ -124,7 +124,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     return { group: g, carts, spr, dispose: () => { glow.dispose(); body.dispose(); dark.dispose(); } };
   }, []);
   useEffect(() => () => life.dispose(), [life]);
-  type Traffic = FleetCraftBuild & { off: number; land: THREE.Sprite; strobes: THREE.Sprite[] };
+  type Traffic = FleetCraftBuild & { off: number; mode: 'land' | 'takeoff' | 'over'; land: THREE.Sprite; strobes: THREE.Sprite[]; beacon: THREE.Sprite; smoke: THREE.Sprite[] };
   const traffic2 = useRef<Traffic[]>([]);
   useEffect(() => {
     let cancelled = false;
@@ -140,14 +140,17 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const item = todo.shift();
       if (!item) {
         // depois da frota: dois jatos de tráfego em ciclo de pouso (ilustração do mesmo gerador, sem rótulo comercial)
-        (['praetor-600', 'citation-cj2-plus'] as const).forEach((id, i) => {
+        ([['praetor-600', 'land', 0], ['citation-cj2-plus', 'takeoff', 0.35], ['legacy-450', 'over', 0.6]] as const).forEach(([id, mode, off]) => {
           if (cancelled) return;
           const tb = buildFleetCraft(id, { textureSize: 512, detail: 0.45 });
           tb.group.traverse((o) => { if (o.name.startsWith('contact-shadow')) o.visible = false; });
           const land = life.spr('#fffaf0', 16); land.position.set(tb.size / 2 + 0.6, -0.4, 0); tb.group.add(land);
           const strobes = [-1, 1].map((sd) => { const st2 = life.spr('#ffffff', 5); st2.position.set(0, 0, sd * FLEET_SPECS[id].envelope.span * 0.5); tb.group.add(st2); return st2; });
+          const beacon = life.spr('#ff2a1a', 3.2); beacon.position.set(0, FLEET_SPECS[id].R + 0.25, 0); tb.group.add(beacon);
+          // fumaça de pneu no toque (só no pouso)
+          const smoke = [-1, 1].map((sd) => { const sp = life.spr('#cfc8bd', 3); sp.material.blending = THREE.NormalBlending; sp.position.set(-1.5, -tb.axisH + 0.4, sd * FLEET_SPECS[id].gear.track / 2); tb.group.add(sp); return sp; });
           life.group.add(tb.group);
-          traffic2.current.push(Object.assign(tb, { off: i * 0.5, land, strobes }));
+          traffic2.current.push(Object.assign(tb, { off, mode, land, strobes, beacon, smoke }));
         });
         return;
       }
@@ -548,13 +551,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     if (wantDof !== st.dof) ui.set({ dof: wantDof });
     scene.environmentIntensity = inside ? 0.37 : envKey === 'hangar' ? 0.2 : envKey === 'studio' ? 0.7 : 0.5;
     lights.sun.intensity = inside ? 0 : 2.6 * Math.max(skyA, epi) + 0.5 * studioW;
-    lights.hemi.intensity = inside ? 0.05 : 0.32 * Math.max(skyA, epi) + 1.1 * studioW + (inFleet ? 0.55 : 0.02) * hangarW;
+    lights.hemi.intensity = inside ? 0.05 : 0.32 * Math.max(skyA, epi) + 1.1 * studioW + (inFleet ? 0.7 : 0.02) * hangarW;
     lights.key.intensity = 30 * hangarW;
     // a luz-chave e o contraluz acompanham a câmera ao longo da fila da frota
     const kx = inFleet ? tmp.target.x : 0;
     if (Math.abs(lights.key.position.x - (kx - 7)) > 0.01) { lights.key.position.set(kx - 7, 6.5, -9); lights.key.lookAt(kx - 2, 0.6, 0); lights.rim.position.set(kx + 14, 9, 34); lights.rim.target.position.set(kx, 0, 0); lights.rim.target.updateMatrixWorld(); }
-    lights.rim.intensity = (inFleet ? 3.4 : 2.4) * hangarW;
-    if (inFleet) lights.rim.color.set('#ffd6a6'); else lights.rim.color.set('#c9d3de');
+    lights.rim.intensity = (inFleet ? 4.4 : 2.4) * hangarW;
+    if (inFleet) lights.rim.color.set('#ffc98a'); else lights.rim.color.set('#c9d3de');
     const cabinLight = inside ? 1 : hangarW > 0.5 ? 0.9 : 0.3;
     lights.cab.forEach((l) => { l.intensity = (inside ? 0.74 : 1.1) * cabinLight; });
     const day = inside ? (inCabin ? 1 : 0.8) : 0;
@@ -598,9 +601,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const warm = 0.05 * W.sky + 0.12 * W.hangar - 0.05 * W.studio + 0.14 * W.cabin - 0.25 * W.globe;
       const contrast = 0.24 * W.sky + 0.3 * W.hangar + 0.08 * W.studio + 0.22 * W.cabin + 0.2 * W.globe;
       const sat = 1.1 * W.sky + 1.0 * W.hangar + 0.92 * W.studio + 1.06 * W.cabin + 1.0 * W.globe;
-      u.get('uWarm')!.value = damp(u.get('uWarm')!.value, warm, 3, dt);
+      u.get('uWarm')!.value = damp(u.get('uWarm')!.value, warm + (inFleet ? 0.05 : 0), 3, dt);
       u.get('uContrast')!.value = damp(u.get('uContrast')!.value, contrast, 3, dt);
-      u.get('uSat')!.value = damp(u.get('uSat')!.value, Math.max(0.9, sat), 3, dt);
+      u.get('uSat')!.value = damp(u.get('uSat')!.value, Math.max(0.9, sat + (inFleet ? 0.16 : 0)), 3, dt);
       // adaptação de exposição do sensor: entra na cabine escura e a imagem clareia aos poucos (e vice-versa)
       const expo = 0.94 * W.sky + 1.1 * W.hangar + 0.98 * W.studio + 1.2 * W.cabin + 1.02 * W.globe;
       u.get('uExposure')!.value = frame.freezeClock ? Math.max(0.9, expo) : damp(u.get('uExposure')!.value, Math.max(0.9, expo), 0.9, dt);
@@ -624,19 +627,35 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         c.obj.position.set(a[0] + (b2[0] - a[0]) * f, gy, a[1] + (b2[1] - a[1]) * f);
         c.obj.rotation.y = Math.atan2(-(b2[1] - a[1]), b2[0] - a[0]);
       });
-      // tráfego: aproximação a 3°, arredondamento, toque e frenagem na pista 27 (z = 122)
+      // tráfego vivo: pouso (3°, arredondamento, toque com fumaça, frenagem), decolagem (espera, rolagem acelerada,
+      // rotação, subida, recolhimento do trem) e sobrevoo alto com inclinação; anticolisão, navegação e strobes
       traffic2.current.forEach((tr) => {
-        const u = ((time / 40 + tr.off) % 1);
-        const xT = -270, x0 = 1600;
-        let x: number, y: number, pitch: number;
-        if (u < 0.62) { const q = u / 0.62; x = x0 + (xT - x0) * q; const h = Math.tan(THREE.MathUtils.degToRad(3)) * (x - xT); const flare = Math.min(1, Math.max(0, (x - xT) / 160)); y = h * (0.35 + 0.65 * flare) + tr.axisH; pitch = 0.05 + 0.04 * (1 - flare); }
-        else { const q = (u - 0.62) / 0.38; x = xT - 900 * (1 - (1 - q) * (1 - q)); y = tr.axisH; pitch = 0.0; }
-        tr.group.position.set(x, gy + y, 122);
-        tr.group.rotation.set(0, Math.PI, pitch);
-        tr.group.visible = x < 1500 && x > -1150;
-        (tr.land.material as THREE.SpriteMaterial).opacity = u < 0.7 ? 1 : 0.25;
+        const D3 = Math.tan(THREE.MathUtils.degToRad(3));
+        let x = 0, y = tr.axisH, z = 122, pitch = 0, roll = 0, yaw = Math.PI, gear = true, landOn = 1;
+        let smokeT = -1;
+        if (tr.mode === 'land') {
+          const P = 46, sT = ((time + tr.off * P) % P);
+          const tTouch = 27; const xT = -270;
+          if (sT < tTouch) { const v = 68; x = xT + v * (tTouch - sT); const h = D3 * (x - xT); const fl = Math.min(1, Math.max(0, (x - xT) / 170)); y = tr.axisH + h * (0.3 + 0.7 * fl) + (1 - fl) * 0.6 * (1 - Math.min(1, (tTouch - sT) / 2)); pitch = 0.045 + 0.05 * (1 - fl); roll = Math.sin(time * 0.9) * 0.012 * fl; }
+          else { const q = sT - tTouch; x = xT - (60 * q - 2.6 * q * q * 0.5 * Math.min(1, q / 18) * (q < 22 ? 1 : 0)) ; if (q >= 22) x = xT - (60 * 22 - 1.3 * 22 * 22 * 0.5 * 1) - 6 * (q - 22); pitch = Math.max(0, 0.04 - q * 0.02); smokeT = q; landOn = q < 8 ? 1 : 0.3; }
+        } else if (tr.mode === 'takeoff') {
+          const P = 54, sT = ((time + tr.off * P) % P);
+          if (sT < 5) { x = 40; landOn = 0.6; }
+          else if (sT < 27) { const q = sT - 5; x = 40 - 1.15 * q * q; }
+          else { const q = sT - 27; const v = 50.6 + 1.6 * q; x = 40 - 1.15 * 22 * 22 - (50.6 * q + 0.8 * q * q); y = tr.axisH + Math.max(0, q - 1.2) * (5.5 + 0.35 * q); pitch = Math.min(0.15, q * 0.09) - Math.max(0, q - 8) * 0.004; gear = q < 4.5; roll = q > 10 ? Math.sin(q * 0.3) * 0.02 : 0; void v; }
+        } else {
+          const P = 74, sT = ((time + tr.off * P) % P);
+          yaw = 0; z = 520; x = -1700 + sT * 46; y = 210 + Math.sin(sT * 0.08) * 8; roll = -0.1 + Math.sin(time * 0.35) * 0.04; pitch = 0.01; gear = false; landOn = 0.15;
+        }
+        tr.group.position.set(x, env.gy + y, z);
+        tr.group.rotation.set(0, yaw, 0); tr.group.rotateZ(pitch); tr.group.rotateX(roll);
+        tr.group.visible = x < 1650 && x > -1650;
+        tr.systems.trem.visible = gear;
+        (tr.land.material as THREE.SpriteMaterial).opacity = landOn;
         const on = (time * 1.15 + tr.off) % 1 < 0.06 ? 1 : 0;
         tr.strobes.forEach((sp) => { (sp.material as THREE.SpriteMaterial).opacity = on; });
+        (tr.beacon.material as THREE.SpriteMaterial).opacity = (time * 1.3 + tr.off * 3) % 1 < 0.12 ? 1 : 0.05;
+        tr.smoke.forEach((sp, k) => { const m = sp.material as THREE.SpriteMaterial; if (smokeT >= 0 && smokeT < 2.6) { const g2 = smokeT / 2.6; m.opacity = (1 - g2) * 0.55; sp.scale.setScalar(1.5 + g2 * 9 + k * 0.4); sp.position.x = -1.5 + smokeT * 7; } else m.opacity = 0; });
       });
     }
     const target = st.inspect && !st.assembled ? 1 : 0;
