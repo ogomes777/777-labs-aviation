@@ -98,3 +98,10 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - Removidos a seção Destinos (globo de baixo) e o formulário de viagem; contato direto SimFly (WhatsApp/e-mail) mantém #planejar; testes dos recursos removidos excluídos.
 - Testes: tsc OK, vitest 19/19, build OK; E2E subset 12 passaram; "menu abre/fecha" no mobile é instável (2/3 passam isolado; menu não foi alterado).
 - Publicado em produção (autorizado pelo usuário): deploy `dpl_2HK2FPLhAuBCs9KEGU6XUhpuRrZC` de `simfly/v6-master` @ `2214c8c`. Verificado em https://777-labs-aviation.vercel.app: contato direto presente, seção Destinos e formulário de viagem ausentes, frota real, `/lab/preview` = 404. Rollback: promover `dpl_49ZcMZNhrKGdUPCiB2i22KW2b4bA` (versão anterior da V6).
+
+## Rodada de correções (26/11/2026, 3ª)
+- Rolar/arrastar com o atlas aberto fecha o painel e segue para a próxima aeronave (verificado: legacy-450 → índice 2 sem clicar em Fechar); a área do 360 não bloqueia mais a roda nem o toque vertical (sem data-lenis-prevent; touch-action pan-y).
+- Raio-X contínuo: camada fresnel sobreposta surge enquanto a pele esmaece (e o inverso), em tempo real; sem troca brusca de material.
+- 360: sem seleção de texto ao arrastar; aviso "Arraste · 360°" minimalista no canto, sem caixa; "Redefinir vista" volta ângulo, sistema, peça, montagem e raio-X.
+- Cenário em 360°: domo de céu completo, serra em anel com tom atmosférico, chão de campo em todas as direções (sem fundo preto); marquise do terminal com forro iluminado.
+- "A frota." e PNG SimFly menores; o PNG não some mais ao abrir o atlas. Planta com entrada premium e posicionada fora do painel. Desmontagem com deslocamentos maiores.

@@ -678,7 +678,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const prevP = inspectP.current;
     inspectP.current = clamp(prevP + Math.sign(target - prevP) * dt / (st.motion === 'reduced' ? 0.25 : 2.0));
     const xrT = inFleet && st.inspect && st.fleetXray && st.inspectMode === 'parts' ? 1 : 0;
-    tmp.xray = xrT === 0 && tmp.xray < 0.01 ? 0 : damp(tmp.xray, xrT, st.motion === 'reduced' ? 40 : 4.5, dt);
+    tmp.xray = xrT === 0 && tmp.xray < 0.004 ? 0 : damp(tmp.xray, xrT, st.motion === 'reduced' ? 40 : 1.9, Math.min(rawDt, 0.1));
     if (inFleet || prevP > 0) {
       crafts.current.forEach((c) => {
         if (c.id === st.inspect || (prevP > 0 && c.id === tmp.lastIns)) applyInspect(c.entries, inspectP.current, st.fleetPreview, time);

@@ -47,8 +47,8 @@ export function createHangar(groundY: number) {
     const rw = asphalt('#28292b'); rw.wrapS = rw.wrapT = THREE.RepeatWrapping; rw.repeat.set(140, 4);
     const rwm = new THREE.Mesh(T(flat(RW_X0 - RW_X1 + 400, RW_W + 6, (RW_X0 + RW_X1) / 2 + 200, RW_Z, 0.006)), M(new THREE.MeshStandardMaterial({ map: rw, roughness: 0.85 }))); rwm.name = 'runway'; group.add(rwm);
     const grass = canvasTex(256, 256, (g) => { g.fillStyle = '#3b4230'; g.fillRect(0, 0, 256, 256); for (let i = 0; i < 6000; i++) { g.fillStyle = `rgba(${Math.random() > 0.5 ? '120,130,80' : '20,24,14'},${Math.random() * 0.25})`; g.fillRect(Math.random() * 256, Math.random() * 256, 1, 2); } });
-    grass.wrapS = grass.wrapT = THREE.RepeatWrapping; grass.repeat.set(120, 60);
-    const gm = new THREE.Mesh(T(flat(3000, 1400, -300, 750, -0.02)), M(new THREE.MeshStandardMaterial({ map: grass, roughness: 1 }))); gm.name = 'grass'; group.add(gm);
+    grass.wrapS = grass.wrapT = THREE.RepeatWrapping; grass.repeat.set(320, 320);
+    const gm = new THREE.Mesh(T(flat(8000, 8000, -300, 0, -0.03)), M(new THREE.MeshStandardMaterial({ map: grass, roughness: 1 }))); gm.name = 'grass'; group.add(gm);
   }
   // ---------- marcações (ICAO Anexo 14, ilustrativo) ----------
   {
@@ -138,7 +138,8 @@ export function createHangar(groundY: number) {
     const front = new THREE.Mesh(T(new THREE.PlaneGeometry(220, 12)), gm); front.position.set(0, 7, -9.8); front.rotation.y = Math.PI; tb.add(front);
     const box = new THREE.Mesh(T(new THREE.BoxGeometry(224, 15, 18)), body); box.position.y = 7.5; tb.add(box);
     const canopy = new THREE.Mesh(T(new THREE.BoxGeometry(230, 0.8, 26)), body); canopy.position.set(0, 15.4, -3); tb.add(canopy);
-    const edge = new THREE.Mesh(T(new THREE.BoxGeometry(228, 0.15, 0.3)), M(new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 2.2, 1.9) }))); edge.position.set(0, 15, -16); tb.add(edge);
+    const soffit = new THREE.Mesh(T(new THREE.PlaneGeometry(228, 24)), M(new THREE.MeshStandardMaterial({ color: '#d9c6ad', emissive: new THREE.Color('#ffc98e'), emissiveIntensity: 0.7, roughness: 0.6 }))); soffit.rotation.x = Math.PI / 2; soffit.position.set(0, 14.95, -3); tb.add(soffit);
+    const edge = new THREE.Mesh(T(new THREE.BoxGeometry(228, 0.5, 0.4)), M(new THREE.MeshStandardMaterial({ color: '#2b3036', metalness: 0.7, roughness: 0.4 }))); edge.position.set(0, 15.4, -16); tb.add(edge);
   }
   // ---------- hangar de portão aberto (lado direito, em ângulo) ----------
   {
@@ -203,11 +204,16 @@ export function createHangar(groundY: number) {
   // ---------- céu ao entardecer, nuvens rasas, serra e luzes da cidade no horizonte ----------
   {
     const sky = canvasTex(64, 512, (g) => { const grd = g.createLinearGradient(0, 0, 0, 512); grd.addColorStop(0, '#13285a'); grd.addColorStop(0.3, '#3a66a8'); grd.addColorStop(0.52, '#c7866a'); grd.addColorStop(0.68, '#ffb066'); grd.addColorStop(0.78, '#ffe3b4'); grd.addColorStop(0.8, '#2b2826'); grd.addColorStop(1, '#171514'); g.fillStyle = grd; g.fillRect(0, 0, 64, 512); });
-    const sm = new THREE.Mesh(T(new THREE.PlaneGeometry(4200, 900)), M(new THREE.MeshBasicMaterial({ map: sky, fog: false, depthWrite: false }))); sm.position.set(-300, gy + 250, 1300); sm.rotation.y = Math.PI; sm.renderOrder = -10; group.add(sm);
+    void sky;
+    const domeTex = canvasTex(64, 1024, (g) => { const grd = g.createLinearGradient(0, 0, 0, 1024); grd.addColorStop(0, '#0f2252'); grd.addColorStop(0.22, '#2f5d9f'); grd.addColorStop(0.38, '#8fa6c4'); grd.addColorStop(0.45, '#e9a979'); grd.addColorStop(0.49, '#ffd9a6'); grd.addColorStop(0.505, '#b7a593'); grd.addColorStop(0.6, '#5d6150'); grd.addColorStop(1, '#3c4034'); g.fillStyle = grd; g.fillRect(0, 0, 64, 1024); });
+    const dome = new THREE.Mesh(T(new THREE.SphereGeometry(4200, 64, 32)), M(new THREE.MeshBasicMaterial({ map: domeTex, side: THREE.BackSide, fog: false, depthWrite: false })));
+    dome.position.set(-40, gy, 0); dome.renderOrder = -11; dome.name = 'sky-dome'; group.add(dome);
     const clouds = canvasTex(1024, 256, (g) => { g.clearRect(0, 0, 1024, 256); for (let i = 0; i < 70; i++) { const x = Math.random() * 1024, y = 60 + Math.random() * 120, r = 30 + Math.random() * 90; const c = g.createRadialGradient(x, y, 0, x, y, r); c.addColorStop(0, 'rgba(255,214,170,0.22)'); c.addColorStop(1, 'rgba(255,190,150,0)'); g.fillStyle = c; g.fillRect(x - r, y - r * 0.4, r * 2, r * 0.8); } });
     const cm = new THREE.Mesh(T(new THREE.PlaneGeometry(3600, 320)), M(new THREE.MeshBasicMaterial({ map: clouds, fog: false, depthWrite: false, opacity: 0.9 }))); cm.position.set(-300, gy + 190, 1250); cm.rotation.y = Math.PI; cm.renderOrder = -9; group.add(cm);
-    const ridge = canvasTex(2048, 128, (g) => { g.fillStyle = '#25242a'; g.beginPath(); g.moveTo(0, 128); for (let x = 0; x <= 2048; x += 8) g.lineTo(x, 70 - 30 * Math.sin(x * 0.004) * Math.sin(x * 0.011 + 1) - 10 * Math.sin(x * 0.04)); g.lineTo(2048, 128); g.closePath(); g.fill(); for (let i = 0; i < 520; i++) { g.fillStyle = `rgba(255,${190 + Math.random() * 50},${120 + Math.random() * 60},${0.5 + Math.random() * 0.5})`; g.fillRect(Math.random() * 2048, 100 + Math.random() * 26, 1.6, 1.6); } });
-    const rm = new THREE.Mesh(T(new THREE.PlaneGeometry(3800, 160)), M(new THREE.MeshBasicMaterial({ map: ridge, fog: false, depthWrite: false }))); rm.position.set(-300, gy + 52, 1200); rm.rotation.y = Math.PI; rm.renderOrder = -8; group.add(rm);
+    const ridge = canvasTex(2048, 128, (g) => { const grd = g.createLinearGradient(0, 30, 0, 128); grd.addColorStop(0, '#59607a'); grd.addColorStop(1, '#9c95a0'); g.fillStyle = grd; g.beginPath(); g.moveTo(0, 128); for (let x = 0; x <= 2048; x += 8) g.lineTo(x, 70 - 30 * Math.sin(x * 0.004) * Math.sin(x * 0.011 + 1) - 10 * Math.sin(x * 0.04)); g.lineTo(2048, 128); g.closePath(); g.fill(); for (let i = 0; i < 520; i++) { g.fillStyle = `rgba(255,${190 + Math.random() * 50},${120 + Math.random() * 60},${0.5 + Math.random() * 0.5})`; g.fillRect(Math.random() * 2048, 100 + Math.random() * 26, 1.6, 1.6); } });
+    ridge.wrapS = THREE.RepeatWrapping; ridge.repeat.set(3, 1);
+    const rm = new THREE.Mesh(T(new THREE.CylinderGeometry(2600, 2600, 170, 96, 1, true)), M(new THREE.MeshBasicMaterial({ map: ridge, side: THREE.BackSide, fog: false, depthWrite: false, transparent: true })));
+    rm.position.set(-40, gy + 70, 0); rm.renderOrder = -8; rm.name = 'ridge-ring'; group.add(rm);
     const sun = new THREE.Mesh(T(new THREE.PlaneGeometry(380, 380)), M(new THREE.MeshBasicMaterial({ map: glowTex('rgba(255,246,222,1)', 'rgba(255,196,120,0.5)'), blending: THREE.AdditiveBlending, depthWrite: false, fog: false }))); sun.position.set(160, gy + 85, 1180); sun.rotation.y = Math.PI; sun.renderOrder = -7; group.add(sun);
   }
   // ---------- cones de pátio (instanciados; posicionados pela cena nas pontas de asa e cauda) ----------

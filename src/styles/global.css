@@ -823,3 +823,20 @@ html:not([data-motion='cinematic']) .fleet__title .wi { animation: none; }
 
 .inquiry--contact .inquiry__grid { grid-template-columns: 1fr; max-width: 760px; }
 .contact-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; }
+
+/* V6 — 360 sem bloquear o scroll vertical (toque) e sem selecionar texto; aviso minimalista no canto */
+.fleet-orbit { touch-action: pan-y; user-select: none; -webkit-user-select: none; align-items: flex-end; justify-content: flex-start; padding: 0 0 22px var(--gutter); }
+.fleet-orbit span { pointer-events: none; background: none; border: 0; padding: 0; font-size: .56rem; letter-spacing: .28em; color: rgba(234, 243, 255, .55); }
+/* "A frota." menor e minimalista; aviãozinho menor, sempre estável (não some no atlas) */
+.fleet .fleet__title { font-size: clamp(2.1rem, 3.6vw, 3.6rem); }
+.fleet__plane { width: clamp(70px, 5.6vw, 104px) !important; left: clamp(128px, 11vw, 186px) !important; top: clamp(78px, 10.2svh, 104px) !important; }
+.fleet__plane[data-inspecting='true'] { opacity: .95; }
+@media (max-width: 760px) { .fleet .fleet__title { font-size: 2rem; } .fleet__plane { width: 16vw !important; left: 33vw !important; top: 92px !important; } }
+/* planta: nunca atrás do painel; entrada premium */
+.fplan-wrap { right: calc(var(--gutter) + min(380px, 90vw) + 28px); }
+.fplan { animation: fplanIn .7s cubic-bezier(.16, 1, .3, 1) both; transform-origin: 50% 60%; }
+@keyframes fplanIn { from { opacity: 0; transform: translateY(14px) scale(.97); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+.fplan__seat { animation: fplanSeat .5s cubic-bezier(.16, 1, .3, 1) both; }
+.fplan__seat:nth-of-type(2n) { animation-delay: .08s; } .fplan__seat:nth-of-type(3n) { animation-delay: .14s; }
+@keyframes fplanSeat { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fplan, .fplan__seat { animation: none; } }

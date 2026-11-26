@@ -674,7 +674,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     if (!obj) return;
     entries.push({ part, obj, base: obj.position.clone(), baseRot: obj.rotation.clone(), off, w, spin });
   };
-  const k = s.envelope.length / 20;
+  const k = (s.envelope.length / 20) * 1.7;
   add('cabine', cab, V(0, s.R * 2 + 1.6 * k, 0), [0, 0.45]);
   add('portas', systems.portas, V(0, 0, -1.6 * k), [0.06, 0.5]);
   systems.asas.children.forEach((w) => add('asas', w, V(0, -0.7 * k, (w.name === 'wing-R' ? 1 : -1) * 2.6 * k), [0.12, 0.62]));
@@ -716,6 +716,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const original = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   allMeshes.forEach((m) => original.set(m, m.material));
   const skinSet = new Set(skins);
+  const skinMatSet = new Set<THREE.Material>(skins.flatMap((m) => ([] as THREE.Material[]).concat(m.material)));
   let xrOn = false, focused: string | null = null;
   const refresh = () => {
     for (const m of allMeshes) {
@@ -726,18 +727,34 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
         m.visible = hit || !internal || xrOn;
         m.renderOrder = hit ? 0 : 3;
       } else {
-        m.material = xrOn && skinSet.has(m) ? xray : original.get(m)!;
+        m.material = original.get(m)!;
         m.visible = internal ? xrOn : true;
-        m.renderOrder = xrOn && skinSet.has(m) ? 3 : 0;
+        m.renderOrder = 0;
       }
     }
   };
+  // raio-X contínuo: camada fresnel sobreposta (mesma geometria) aparece enquanto a pele esmaece — sem troca brusca
+  const overlays: THREE.Mesh[] = skins.map((m) => { const o = new THREE.Mesh(m.geometry, xray); o.name = 'xray-overlay'; o.visible = false; o.renderOrder = 3; o.userData.xray = 'overlay'; m.add(o); return o; });
+  let xrA = 0, fadeKk = 1;
+  const applyOpacity = () => {
+    fadeMats.forEach((b0, m) => {
+      const skinMat = skinMatSet.has(m);
+      const k = fadeKk * (skinMat ? 1 - 0.88 * xrA : 1);
+      m.opacity = b0.op * k;
+      const t = b0.tr || k < 0.999;
+      if (m.transparent !== t) { m.transparent = t; m.needsUpdate = true; }
+      if (!b0.tr) m.depthWrite = k > 0.6;
+    });
+  };
   const setXray = (amount: number) => {
-    const on = amount > 0.02;
-    (xray.uniforms.uAlpha as { value: number }).value = focused ? Math.max(0.55, amount) : amount;
-    internalMat.emissiveIntensity = 0.35 + 0.9 * amount;
-    if (on === xrOn) return;
-    xrOn = on; refresh();
+    const a = Math.min(1, Math.max(0, amount));
+    (xray.uniforms.uAlpha as { value: number }).value = focused ? Math.max(0.55, a) : a;
+    internalMat.emissiveIntensity = 0.35 + 0.9 * a;
+    internalMat.transparent = true; internalMat.opacity = Math.min(1, a * 1.4);
+    const on = a > 0.01;
+    if (!focused) { overlays.forEach((o) => { o.visible = on; }); internals.forEach((o) => { o.visible = on; }); }
+    if (Math.abs(a - xrA) < 0.004 && on === xrOn) return;
+    xrA = a; xrOn = on; applyOpacity();
   };
   const focusPart = (part: string | null) => {
     const p = part && partIds.has(part) ? part : null;
@@ -757,19 +774,11 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     partCache.set(part, r); return r;
   };
   const fadeMats = new Map<THREE.Material, { op: number; tr: boolean }>();
-  group.traverse((o) => { const m = o as THREE.Mesh; if (!m.isMesh) return; for (const mt of ([] as THREE.Material[]).concat(m.material)) if (!(mt instanceof THREE.ShaderMaterial) && !fadeMats.has(mt)) fadeMats.set(mt, { op: mt.opacity, tr: mt.transparent }); });
-  let fadeK = 1;
+  group.traverse((o) => { const m = o as THREE.Mesh; if (!m.isMesh || o.userData.xray === 'overlay') return; for (const mt of ([] as THREE.Material[]).concat(m.material)) if (!(mt instanceof THREE.ShaderMaterial) && !fadeMats.has(mt)) fadeMats.set(mt, { op: mt.opacity, tr: mt.transparent }); });
   const setFade = (k: number) => {
     const kk = Math.round(Math.min(1, Math.max(0, k)) * 100) / 100;
-    if (kk === fadeK) return;
-    const was = fadeK < 1; fadeK = kk; const now = kk < 1;
-    fadeMats.forEach((b, m) => {
-      m.opacity = b.op * kk;
-      const t = b.tr || now;
-      if (m.transparent !== t) { m.transparent = t; m.needsUpdate = true; }
-      if (m instanceof THREE.MeshStandardMaterial && !b.tr) m.depthWrite = !now || kk > 0.6;
-    });
-    void was;
+    if (kk === fadeKk) return;
+    fadeKk = kk; applyOpacity();
   };
   const isolate = (sid: SystemId | null) => { for (const k2 of SYSTEMS) systems[k2].visible = !sid || k2 === sid; };
 

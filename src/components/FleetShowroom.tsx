@@ -97,6 +97,14 @@ export default function FleetShowroom() {
     timer.current = window.setTimeout(() => { frame.orbitYaw = 0; frame.orbitPitch = 0; ui.set({ inspect: null }); }, motion === 'reduced' ? 0 : 900);
     opener.current?.focus();
   }, [motion, preview]);
+  // rolar/arrastar até outra aeronave fecha o atlas na hora e segue a experiência (o scroll é o motor)
+  useEffect(() => {
+    if (!inspect || FLEET[index]?.id === inspect) return;
+    if (timer.current) window.clearTimeout(timer.current);
+    if (xrayTimer.current) window.clearTimeout(xrayTimer.current);
+    preview.close(); frame.orbitYaw = 0; frame.orbitPitch = 0;
+    ui.set({ inspect: null, assembled: true, inspectPart: null, inspectMode: 'parts', seat: null, inspectSystem: null, fleetXray: false, fleetPreview: null });
+  }, [index, inspect, preview]);
   useEffect(() => {
     if (!inspect) return;
     const onKey = (e: KeyboardEvent) => {
@@ -194,7 +202,7 @@ export default function FleetShowroom() {
       </div>}
       <HotspotPreview id="fleet-preview" state={preview.state} cardRef={preview.cardRef} onConfirm={preview.confirm} onEnter={preview.cancelClose} onLeave={preview.scheduleClose} />
 
-      {live && inspect && mode === 'parts' && <div className="fleet-orbit" role="application" aria-label="Arraste para girar a aeronave em 360°; teclado: setas" tabIndex={0} data-lenis-prevent {...orbitHandlers}><span>Arraste para girar · 360°</span></div>}
+      {live && inspect && mode === 'parts' && <div className="fleet-orbit" role="application" aria-label="Arraste para girar a aeronave em 360°; teclado: setas" tabIndex={0} {...orbitHandlers}><span aria-hidden="true">Arraste · 360°</span></div>}
 
       {item && mode === 'plan' && <div className="fplan-wrap"><FloorPlan id={item.id} seat={seat} onSeat={(i) => ui.set({ inspectMode: 'seat', seat: i })} /></div>}
       <div ref={seatLayer} className="seats" data-visible="false" aria-hidden="true" hidden />
@@ -222,7 +230,7 @@ export default function FleetShowroom() {
               {live && <div className="inspect__actions" role="group" aria-label="Visualização">
                 <button type="button" className="pill pill--tool" aria-pressed={xray} onClick={() => ui.set({ fleetXray: !xray })}>Raio-X</button>
                 <button type="button" className="pill pill--tool" aria-pressed={!assembled} onClick={() => ui.set({ assembled: !assembled })}>{assembled ? 'Abrir em camadas' : 'Montar aeronave'}</button>
-                <button type="button" className="pill pill--tool" onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; }}>Redefinir vista</button>
+                <button type="button" className="pill pill--tool" onClick={() => { frame.orbitYaw = 0; frame.orbitPitch = 0; preview.close(); ui.set({ inspectSystem: null, inspectPart: null, assembled: true, fleetXray: false }); }}>Redefinir vista</button>
               </div>}
               {selSys && <ul className="inspect__parts">
                 {selSys.parts.map((p) => (
