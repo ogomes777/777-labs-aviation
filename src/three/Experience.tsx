@@ -322,7 +322,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       tmp.fogK = 1;
       const eh = 2.6 + sz * 0.16;
       const angSel = Math.atan2(eh - 2.1, dist);
-      const look = angSel + (portrait ? 0.11 : 0.055);
+      const look = angSel + (portrait ? 0.16 : 0.13);
       tmp.vEye.set(camX + sz * 0.3, gy + eh, FRONT_Z - dist);
       tmp.vTarget.set(camX - sz * 0.04, gy + eh - Math.tan(look) * (dist + 40), FRONT_Z + 40);
       const into = ramp(p, 0.0, 0.1);
