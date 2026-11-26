@@ -290,8 +290,8 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
           vec2 q = vec2(d - (uWin.x + i * uWin.y), (th - uWin.w) * uGeo.y);
           float sd = rbox(q, uWinS * 0.5, min(uWinS.x, uWinS.y) * 0.45);
           if (d > uCab.x - 0.05) {
-            if (sd < 0.0) { if (q.y > uWinS.y * 0.5 - 0.05) diffuseColor.rgb = vec3(0.86, 0.83, 0.78); else discard; }
-            else if (sd < 0.03) diffuseColor.rgb = vec3(0.42, 0.29, 0.19) * (0.8 + 0.4 * smoothstep(0.0, 0.03, sd));
+            if (sd < 0.0) discard; // janela aberta (sem persiana)
+            else if (sd < 0.018) diffuseColor.rgb = vec3(0.78, 0.66, 0.48);
             else if (sd < 0.075) diffuseColor.rgb *= 0.86 + 0.14 * smoothstep(0.022, 0.075, sd);
           }
           // cockpit: para-brisa e janelas laterais
@@ -304,6 +304,28 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
         }`);
     };
     const sm = mesh(g, shellMat, 'lining'); sm.renderOrder = 0;
+    // túnel de cada janela (profundidade real entre o forro e o casco) — moldura com volume, não um recorte de papel
+    {
+      const pts2: number[] = [], idx2: number[] = []; const Rr = s.R - inset, dep = prop ? 0.06 : 0.1;
+      const a = wn.w * 0.52, b = wn.h * 0.52, rr = Math.min(a, b) * 0.45, N = 40;
+      const outline: [number, number][] = [];
+      const corners: [number, number, number][] = [[a - rr, b - rr, 0], [-(a - rr), b - rr, Math.PI / 2], [-(a - rr), -(b - rr), Math.PI], [a - rr, -(b - rr), Math.PI * 1.5]];
+      for (const [cx, cy, a0] of corners) for (let k = 0; k <= N / 4; k++) { const t = a0 + (k / (N / 4)) * (Math.PI / 2); outline.push([cx + Math.cos(t) * rr, cy + Math.sin(t) * rr]); }
+      for (let i = 0; i < wn.n; i++) for (const side of [1, -1]) {
+        const dc = wn.d0 + i * wn.pitch, th0 = wn.th ?? 0.2;
+        const base = pts2.length / 3;
+        outline.forEach(([u, v]) => {
+          const th = side > 0 ? th0 + v / Rr : Math.PI - (th0 + v / Rr);
+          const pIn = f.point(dc + u, th, inset), pOut = f.point(dc + u, th, inset - dep);
+          pts2.push(pIn.x, pIn.y, pIn.z, pOut.x, pOut.y, pOut.z);
+        });
+        const n = outline.length;
+        for (let k = 0; k < n; k++) { const k2 = (k + 1) % n; const A = base + k * 2, B = base + k2 * 2; idx2.push(A, B, A + 1, B, B + 1, A + 1); }
+      }
+      const tg = new THREE.BufferGeometry(); tg.setAttribute('position', new THREE.Float32BufferAttribute(pts2, 3)); tg.setIndex(idx2); tg.computeVertexNormals();
+      const reveal = dim(tr(new THREE.MeshStandardMaterial({ color: '#efe7da', roughness: 0.6, side: THREE.DoubleSide, emissive: new THREE.Color('#2a2016'), emissiveIntensity: 0.6 })));
+      mesh(tg, reveal, 'window-reveal');
+    }
     // sancas de LED no teto (luz indireta quente)
     for (const sd of [1, -1]) {
       const y = floorY + (prop ? 0.98 : s.R < 1 ? 1.22 : 1.55);
@@ -361,7 +383,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     // olhos de quem está sentado: um pouco à frente do encosto, para dentro, abaixo do teto
     const F = st.facing === 0 ? V(0, 0, -st.side) : V(st.facing, 0, 0);
     const e = V(fx(st.d), 0, z).addScaledVector(F, -0.08);
-    if (st.facing === 0) e.z *= 0.82; else e.z += st.side * (prop ? 0.0 : 0.03);
+    if (st.facing === 0) e.z *= 0.82;
     e.y = safeEye(L / 2 - e.x, e.z, floorY + (prop ? 0.8 : s.R < 1 ? 0.98 : 1.08));
     // janela mais próxima do lado da poltrona (divã: a janela do lado oposto, à frente de quem senta)
     // janela à frente do encosto (no sentido em que a pessoa olha); sem nenhuma, a mais próxima
@@ -373,7 +395,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     }
     if (best < 0) best = bestAny;
     // olhos ao lado da janela: o assento gira/desliza até alinhar o rosto com ela (sem encosto na frente)
-    if (st.facing !== 0) { const shift = Math.max(-0.42, Math.min(0.42, best - de)); e.x = fx(de + shift); e.z = z + st.side * (prop ? 0.02 : 0.12); e.y = safeEye(de + shift, e.z, floorY + (prop ? 0.8 : s.R < 1 ? 0.98 : 1.08)); }
+    if (st.facing !== 0) { const shift = Math.max(-0.42, Math.min(0.42, best - de)); e.x = fx(de + shift); e.z = z + st.side * (prop ? 0.0 : 0.04); e.y = safeEye(de + shift, e.z, floorY + (prop ? 0.82 : s.R < 1 ? 1.02 : 1.13)); }
     const wSide = st.facing === 0 ? -st.side : st.side;
     const win = f.point(best, wSide > 0 ? (wn.th ?? 0.2) : Math.PI - (wn.th ?? 0.2), inset);
     seats.push({ pos: V(fx(st.d), floorY, z), facing: st.facing, side: st.side, eye: e, win });
@@ -472,9 +494,9 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     for (const side of [-1, 1]) { const m = new THREE.Mesh(cg.leather, M.crew); m.name = 'crew-seat'; m.userData.xray = 'solid'; m.position.set(fx(crewD), floorY, side * Math.abs(pilotZ)); ck.add(m); const t = new THREE.Mesh(cg.trim, M.trim); t.name = 'crew-seat'; t.position.copy(m.position); ck.add(t); }
     // painel principal, glareshield e console central
     const pw = wallZ(panelD, floorY + 0.7) * 2 * 0.96;
-    const ph = prop ? 0.34 : 0.38, py = floorY + (prop ? 0.46 : 0.58); // topo do glareshield ~25 cm abaixo dos olhos: o para-brisa domina a vista
+    const ph = prop ? 0.3 : 0.32, py = floorY + (prop ? 0.44 : 0.56); // topo do glareshield ~25 cm abaixo dos olhos: o para-brisa domina a vista
     const pan = mesh(box(0.1, ph, pw, 0.02), M.panel, 'panel', ck); pan.position.set(fx(panelD), py, 0);
-    const gl = mesh(box(0.32, 0.12, pw * 0.98, 0.02), M.suede, 'panel', ck); gl.position.set(fx(panelD) - 0.1, py + ph / 2 + 0.06, 0);
+    const gl = mesh(box(0.28, 0.08, pw * 0.96, 0.03), M.suede, 'panel', ck); gl.position.set(fx(panelD) - 0.09, py + ph / 2 + 0.04, 0);
     const ped = mesh(box(0.75, 0.42, prop ? 0.18 : 0.3, 0.03), M.panel, 'panel', ck); ped.position.set(fx(panelD) - 0.42, floorY + 0.36, 0); ped.rotation.z = 0.25;
     if (opts.lux) {
       const D = makeDisplays(); tr(D.pfd); tr(D.mfd);
@@ -520,10 +542,10 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
       const suite = cp.suite.includes('Fusion') ? 'fusion' : cp.suite.includes('21') ? 'pl21' : 'g1000';
       const tm = (t: THREE.Texture) => dim(tr(new THREE.MeshStandardMaterial({ map: t, roughness: 0.55, metalness: 0.2, emissive: new THREE.Color('#ffffff'), emissiveMap: t, emissiveIntensity: 0.32 })));
       const fgp = tr(switchPanelTex('fgp', suite)), low = tr(switchPanelTex('lower', suite)), pedT = tr(switchPanelTex('pedestal', suite));
-      const fg = new THREE.PlaneGeometry(pw * 0.56, Math.min(0.1, pw * 0.56 / 8)); fg.rotateY(-Math.PI / 2);
-      const fm = mesh(fg, tm(fgp), 'panel', ck); fm.position.set(fx(panelD) - 0.262, py + ph / 2 + 0.06, 0); // painel de guiagem na face da aba do glareshield (acima das telas)
+      const fg = new THREE.PlaneGeometry(pw * 0.5, Math.min(0.065, pw * 0.5 / 9)); fg.rotateY(-Math.PI / 2);
+      const fm = mesh(fg, tm(fgp), 'panel', ck); fm.position.set(fx(panelD) - 0.232, py + ph / 2 + 0.04, 0); // painel de guiagem na face da aba do glareshield (acima das telas)
       const lg = new THREE.PlaneGeometry(pw * 0.9, pw * 0.9 / 4); lg.rotateY(-Math.PI / 2);
-      const lm2 = mesh(lg, tm(low), 'panel', ck); lm2.position.set(fx(panelD) - 0.052, py - ph / 2 + pw * 0.9 / 8 - 0.02, 0); lm2.scale.set(1, 0.6, 1);
+      const lm2 = mesh(lg, tm(low), 'panel', ck); lm2.visible = false; // painel mais limpo lm2.position.set(fx(panelD) - 0.052, py - ph / 2 + pw * 0.9 / 8 - 0.02, 0); lm2.scale.set(1, 0.6, 1);
       const pg = new THREE.PlaneGeometry(prop ? 0.16 : 0.27, prop ? 0.1 : 0.2); pg.rotateX(-Math.PI / 2); pg.rotateY(-Math.PI / 2);
       const pm2 = mesh(pg, tm(pedT), 'panel', ck); pm2.position.set(fx(panelD) - 0.62, floorY + 0.5, 0); pm2.rotation.z = 0.25;
       // pedais do leme e coluna do painel
@@ -539,7 +561,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     if (cp.overhead && opts.lux) {
       const oy = (f.profile(crewD).top - inset) - 0.1;
       const ov = mesh(box(0.6, 0.06, 0.42, 0.02), M.panel, 'panel', ck); ov.position.set(fx(crewD) + 0.35, oy, 0); ov.rotation.z = -0.15;
-      const ot = tr(switchPanelTex('overhead', 'fusion'));
+      const ot = tr(switchPanelTex('overhead', 'fusion')); ot.repeat.set(-1, 1);
       const og = new THREE.PlaneGeometry(0.56, 0.4); og.rotateX(Math.PI / 2); og.rotateY(Math.PI / 2);
       const om = mesh(og, tr(new THREE.MeshStandardMaterial({ map: ot, emissive: new THREE.Color('#ffffff'), emissiveMap: ot, emissiveIntensity: 0.3, roughness: 0.6 })), 'panel', ck); om.position.set(fx(crewD) + 0.35, oy - 0.032, 0); om.rotation.z = -0.15;
     }

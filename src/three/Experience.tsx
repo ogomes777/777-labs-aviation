@@ -868,7 +868,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         const inCloud = clamp(1 - Math.abs(agl - 1080) / 320, 0, 1);
         const shake = (sim.phase === 'roll' || sim.phase === 'rollout' ? 0.0022 * vk : 0) + 0.0016 * inCloud * vk + 0.0005 * vk * vk;
         if (st.motion !== 'reduced' && shake > 0) { cam.rotateX(Math.sin(time * 31.7) * shake + Math.sin(time * 17.3) * shake * 0.6); cam.rotateY(Math.sin(time * 23.1 + 1.3) * shake * 0.7); }
-        const vw = flightUi.get().view; const baseFov = vw === 'seat' ? 70 : vw === 'cockpit' ? 64 : portrait ? 58 : 46;
+        const vw = flightUi.get().view; const baseFov = vw === 'seat' ? 62 : vw === 'walk' ? 70 : vw === 'cockpit' ? 64 : portrait ? 58 : 46;
         let wantFov = Math.round((baseFov + vk * vk * 9) * 10) / 10;
         if (rot) {
           // fov vertical do canvas em pé = fov horizontal da paisagem equivalente

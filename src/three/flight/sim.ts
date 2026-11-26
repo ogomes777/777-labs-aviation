@@ -384,7 +384,7 @@ export class FlightSim {
     const q = c.group.quaternion;
     this.upL.set(0, 1, 0).applyQuaternion(q);
     const s = FLEET_SPECS[this.id!];
-    const inView = (view === 'seat' && seat !== null && !!c.seats[seat]) || view === 'cockpit' || view === 'walk';
+    const inView = (view === 'seat' && seat !== null && !!c.seats[seat]) || view === 'walk'; // cabine = primeira pessoa limpa, por fora (sem painel)
     this.setInside(inView);
     const I = this.interior;
     if (inView && I) {
@@ -406,7 +406,7 @@ export class FlightSim {
         if (this.lastView !== 'walk') {
           this.walkPos.copy(seat !== null && I.seats[seat] ? seatEye(seat) : I.pilotEye); this.walkPos.z = 0; // levanta para o corredor
           const se = seat !== null ? I.seats[seat] : null;
-          if (this.lastView === 'seat' && se) { const F0 = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0); const tw = se.win.clone().sub(se.eye); const d0 = new THREE.Vector3(Math.max(-0.7, Math.min(0.7, tw.x / 0.55)) + F0.x * 0.25, 0, Math.sign(tw.z) || se.side); IN.lookYaw += Math.atan2(-d0.z, d0.x); }
+          if (this.lastView === 'seat' && se) { const F0 = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0); const d0 = se.win.clone().sub(se.eye); d0.y = 0; d0.normalize().multiplyScalar(0.93).addScaledVector(F0, 0.07); IN.lookYaw += Math.atan2(-d0.z, d0.x); }
           else if (this.lastView !== 'cockpit') IN.lookYaw = Math.PI;
         }
         const yawW = IN.lookYaw;
@@ -429,15 +429,21 @@ export class FlightSim {
         const F = se.facing === 0 ? new THREE.Vector3(0, 0, -se.side) : new THREE.Vector3(se.facing, 0, 0);
         const eye = seatEye(seat);
         // olhar abre direto na janela ao lado (a vista é o ponto), com um pouco da cabine à frente
-        const toWin = se.win.clone().sub(eye);
-        const wSide = Math.sign(toWin.z) || se.side;
-        const along = Math.max(-0.7, Math.min(0.7, toWin.x / 0.55));
-        const dir = new THREE.Vector3(along * 0.5 + F.x * 0.18, -0.12, wSide).normalize();
+        // abre centrado na janela (já sentado, rosto na janela)
+        const tw = se.win.clone().sub(eye); tw.y = 0; tw.normalize();
+        const dir = tw.multiplyScalar(0.93).addScaledVector(F, 0.07); dir.y = -0.16; dir.normalize(); // nivelado: horizonte na janela
         look(eye, dir);
       } else {
-        look(I.pilotEye.clone(), new THREE.Vector3(1, -0.03, 0.02).normalize());
+        look(I.pilotEye.clone(), new THREE.Vector3(1, -0.13, 0.02).normalize());
       }
       if ((this.panelT += dt) > 0.08) { this.panelT = 0; I.updatePanel({ pitch: this.pitch, roll: this.roll, speed: this.V, alt: TEL.alt, hdg: TEL.hdg, vs: TEL.vs }); }
+      return;
+    }
+    if (view === 'cockpit') {
+      // primeira pessoa limpa: olhos sobre o nariz, só o céu, o mar e a proa (sem painel nem molduras)
+      this.tmp.set(this.size * 0.5 - s.Ln * 0.95, s.R * 1.12 + 0.35, 0).applyQuaternion(q).add(c.group.position);
+      this.tmp2.set(Math.cos(IN.lookYaw) * 60, -4 + Math.sin(IN.lookPitch) * 40, -Math.sin(IN.lookYaw) * 60).applyQuaternion(q).add(this.tmp);
+      this.eye.copy(this.tmp); this.target.copy(this.tmp2); this.camUp.copy(this.upL); this.inside = false; this.camInit = true; this.lastView = view;
       return;
     }
     this.lastView = view;
