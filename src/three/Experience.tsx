@@ -97,7 +97,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const flow = useRef({ sea: 0, puff: 0, fan: 0 });
 
   // ---------- frota SimFly: cinco aeronaves anunciadas (ilustração paramétrica calibrada), construídas em idle ----------
-  type Craft = FleetCraftBuild & { x: number };
+  type Craft = FleetCraftBuild & { x: number; halo?: THREE.Mesh };
   const lineup = useMemo(() => { const g = new THREE.Group(); g.name = 'lineup'; return g; }, []);
   const crafts = useRef<Craft[]>([]);
   // ---------- vida do aeroporto: tráfego pousando (mesmo gerador da frota) e carrinhos de pátio ----------
@@ -159,6 +159,19 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       catch (err) { console.error('[simfly] falha ao construir', item.id, err); idle(next); return; }
       b.group.position.set(item.x, env.gy + b.axisH, ROW_Z);
       const c: Craft = Object.assign(b, { x: item.x });
+      // halo de apresentação no chão (aparece quando esta aeronave é a escolhida)
+      {
+        const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+        const gx = cv.getContext('2d')!; const rg = gx.createRadialGradient(128, 128, 10, 128, 128, 128);
+        rg.addColorStop(0, 'rgba(225,240,255,0.55)'); rg.addColorStop(0.45, 'rgba(140,195,255,0.22)'); rg.addColorStop(0.8, 'rgba(90,160,255,0.06)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+        gx.fillStyle = rg; gx.fillRect(0, 0, 256, 256);
+        const ht = new THREE.CanvasTexture(cv); ht.colorSpace = THREE.SRGBColorSpace;
+        const sp = FLEET_SPECS[item.id];
+        const hm = new THREE.Mesh(new THREE.PlaneGeometry(sp.envelope.length * 1.25, sp.envelope.span * 1.05), new THREE.MeshBasicMaterial({ map: ht, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+        hm.rotation.x = -Math.PI / 2; hm.position.y = -b.axisH + 0.03; hm.renderOrder = -1; hm.name = 'presentation-halo';
+        b.group.add(hm); c.halo = hm;
+        const prevDispose = b.dispose; c.dispose = () => { prevDispose(); ht.dispose(); hm.geometry.dispose(); (hm.material as THREE.Material).dispose(); };
+      }
       lineup.add(c.group);
       // compila os shaders desta aeronave fora da thread principal antes de ela aparecer
       const done = () => {
@@ -319,15 +332,17 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const aspect = window.innerWidth / window.innerHeight;
       const vf = THREE.MathUtils.degToRad(portrait ? 34 : 40) / 2;
       const fit = (Math.max(sz, span * 0.8) * 0.62) / (Math.tan(vf) * aspect);
-      const dist = Math.max(14, fit) * (portrait ? 1.05 : 1.12);
+      const dist = Math.max(12, fit) * (portrait ? 0.6 : 1.12);
       const camX = selX;
       tmp.fleetCamX = camX;
       tmp.fogK = 1;
       const eh = 2.6 + sz * 0.16;
       const angSel = Math.atan2(eh - 2.1, dist);
-      const look = angSel + (portrait ? 0.16 : 0.13);
-      tmp.vEye.set(camX + sz * 0.3, gy + eh, FRONT_Z - dist);
-      tmp.vTarget.set(camX - sz * 0.04, gy + eh - Math.tan(look) * (dist + 40), FRONT_Z + 40);
+      const look = angSel + (portrait ? 0.1 : 0.13);
+      // retrato: desloca o quadro para o lado do nariz (+x) para a aeronave inteira caber centralizada
+      const nx = portrait ? sz * 0.2 : 0;
+      tmp.vEye.set(camX + sz * (portrait ? 0.32 : 0.3), gy + eh, FRONT_Z - dist);
+      tmp.vTarget.set(camX - sz * 0.04 + nx, gy + eh - Math.tan(look) * (dist + 40), FRONT_Z + 40);
       const into = ramp(p, 0.0, 0.1);
       tmp.eye.lerp(tmp.vEye, into); tmp.target.lerp(tmp.vTarget, into);
       fov = THREE.MathUtils.lerp(fov, portrait ? 34 : 40, into);
@@ -681,6 +696,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         c.group.position.z = damp(c.group.position.z, tz, lam, rdt);
         c.group.rotation.y = damp(c.group.rotation.y, tyaw, lam, rdt);
         c.setFade(st.inspect ? (c.id === st.inspect ? 1 : 0.22) : 0.6 + 0.4 * w);
+        if (c.halo) (c.halo.material as THREE.MeshBasicMaterial).opacity = (st.inspect ? 0 : 1) * w * w * (0.85 + 0.15 * Math.sin(time * 1.6));
         c.isolate(c.id === st.inspect && st.inspectMode === 'parts' ? st.inspectSystem : null);
         c.focusPart(c.id === st.inspect && st.inspectMode === 'parts' && st.inspectSystem ? st.inspectPart : null);
       });

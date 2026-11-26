@@ -643,7 +643,7 @@ html[data-motion=cinematic] #experiencia:has(.sf27-cabin-cinema) :is(.gallery__h
 @keyframes sfPlaneGlow { 0%, 100% { filter: saturate(1.15) drop-shadow(0 8px 10px rgba(8, 18, 36, .4)) drop-shadow(0 0 6px rgba(80, 160, 255, .25)); } 50% { filter: saturate(1.25) brightness(1.06) drop-shadow(0 10px 12px rgba(8, 18, 36, .45)) drop-shadow(0 0 14px rgba(80, 160, 255, .6)); } }
 .fleet .fleet__title { z-index: 3; position: relative; }
 @media (max-width: 760px) {
-  .fleet__plane { left: 44vw; top: 86px; width: 19vw; }
+  .fleet__plane { left: 21vw; top: 96px; width: 25vw; }
   /* cards mais enxutos no celular: menos altura, menos texto visível, ações compactas */
   .fleet .fleet__viewport { bottom: 54px; }
   .fleet .fcard { flex-basis: 72vw; padding: 14px 16px 12px; gap: 5px; }
