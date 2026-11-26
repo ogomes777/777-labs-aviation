@@ -80,3 +80,9 @@ Regenerar previews após cada mudança de geometria (`node scripts/render-previe
 - Previews: 78 WebP (35 frota + 43 anatomia) ≈ 0,8 MB, carregados só ao abrir o card.
 - FPS: medição em swiftshader (CPU) não representa GPU real — medição em dispositivo físico pendente.
 - E2E completo (build de produção limpo, desktop+mobile, 25/11 noite): 26 passaram (todos os da Frota, galeria, destinos, formulário, API); 14 falharam. **Os mesmos 14 falham na base aprovada `simfly/v28-approved-baseline` intacta** (rodado em worktree separado): testes legados do herói/anatomia/resiliência que procuram o link "Explorar" e "zero canvas", removidos/alterados pela V28. Não são regressões da V6; atualizar esses testes é tarefa à parte (exige decidir o comportamento esperado do herói V28).
+
+## Publicação em produção (autorizada pelo usuário em 26/11/2026)
+- Testes antes do deploy: tsc OK; vitest 19/19; build de produção OK; E2E (Frota, formulário, galeria, destinos, estrutura) 19 passaram, 1 falhou — "H1 e CTA antes do WebGL" no mobile, que já falha na base V28 aprovada intacta (legado, não regressão).
+- Deploy Vercel `dpl_49ZcMZNhrKGdUPCiB2i22KW2b4bA` (target production) a partir de `simfly/v6-master` @ `55fc8f7`, via conector Vercel (fonte GitHub).
+- Verificado em https://777-labs-aviation.vercel.app: HTML com a frota real (Legacy 450 … Matrix, sem Meridian/Solstice), `/lab/preview` = 404, previews WebP = 200.
+- Rollback: promover o deploy de produção anterior `dpl_H2bHBUndXNE8hRJVqBgnewRqxaaa` no painel da Vercel (marcado como candidato a rollback).
