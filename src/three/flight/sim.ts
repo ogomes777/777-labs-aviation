@@ -43,6 +43,9 @@ export class FlightSim {
   private camInit = false;
   private fwd = new THREE.Vector3(); private up = new THREE.Vector3(); private tmp = new THREE.Vector3(); private tmp2 = new THREE.Vector3();
   private q = new THREE.Quaternion();
+  /** hélice / fans que giram com a rotação do motor */
+  private rotors: THREE.Object3D[] = [];
+  private rotorAng = 0;
 
   start(id: FleetId, craft: FleetCraftBuild, gy: number, time: number) {
     this.id = id; this.craft = craft; this.perf = perfFor(id);
@@ -52,9 +55,13 @@ export class FlightSim {
     this.yaw = Math.PI; this.pitch = 0; this.roll = 0; this.V = 0; this.spool = 0; this.thr = 0; this.gear = true;
     this.setPhase('start'); this.t0 = time; this.wp = 0; this.camInit = false;
     TEL.piston = this.perf.piston;
+    this.rotors = [];
+    craft.group.traverse((o) => { if (o.name === 'propeller' || o.name === 'fan') this.rotors.push(o); });
+    this.rotorAng = 0;
   }
   stop() {
     const c = this.craft;
+    this.rotors.forEach((r) => { r.rotation.x = 0; }); this.rotors = [];
     if (c) { c.group.position.copy(this.saved.pos); c.group.rotation.copy(this.saved.rot); c.group.visible = this.saved.vis; c.systems.trem.visible = true; }
     this.craft = null; this.id = null;
   }
@@ -191,6 +198,9 @@ export class FlightSim {
     c.group.rotation.set(0, this.yaw, 0); c.group.rotateZ(this.pitch + this.nose); c.group.rotateX(this.roll);
     c.group.visible = true;
     c.systems.trem.visible = this.gear;
+    // motores vivos: a hélice/fan acelera com a rotação (marcha lenta na partida, máxima na decolagem)
+    this.rotorAng += dt * (this.perf.piston ? 4 + this.spool * 34 : 3 + this.spool * 46);
+    for (const r of this.rotors) r.rotation.x = this.rotorAng;
 
     // ---------- telemetria ----------
     TEL.speed = this.V; TEL.alt = Math.max(0, agl()); TEL.vs = this.V * Math.sin(this.pitch);

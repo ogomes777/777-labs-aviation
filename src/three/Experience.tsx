@@ -42,7 +42,7 @@ class FXBoundary extends Component<{ children: ReactNode }, { failed: boolean }>
 const C = (hex: string) => new THREE.Color(hex);
 /** V6: fila de estacionamento no pátio (z) e posição de destaque da aeronave escolhida (mais perto da câmera) */
 const ROW_Z = 30, FRONT_Z = 6;
-const BG = { hangar: C('#06080b'), studio: C('#f1eee7'), cabin: C('#20170f'), globe: C('#070b12') };
+const BG = { hangar: C('#06080b'), studio: C('#f1eee7'), cabin: C('#20170f'), globe: C('#081428') };
 
 
 function World({ quality, onReady }: { quality: Q; onReady: () => void }) {

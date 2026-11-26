@@ -31,10 +31,10 @@ export function createGlobe(quality: 'high' | 'balanced') {
       void main(){ float nv = max(dot(vN, vV), 0.0); float f = pow(1.0 - nv, 2.2);
         vec3 L = normalize(vec3(-0.45, 0.42, 0.78));
         float dl = dot(vN, L);
-        vec3 base = mix(vec3(0.012, 0.024, 0.05), vec3(0.04, 0.085, 0.16), smoothstep(-0.3, 0.8, dl));
-        vec3 H = normalize(L + vV); float spec = pow(max(dot(vN, H), 0.0), 60.0) * 0.55 + pow(max(dot(vN, H), 0.0), 8.0) * 0.06;
+        vec3 base = mix(vec3(0.0025, 0.0055, 0.014), vec3(0.009, 0.022, 0.06), smoothstep(-0.3, 0.8, dl)); // linear: marinho profundo
+        vec3 H = normalize(L + vV); float spec = pow(max(dot(vN, H), 0.0), 70.0) * 0.28 + pow(max(dot(vN, H), 0.0), 10.0) * 0.025;
         vec3 rim = vec3(0.42, 0.68, 1.0);
-        gl_FragColor = vec4(base + vec3(0.6, 0.8, 1.0) * spec * smoothstep(0.0, 0.3, dl) + rim * f * (0.55 + 0.45 * smoothstep(-0.2, 0.6, dl)), uOpacity);
+        gl_FragColor = vec4(base + vec3(0.6, 0.8, 1.0) * spec * smoothstep(0.0, 0.3, dl) + rim * f * (0.32 + 0.3 * smoothstep(-0.2, 0.6, dl)), uOpacity);
         #include <colorspace_fragment>
       }`,
   }));
@@ -45,7 +45,7 @@ export function createGlobe(quality: 'high' | 'balanced') {
     uniforms: { uOpacity: { value: 1 } }, transparent: true, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false,
     vertexShader: /* glsl */ `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
     fragmentShader: /* glsl */ `varying vec3 vN; varying vec3 vV; uniform float uOpacity;
-      void main(){ float d = abs(dot(vN, vV)); float f = pow(clamp(d, 0.0, 1.0), 3.2) * 1.25;
+      void main(){ float d = abs(dot(vN, vV)); float f = pow(clamp(d, 0.0, 1.0), 3.6) * 0.62;
         gl_FragColor = vec4(vec3(0.42, 0.68, 1.0) * f, f * uOpacity);
         #include <colorspace_fragment>
       }`,
@@ -57,7 +57,7 @@ export function createGlobe(quality: 'high' | 'balanced') {
     uniforms: { uOpacity: { value: 1 } }, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
     vertexShader: /* glsl */ `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
     fragmentShader: /* glsl */ `varying vec3 vN; varying vec3 vV; uniform float uOpacity;
-      void main(){ float f = pow(1.0 - max(dot(vN, vV), 0.0), 3.0); gl_FragColor = vec4(vec3(0.55, 0.8, 1.0) * f * 0.9, f * uOpacity);
+      void main(){ float f = pow(1.0 - max(dot(vN, vV), 0.0), 4.5); gl_FragColor = vec4(vec3(0.5, 0.76, 1.0) * f * 0.42, f * uOpacity);
         #include <colorspace_fragment>
       }`,
   }));

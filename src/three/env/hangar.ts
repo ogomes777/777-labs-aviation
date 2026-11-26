@@ -145,13 +145,30 @@ export function createHangar(groundY: number) {
   {
     const hg = new THREE.Group(); hg.name = 'open-hangar'; hg.position.set(-178, gy, 40); hg.rotation.y = -0.62; group.add(hg);
     const W = 64, H = 22, D = 54;
-    const shell = M(new THREE.MeshStandardMaterial({ color: '#3a3f46', roughness: 0.55, metalness: 0.75, side: THREE.DoubleSide }));
+    // revestimento de chapa trapezoidal (nervuras verticais, juntas, leve sujeira na base) — lê como hangar real de longe
+    const clad = canvasTex(512, 256, (g) => {
+      g.fillStyle = '#9aa1a8'; g.fillRect(0, 0, 512, 256);
+      for (let x = 0; x < 512; x += 16) { const gr = g.createLinearGradient(x, 0, x + 16, 0); gr.addColorStop(0, 'rgba(255,255,255,0.20)'); gr.addColorStop(0.35, 'rgba(255,255,255,0.05)'); gr.addColorStop(0.5, 'rgba(0,0,0,0.22)'); gr.addColorStop(1, 'rgba(255,255,255,0.12)'); g.fillStyle = gr; g.fillRect(x, 0, 16, 256); }
+      for (let y = 0; y < 256; y += 64) { g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(0, y, 512, 1.5); }
+      const dirt = g.createLinearGradient(0, 160, 0, 256); dirt.addColorStop(0, 'rgba(60,50,40,0)'); dirt.addColorStop(1, 'rgba(60,50,40,0.35)'); g.fillStyle = dirt; g.fillRect(0, 160, 512, 96);
+      for (let i = 0; i < 2500; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * 0.05})`; g.fillRect(Math.random() * 512, Math.random() * 256, 1 + Math.random() * 2, 1 + Math.random() * 6); }
+    });
+    clad.wrapS = clad.wrapT = THREE.RepeatWrapping; clad.repeat.set(5, 1);
+    const shell = M(new THREE.MeshStandardMaterial({ map: clad, color: '#c9ced3', roughness: 0.48, metalness: 0.45, side: THREE.DoubleSide }));
     const geos: THREE.BufferGeometry[] = [];
     const bx = (w: number, h: number, d: number, x: number, y: number, z: number) => { const g = new THREE.BoxGeometry(w, h, d); g.translate(x, y, z); geos.push(g); };
     bx(W, 0.6, D, 0, H, D / 2); bx(0.6, H, D, -W / 2, H / 2, D / 2); bx(0.6, H, D, W / 2, H / 2, D / 2); bx(W, H, 0.6, 0, H / 2, D);
     bx(W + 2, 3.5, 1.2, 0, H - 1.75, 0);                                                       // verga do portão
     for (const s of [-1, 1]) for (let i = 0; i < 3; i++) bx(4.2, H - 3.5, 0.5, s * (W / 2 + 2.4 + i * 4.3), (H - 3.5) / 2, -1.2 - i * 1.4); // folhas recolhidas (separadas: sem conflito de profundidade)
     merge(geos, shell, 'hangar-shell', hg);
+    // cobertura em duas águas + faixa de janelas altas (silhueta de hangar real vista da pista)
+    { const sh = new THREE.Shape(); sh.moveTo(-W / 2 - 0.6, 0); sh.lineTo(0, 4.2); sh.lineTo(W / 2 + 0.6, 0); sh.lineTo(-W / 2 - 0.6, 0);
+      const rg = new THREE.ExtrudeGeometry(sh, { depth: D + 0.6, bevelEnabled: false }); rg.translate(0, H + 0.3, -0.3);
+      const roofM = new THREE.Mesh(T(rg), M(new THREE.MeshStandardMaterial({ color: '#7f868d', roughness: 0.42, metalness: 0.55 }))); roofM.name = 'hangar-roof'; hg.add(roofM);
+      const band = canvasTex(512, 32, (g) => { g.fillStyle = '#1c2026'; g.fillRect(0, 0, 512, 32); for (let x = 4; x < 512; x += 21) { g.fillStyle = Math.random() > 0.25 ? '#ffd9a6' : '#3a4450'; g.fillRect(x, 6, 15, 20); } });
+      const bandMat = M(new THREE.MeshStandardMaterial({ map: band, emissiveMap: band, emissive: new THREE.Color('#ffffff'), emissiveIntensity: 0.9, roughness: 0.3 }));
+      for (const sx of [-1, 1]) { const bp = new THREE.Mesh(T(new THREE.PlaneGeometry(D - 4, 1.6)), bandMat); bp.position.set(sx * (W / 2 + 0.35), H - 3, D / 2); bp.rotation.y = sx * Math.PI / 2; hg.add(bp); }
+      const bb = new THREE.Mesh(T(new THREE.PlaneGeometry(W - 4, 1.6)), bandMat); bb.position.set(0, H - 3, D + 0.35); hg.add(bb); }
     // interior iluminado: piso epóxi claro, luminárias, parede do fundo quente
     const floorMat = M(new THREE.MeshStandardMaterial({ color: '#d7d4cc', roughness: 0.25, metalness: 0.1, emissive: new THREE.Color('#5a4630'), emissiveIntensity: 0.25 }));
     const fl = new THREE.Mesh(T(new THREE.PlaneGeometry(W - 1, D - 1)), floorMat); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0.12, D / 2); hg.add(fl);

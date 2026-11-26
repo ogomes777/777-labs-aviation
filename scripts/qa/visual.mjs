@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+p.on('pageerror', e => console.log('PAGEERR', e.message));
+await p.goto('http://localhost:7777/?qa=1&quality=balanced&perf=lock&lang=pt', { waitUntil: 'networkidle' });
+await p.waitForTimeout(2500);
+const go = async (id, f, w = 3500) => { await p.evaluate(([id, f]) => { const el = document.getElementById(id); scrollTo(0, el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * f); }, [id, f]); await p.waitForTimeout(w); };
+await go('rotas-preview', 0.75); await p.screenshot({ path: '/tmp/claude-0/shots/v-globe1.png' });
+await go('engenharia', -0.25, 3000); await p.screenshot({ path: '/tmp/claude-0/shots/v-globe1b.png' });
+await go('procuramos', 0.4, 6000); await p.screenshot({ path: '/tmp/claude-0/shots/v-globe2.png' });
+await p.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(4000); await p.screenshot({ path: '/tmp/claude-0/shots/v-globe3.png' });
+await p.getByRole('button', { name: 'Menu' }).click(); await p.waitForTimeout(900);
+const link = p.locator('.sfm__nav a').nth(2); await link.hover(); await p.waitForTimeout(330); await p.screenshot({ path: '/tmp/claude-0/shots/v-menu1.png' });
+await p.waitForTimeout(700); await p.screenshot({ path: '/tmp/claude-0/shots/v-menu2.png' });
+await b.close();
