@@ -131,3 +131,4 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - dpl_YAtz92xhfP4dMAFgFEk1ycCLA5Mf (commit c510c83), READY, alias 777-labs-aviation.vercel.app. Autorizado pelo usuário em 26/11 ("pode subir pra produção… não precisa me pedir").
 - Rollback: dpl_4rHiJTyJyH9LTnXKC2ucqoCQtWRt (V6, b011a5c).
 - Testes: unitários 22/22; E2E da Frota e do menu passando; falhas E2E restantes são as legadas da base V28 (canvas do globo 2D em modo reduzido, link "Explorar", timeouts de cenas cinemáticas no swiftshader).
+- Complemento V7: dpl_5qaha3akDcRf4UY2rS4q5K8bW1ap (commit aed3e24) — hélice/fans girando no voo, hangar com chapa metálica, cobertura e janelas altas, globo final em marinho realista com borda de luz. Rollback: dpl_YAtz92xhfP4dMAFgFEk1ycCLA5Mf.
