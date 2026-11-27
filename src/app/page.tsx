@@ -3,8 +3,7 @@ import SiteHeader from '@/components/SiteHeader';
 import AnatomyPanel, { HotspotLayer } from '@/components/AnatomyPanel';
 import CabinGallery from '@/components/CabinGallery';
 import CabinCinema27 from '@/components/CabinCinema27';
-import ContactActions from '@/components/ContactActions';
-import Epilogue from '@/components/Epilogue';
+import JetFinale from '@/components/JetFinale';
 import ConsentBar from '@/components/ConsentBar';
 import SimFlyHero from '@/components/SimFlyHero';
 import { SimFlyAviationSection, SimFlyRoutesGlobe } from '@/components/SimFlyJourney';
@@ -95,14 +94,7 @@ export default function Page() {
           <section id="procuramos" className="sf-wanted sf-wanted--sky" aria-labelledby="procuramos-title">
             <WantedFlight />
           </section>
-          <section id="planejar" className="sf-contact" aria-labelledby="planejar-title">
-            <h2 id="planejar-title" data-split data-focus-target><TW k="contact.t1" /> <em><TW k="contact.t2" /></em></h2>
-            <p className="sf-lede"><T k="contact.lede" /></p>
-            <ContactActions />
-          </section>
-          <section id="epilogo" className="epilogue" aria-label="SimFly">
-            <Epilogue />
-          </section>
+          <JetFinale />
         </div>
       </main>
       <FlightHud />

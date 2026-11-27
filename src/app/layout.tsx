@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import '@/styles/global.css';
 import '@/styles/v7.css';
 import '@/styles/sky-finale.css';
+import '@/styles/jet-finale.css';
 import { PREFS_BOOT } from '@/i18n/boot';
 
 const bodoni = localFont({

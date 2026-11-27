@@ -193,31 +193,10 @@ html.intro .sfh { animation: introFade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.45s bo
 /* ---------- finale: Procuramos + Contato + rodapé (sem faixa branca: tudo na mesma noite do globo) ---------- */
 .finale { background: linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--sf-night) 0%, transparent) 2%, transparent 100%); color: var(--sf-on-dark); --fg: var(--sf-on-dark); --fg-soft: var(--sf-on-dark-soft); --line: rgba(255,255,255,.14); }
 .inquiry, .inquiry--contact { display: none !important; }
-.sf-wanted, .sf-contact { position: relative; z-index: 2; padding: clamp(110px, 18svh, 200px) clamp(20px, 7vw, 120px) clamp(40px, 8svh, 90px); max-width: 1320px; }
-.sf-wanted h2, .sf-contact h2 { margin: 0; font: 400 clamp(3rem, 7.2vw, 7.6rem)/.92 var(--font-serif); letter-spacing: -.035em; }
-.sf-wanted h2 em, .sf-contact h2 em { color: var(--sf-glow); }
-.sf-lede { margin: 22px 0 0; max-width: 46ch; font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.55; color: var(--sf-on-dark-soft); font-weight: 300; }
-.contact-actions { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; }
-.sf-btn { display: inline-flex; align-items: center; height: 54px; padding: 0 26px; border-radius: 999px; text-decoration: none; font: 500 .7rem/1 var(--font-sans); letter-spacing: .18em; text-transform: uppercase;
-  border: 1px solid rgba(255,255,255,.28); background: rgba(255,255,255,.04); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: background 240ms, border-color 240ms, transform 300ms var(--ease-ui); }
-.sf-btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.6); }
-.sf-btn--solid { background: var(--sf-on-dark); color: var(--sf-night); border-color: transparent; box-shadow: 0 0 0 0 rgba(var(--sf-accent-rgb), .0), 0 18px 50px -20px rgba(var(--sf-accent-rgb), .7); }
-.sf-btn--solid:hover { background: #fff; }
-.sf-presence { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--sf-on-dark-soft); margin-left: 6px; }
-.epilogue { min-height: 100svh; padding: 0 clamp(20px, 7vw, 120px) max(26px, env(safe-area-inset-bottom)); }
-.sf-foot { display: grid; align-content: end; min-height: 100svh; padding-bottom: 8px; }
-.sf-foot__mark { margin: 0; display: flex; gap: .02em; font: 760 clamp(5rem, 21vw, 22rem)/.8 var(--font-sans); letter-spacing: -.075em; user-select: none; }
-.sf-foot__mark span:first-child { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.55); }
-.sf-foot__mark span:last-child { color: transparent; background: linear-gradient(180deg, var(--sf-glow-3), var(--sf-blue) 120%); -webkit-background-clip: text; background-clip: text; }
-.sf-foot__tag { margin: 14px 0 0; font: italic 400 clamp(1.3rem, 2.4vw, 2.2rem)/1.1 var(--font-serif); color: var(--sf-glow-3); }
-.sf-foot__row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 22px; margin-top: 30px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); }
-.sf-foot__text { margin: 0; max-width: 62ch; font-size: .9rem; color: var(--sf-on-dark-soft); line-height: 1.6; }
-.sf-foot__text small { display: block; margin-top: 6px; font-size: .74rem; opacity: .75; }
-.sf-foot__links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
-.sf-foot__links a, .sf-foot__links button { background: none; border: 0; padding: 0; cursor: pointer; font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; text-decoration: none; color: var(--sf-on-dark); opacity: .78; transition: opacity 200ms; }
-.sf-foot__links a:hover, .sf-foot__links button:hover { opacity: 1; }
-.sf-foot__rights { margin: 18px 0 0; font-size: .7rem; color: var(--sf-on-dark-soft); opacity: .7; }
-@media (max-width: 700px) { .sf-wanted, .sf-contact { padding-top: 96px; } .sf-btn { height: 50px; padding: 0 20px; } .sf-presence { width: 100%; margin: 4px 0 0; } }
+.sf-wanted { position: relative; z-index: 2; padding: clamp(110px, 18svh, 200px) clamp(20px, 7vw, 120px) clamp(40px, 8svh, 90px); max-width: 1320px; }
+.sf-wanted h2 { margin: 0; font: 400 clamp(3rem, 7.2vw, 7.6rem)/.92 var(--font-serif); letter-spacing: -.035em; }
+.sf-wanted h2 em { color: var(--sf-glow); }
+@media (max-width: 700px) { .sf-wanted { padding-top: 96px; } }
 
 /* ---------- atlas: botão único de test drive e X de fechar ---------- */
 .inspect__x { display: block; width: 14px; height: 14px; position: relative; }
@@ -303,12 +282,12 @@ html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100
 
 /* ---------- limpeza total: sem microcopy, traços, barras, ícones e divisórias entre seções ---------- */
 .sf-services li { border-top: 0 !important; padding: 12px 0 !important; }
-.sf-foot__row, .sfm__foot { border-top: 0 !important; }
+.sfm__foot { border-top: 0 !important; }
 .part-card, #engenharia .anatomy24-panel[data-focused=true] .part-card { border-top: 0 !important; }
 .card__kicker, .hp-card__kicker b, .hp-card__hint, .fleet-orbit span, .anatomy25-orbit span,
 .fcard__status i, .anatomy26-eyebrow, .fcard__kind { display: none !important; }
 .hp-card__media { border-bottom: 0 !important; border-right: 0 !important; }
-.chapter, .chapter__sticky, .finale, .sf-wanted, .sf-contact, .epilogue { border: 0 !important; box-shadow: none !important; outline: 0 !important; }
+.chapter, .chapter__sticky, .finale, .sf-wanted { border: 0 !important; box-shadow: none !important; outline: 0 !important; }
 .fleet__nav span { display: none; }
 .gallery__controls .counter { display: none; }
 /* as dicas de comando do voo aparecem no começo e somem sozinhas */
@@ -324,7 +303,7 @@ html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100
 .sfm__nav a:hover .sfm__dice, .sfm__nav a:focus-visible .sfm__dice, .sfm__nav a[data-roll='true'] .sfm__dice { transform: rotateX(90deg); }
 .sfm__nav a:hover, .sfm__nav a[aria-current='true'] { transform: none !important; }
 @media (prefers-reduced-motion: reduce) { .sfm__dice { transition: none; } }
-.sf-wanted, .sf-contact, .sf-foot { text-shadow: 0 2px 22px rgba(2, 8, 20, .55); }
+.sf-wanted { text-shadow: 0 2px 22px rgba(2, 8, 20, .55); }
 dialog.sfm, dialog.sfm * { pointer-events: auto; }
 
 @media (max-width: 760px) { .fplan-wrap { left: 10px !important; right: 10px !important; } }

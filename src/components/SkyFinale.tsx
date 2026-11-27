@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
  * ficando mais profundo à medida que se desce. Tudo amarrado ao scroll/toque:
  *   --sky-in   0→1  o banco de nuvens sobe sobre o fim do hangar
  *   --sky-open 0→1  as nuvens se abrem (o céu aparece)
- *   --sky-deep 0→1  o céu escurece até o azul profundo do contato/rodapé
+ *   --sky-deep 0→1  o céu clareia até o azul-bebê/branco do contato e rodapé
  *   --sky-prog 0→1  descida pelo céu (as camadas de nuvem sobem em paralaxe)
  * Céu vivo: um shader 2D desenha as nuvens (formando devagar, derivando com o vento, sombreadas pela luz),
  * emoldurando a cena; o scroll/toque faz o céu subir em paralaxe. Nada de arrasto/deformação atrás das aeronaves.
@@ -53,7 +53,7 @@ void main(){
   float shade = clamp(.62 + (n1 - n1l) * 4.5 + uv.y * .2, 0., 1.);
   vec3 S = mix(uShadow, uNightS, uDeep), Lc = mix(uLight, uNightL, uDeep);
   vec3 c1 = mix(S, Lc, shade);
-  float vis = (.4 + .6 * uOpen) * (1. - .35 * uDeep);
+  float vis = (.4 + .6 * uOpen) * (1. - .55 * uDeep); // contato: menos nuvem, mais limpo
   float a2 = d2 * vis, a1 = d1 * vis * .96;
   vec3 col = Lc * a2; float al = a2;
   col = c1 * a1 + col * (1. - a1); al = a1 + al * (1. - a1);
@@ -80,7 +80,7 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
   const palette = () => {
     const dusk = document.documentElement.dataset.theme === 'dusk';
     gl.uniform3fv(uShadow, hex(dusk ? '#d9d6f2' : '#d6e5f6')); gl.uniform3fv(uLight, hex(dusk ? '#fbf9ff' : '#ffffff'));
-    gl.uniform3fv(uNightS, hex(dusk ? '#3b3478' : '#2f4b85')); gl.uniform3fv(uNightL, hex(dusk ? '#8a84c4' : '#8ea6d6'));
+    gl.uniform3fv(uNightS, hex(dusk ? '#ece9fa' : '#e6f0fa')); gl.uniform3fv(uNightL, hex(dusk ? '#ffffff' : '#ffffff'));
   };
   palette();
   const themeObs = new MutationObserver(palette); themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -123,7 +123,7 @@ export default function SkyFinale() {
   useEffect(() => {
     const finale = root.current?.closest<HTMLElement>('.finale');
     if (!finale) return;
-    const wanted = finale.querySelector<HTMLElement>('#procuramos');
+    const jet = finale.querySelector<HTMLElement>('#planejar');
     const d = document.documentElement;
     let raf = 0, lastTone = '';
     const clamp = (x: number) => Math.min(1, Math.max(0, x));
@@ -132,14 +132,16 @@ export default function SkyFinale() {
       const vh = innerHeight, r = finale.getBoundingClientRect();
       const skyIn = clamp((vh * 1.05 - r.top) / (vh * 1.05));
       const open = clamp((vh * 0.15 - r.top) / (vh * 0.95));
-      const wb = wanted ? wanted.getBoundingClientRect().bottom : r.top + vh;
-      const deep = clamp((vh * 1.15 - wb) / (vh * 0.9));
+      // contato/rodapé: o céu clareia para azul-bebê e branco enquanto a turbina gira
+      const jr = jet?.getBoundingClientRect();
+      const jp = jr ? clamp((vh - jr.top) / jr.height) : 0;
+      const deep = clamp((jp - 0.12) / 0.5);
       finale.style.setProperty('--sky-in', skyIn.toFixed(4));
       finale.style.setProperty('--sky-open', open.toFixed(4));
       finale.style.setProperty('--sky-deep', deep.toFixed(4));
       finale.style.setProperty('--sky-prog', clamp(-r.top / Math.max(1, r.height - vh)).toFixed(4));
       // header: vidro claro enquanto o céu claro está atrás dele
-      const tone = r.top < 72 && deep < 0.55 ? 'light' : '';
+      const tone = r.top < 72 ? 'light' : '';
       if (tone !== lastTone) { lastTone = tone; if (tone) d.dataset.skyTone = tone; else delete d.dataset.skyTone; }
       const active = r.top < vh * 1.2 && r.bottom > 0 ? 'true' : 'false';
       if (finale.dataset.skyActive !== active) finale.dataset.skyActive = active;

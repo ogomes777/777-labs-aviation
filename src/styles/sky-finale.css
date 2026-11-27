@@ -14,13 +14,13 @@
   --sky-in: 0; --sky-open: 0; --sky-deep: 0; --sky-prog: 0; --wake: 0; --wake-x: 0px;
   /* paleta branco + azul (a mesma família do céu do hero e da cabine) */
   --sky-top: #3f78c4; --sky-mid: #8fb7e4; --sky-low: #e9f2fb; --sky-fog: #f2f7fc;
-  --sky-night-top: #081a35; --sky-night-low: #12305a;
+  --sky-night-top: #cfe3f7; --sky-night-low: #ffffff; /* contato/rodapé: azul-bebê → branco */
   --sky-ink: #0f2a4f; --sky-ink-soft: rgba(15, 42, 79, .72);
   position: relative; z-index: 3; background: none !important;
 }
 html[data-theme='dusk'] .finale {
   --sky-top: #3a3f9a; --sky-mid: #9a9fdc; --sky-low: #efecfa; --sky-fog: #f4f2fc;
-  --sky-night-top: #120c30; --sky-night-low: #261c58;
+  --sky-night-top: #dcd8f4; --sky-night-low: #ffffff;
   --sky-ink: #1d1a4f; --sky-ink-soft: rgba(29, 26, 79, .72);
 }
 
@@ -150,8 +150,6 @@ html[data-theme='dusk'] .finale {
 .sf-plane[data-k='c90'] .sf-plane__trail { width: 150%; height: 30%; background: radial-gradient(ellipse 100% 50% at 0% 50%, rgba(200, 224, 252, .6), rgba(130, 180, 240, .24) 40%, transparent 80%); }
 .sf-plane[data-k='r66'] .sf-plane__trail { width: 110%; height: 34%; background: radial-gradient(ellipse 100% 50% at 0% 50%, rgba(255, 255, 255, .55), rgba(226, 238, 252, .2) 45%, transparent 80%); }
 
-/* contato e rodapé sobre o céu profundo */
-.finale .sf-contact, .finale .epilogue { position: relative; z-index: 2; }
 
 /* ---------- celular ---------- */
 @media (max-width: 860px) {

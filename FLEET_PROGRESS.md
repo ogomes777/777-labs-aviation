@@ -209,3 +209,12 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Removida a deformação das nuvens atrás das aeronaves (dava "borrão/furacão" ao rolar) e o módulo skyWake. O céu só deriva com o vento e sobe em paralaxe suave com o scroll; rastro de vento e pouso nos cards mantidos.
 - QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844.
 - Deploy produção V14: dpl_7P3NYPLpxNdkpkJfDrK3hdMrxguo (3e3c761) — READY. Rollback: V13 dpl_72ppgNLsNoiAss6kvQL63Cmwqxb4.
+
+## V15 — Contato + rodapé: turbina e nariz (R12) — 2026-11-27
+- Contato e rodapé viram uma cena fixa no scroll (JetFinale): céu azul-bebê → branco, menos nuvem.
+- Turbina vetorial original (lábio cromado, 22 pás, cone com espiral): sobe com a seção, a nuvem chega antes, gira acelerando com o scroll (com borrão de rotação), pás trocam de cor, desce e sai.
+- Nariz do avião (vista de cima, de cabeça para baixo, SVG original) entra de cima e assenta; rodapé com assinatura, texto, links, créditos e aviso.
+- Tipografia: Archivo variável (OFL) 700–900, título expandido em dois tons e palavras gigantes condensadas ao fundo ("Contato", "SimFly").
+- Não foi usada a turbina da referência (arte de terceiros sem licença) — ilustração própria no mesmo espírito.
+- Removidos ContactActions/Epilogue e o CSS morto de contato/rodapé antigos.
+- QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844 (scripts/qa/jet.mjs).

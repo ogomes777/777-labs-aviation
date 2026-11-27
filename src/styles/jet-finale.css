@@ -1,0 +1,106 @@
+/* =====================================================================
+   V15 — contato + rodapé: céu claro, turbina girando, nariz descendo.
+   Variáveis 0→1 vindas do scroll (JetFinale): --rise --mist --spin --down
+   --nose --foot --copy-a --blur. Só transform/opacity animados.
+   ===================================================================== */
+
+/* Archivo variável (OFL): largura 62–125 %, peso 700–900 — título expandido e palavras condensadas */
+@font-face { font-family: 'SimFly Grotesk'; font-style: normal; font-weight: 700 900; font-stretch: 62% 125%; font-display: swap; src: url('/fonts/archivo-var-700-900.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'SimFly Grotesk'; font-style: normal; font-weight: 700 900; font-stretch: 62% 125%; font-display: swap; src: url('/fonts/archivo-var-700-900-ext.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+.jf {
+  --rise: 0; --mist: 0; --spin: 0; --down: 0; --nose: 0; --foot: 0; --copy-a: 0; --blur: 0;
+  --ink: #0f2a4f; --ink-soft: #9aabc2; --ink-mute: rgba(15, 42, 79, .62);
+  position: relative; z-index: 2; height: 420svh; color: var(--ink);
+}
+html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: rgba(29, 26, 79, .62); }
+.jf__anchor { position: absolute; left: 0; top: calc(90% - 100svh); width: 1px; height: 1px; pointer-events: none; }
+.jf__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+
+/* palavras gigantes: condensadas, cinza-azulado bem claro, como letreiro atrás da cena */
+.jf__giant { position: absolute; margin: 0; white-space: nowrap; pointer-events: none; user-select: none;
+  font: 900 clamp(7rem, 24vw, 30rem)/.8 'SimFly Grotesk', var(--font-sans); font-stretch: 62%; letter-spacing: -.01em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 7%, transparent); }
+.jf__giant--a { right: -2vw; top: 52%; font-size: clamp(6rem, 17vw, 22rem); transform: translate3d(calc((1 - var(--rise)) * 12vw), calc(-50% + var(--down) * -30svh), 0); opacity: calc(var(--rise) * (1 - var(--down))); }
+.jf__giant--b { left: 50%; bottom: -2svh; transform: translate3d(-50%, calc((1 - var(--foot)) * 24svh), 0); opacity: var(--foot); }
+
+/* turbina */
+.jf__turbine-wrap { position: absolute; left: 72%; top: 52%; width: min(48vw, 74svh); aspect-ratio: 1; pointer-events: none;
+  transform: translate3d(-50%, calc(-50% + (1 - var(--rise)) * 55svh + var(--down) * 85svh), 0) scale(calc(.82 + .18 * var(--rise) - .1 * var(--down)));
+  opacity: calc(min(1, var(--rise) * 1.6) * (1 - var(--down) * .9)); will-change: transform, opacity; }
+.jf-turbine { position: relative; width: 100%; height: 100%; filter: drop-shadow(0 40px 60px rgba(16, 46, 92, .28)); }
+.jf-turbine__ring, .jf-turbine__gloss, .jf-fan, .jf-fan__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.jf-fan { will-change: transform; }
+.jf-fan > div { position: absolute; inset: 0; }
+.jf-fan__b { opacity: var(--spin); }
+.jf-fan__a { opacity: calc(1 - var(--spin) * .85); }
+/* borrão de movimento das pás em alta rotação */
+.jf-fan__blur { position: absolute; inset: 10.2%; border-radius: 50%; opacity: calc(var(--blur) * .85);
+  background: repeating-conic-gradient(from 0deg, rgba(44, 125, 255, .55) 0deg 8deg, rgba(6, 18, 44, .7) 8deg 16.36deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 27%, #000 30%, #000 98%, transparent 100%); mask-image: radial-gradient(closest-side, transparent 27%, #000 30%, #000 98%, transparent 100%);
+  filter: blur(6px); }
+
+/* nuvem/fumaça que chega antes do giro (à direita e por baixo da turbina) */
+.jf__mist { position: absolute; inset: 0; pointer-events: none; }
+.jf__mist i { position: absolute; display: block; background: url('/media/sky-puff.webp') center / 100% 100% no-repeat; filter: brightness(1.25) saturate(.35);
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent); mask-image: radial-gradient(closest-side, #000 55%, transparent); will-change: transform, opacity; }
+.jf__mist i:nth-child(1) { left: 66%; top: 46%; width: 46vw; height: 40svh; opacity: calc(var(--mist) * .95 * (1 - var(--down)));
+  transform: translate3d(calc((1 - var(--mist)) * 30vw + var(--spin) * -4vw), calc((1 - var(--mist)) * 10svh + var(--down) * 60svh), 0); }
+.jf__mist i:nth-child(2) { left: 48%; top: 62%; width: 52vw; height: 44svh; opacity: calc(var(--mist) * .8 * (1 - var(--down)));
+  transform: translate3d(calc((1 - var(--mist)) * 24vw), calc((1 - var(--mist)) * 16svh + var(--down) * 70svh), 0) scaleX(-1); }
+.jf__mist i:nth-child(3) { left: 80%; top: 20%; width: 34vw; height: 28svh; opacity: calc(var(--mist) * .6 * (1 - var(--down)));
+  transform: translate3d(calc((1 - var(--mist)) * 20vw), calc(var(--down) * 50svh), 0); }
+
+/* nariz: entra de cima, de cabeça para baixo, e assenta no centro */
+.jf__nose-wrap { position: absolute; left: 54%; top: 0; width: min(34vw, 52svh); pointer-events: none;
+  transform: translate3d(-50%, calc(-105% + var(--nose) * 62svh), 0); opacity: min(1, calc(var(--nose) * 3));
+  filter: drop-shadow(0 30px 40px rgba(16, 46, 92, .25)); will-change: transform; }
+.jf-nose { display: block; width: 100%; height: auto; }
+
+/* cópia */
+.jf-a, .jf-b { position: absolute; left: clamp(20px, 6vw, 110px); z-index: 3; max-width: min(34rem, 38vw); }
+.jf-a { top: 50%; transform: translate3d(0, calc(-50% + (1 - var(--rise)) * 18svh - (1 - var(--copy-a)) * 4svh), 0); opacity: var(--copy-a); }
+.jf-b { inset: 0; left: 0; max-width: none; padding: 18svh clamp(20px, 6vw, 110px) 0; transform: translate3d(0, calc((1 - var(--foot)) * 8svh), 0); opacity: var(--foot); }
+.jf__eyebrow { margin: 0 0 18px; font: 800 .7rem/1 'SimFly Grotesk', var(--font-sans); font-stretch: 125%; letter-spacing: .42em; text-transform: uppercase; color: var(--ink); }
+.jf__title { margin: 0; font: 800 clamp(2.2rem, 4vw, 5rem)/.94 'SimFly Grotesk', var(--font-sans); font-stretch: 125%; letter-spacing: -.02em; text-transform: uppercase; color: var(--ink); text-shadow: none; }
+.jf__title span { display: block; }
+.jf__soft { color: var(--ink-soft); }
+.jf__lede { margin: 20px 0 0; max-width: 34ch; font-size: .95rem; line-height: 1.6; color: var(--ink-mute); text-shadow: none; }
+.jf-b .jf__title, .jf-b .jf__lede, .jf-b .jf__eyebrow { max-width: min(30rem, 34vw); }
+.jf__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 30px; }
+.jf-btn { display: inline-flex; align-items: center; height: 50px; padding: 0 24px; border-radius: 999px; text-decoration: none; white-space: nowrap;
+  font: 800 .66rem/1 'SimFly Grotesk', var(--font-sans); font-stretch: 112%; letter-spacing: .16em; text-transform: uppercase; color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); background: rgba(255, 255, 255, .55);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 240ms var(--ease-ui), box-shadow 240ms var(--ease-ui); }
+.jf-btn--solid { background: var(--ink); color: #fff; border-color: transparent; box-shadow: 0 16px 34px -16px rgba(15, 42, 79, .7); }
+.jf-btn:hover, .jf-btn:focus-visible { transform: translateY(-2px); }
+.jf__foot { position: absolute; left: clamp(20px, 6vw, 110px); right: clamp(20px, 6vw, 110px); bottom: max(22px, env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 14px 28px; }
+.jf__links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.jf__links a, .jf__links button { background: none; border: 0; padding: 0; cursor: pointer; text-decoration: none;
+  font: 800 .68rem/1 'SimFly Grotesk', var(--font-sans); font-stretch: 112%; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); opacity: .78; }
+.jf__links a:hover, .jf__links button:hover, .jf__links a:focus-visible, .jf__links button:focus-visible { opacity: 1; }
+.jf__rights { margin: 0; max-width: 62ch; font-size: .72rem; line-height: 1.5; color: var(--ink-mute); text-align: right; }
+.jf__rights small { display: block; margin-top: 4px; font-size: .66rem; opacity: .8; }
+
+/* ---------- celular ---------- */
+@media (max-width: 860px) {
+  .jf { height: 400svh; }
+  .jf__giant { font-size: clamp(6rem, 40vw, 14rem); }
+  .jf__giant--a { right: -6vw; top: 30%; }
+  .jf__turbine-wrap { left: 66%; top: 30%; width: 96vw; }
+  .jf__mist i:nth-child(1) { left: 40%; top: 30%; width: 90vw; height: 26svh; }
+  .jf__mist i:nth-child(2) { left: 10%; top: 40%; width: 100vw; height: 26svh; }
+  .jf__mist i:nth-child(3) { left: 60%; top: 8%; width: 60vw; height: 18svh; }
+  .jf-a { top: auto; bottom: max(28px, env(safe-area-inset-bottom)); right: 20px; max-width: none; transform: translate3d(0, calc((1 - var(--rise)) * 18svh - (1 - var(--copy-a)) * 4svh), 0); }
+  .jf__title { font-size: clamp(2rem, 9.2vw, 3rem); }
+  .jf__lede { font-size: .86rem; margin-top: 12px; }
+  .jf__actions { margin-top: 18px; gap: 10px; }
+  .jf-btn { height: 44px; padding: 0 18px; font-size: .6rem; }
+  .jf__nose-wrap { left: 50%; width: 52vw; transform: translate3d(-50%, calc(-105% + var(--nose) * 46svh), 0); }
+  .jf-b { top: auto; bottom: 0; padding: 0 20px max(22px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; justify-content: flex-end; }
+  .jf-b .jf__title, .jf-b .jf__lede, .jf-b .jf__eyebrow { max-width: none; }
+  .jf__foot { position: static; margin-top: 18px; flex-direction: column; align-items: start; }
+  .jf__rights { text-align: left; }
+  .jf__eyebrow { margin-bottom: 12px; letter-spacing: .32em; }
+}
+@media (max-width: 860px) and (max-height: 700px) { .jf-b .jf__lede { display: none; } }
