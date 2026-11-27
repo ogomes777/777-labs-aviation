@@ -652,3 +652,24 @@ html[data-motion='reduced'] dialog.sfm .sfh__burger--x .sfm__close-glyph { trans
 @media (max-width: 360px) {
   #interior #interior-title { font-size: clamp(1.95rem, 9vw, 2.3rem); }
 }
+
+/* V10.3 — editorial service labels, inspired by Aurelia's high-contrast serif.
+   Reuse the locally hosted OFL Cormorant; never change the approved V10.2 headline. */
+#interior .sf-services li > strong {
+  font-family: var(--font-text);
+  font-size: clamp(1.45rem, 2.05vw, 2rem);
+  font-style: normal;
+  font-weight: 500;
+  font-optical-sizing: auto;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  letter-spacing: -.025em;
+  line-height: 1.06;
+  color: #092341;
+  text-wrap: pretty;
+}
+@media (max-width: 700px) {
+  #interior .sf-services li > strong {
+    font-size: clamp(1.24rem, 4.9vw, 1.65rem);
+    line-height: 1.1;
+  }
+}
