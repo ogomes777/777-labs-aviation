@@ -195,3 +195,4 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - "Aeronaves que buscamos": título editorial em Archivo Expanded (OFL) com granulado em dois tons; "buscamos." sob o "que", ao lado da linha menor; copy vazada (tinta translúcida) quando uma aeronave passa por cima; palavras reagem ao vento.
 - Três aeronaves (Citation Sovereign, King Air C90 GTX, R66) entram grandes com rastro e turbulência leve e pousam no topo de cards alinhados; botão "Tenho este modelo" em vidro, sempre ao pé do card.
 - QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844 (scripts/qa/sky.mjs).
+- Deploy produção V12: dpl_2EqjovVZNcryCNszLcFkapGDDNpJ (6257a04) — READY em https://777-labs-aviation.vercel.app. Rollback: V11 dpl_J1sDp3ZfMD6jdJU8rrZDVVRqFM9N.
