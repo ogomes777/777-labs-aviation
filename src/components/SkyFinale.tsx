@@ -11,12 +11,12 @@ import { skyWake } from './skyWake';
  *   --sky-deep 0→1  o céu escurece até o azul profundo do contato/rodapé
  *   --sky-prog 0→1  descida pelo céu (as camadas de nuvem sobem em paralaxe)
  * Céu vivo: um shader 2D desenha as nuvens (formando, derivando com o vento, sombreadas pela luz) e cada
- * aeronave — movida pelo scroll — empurra, torce e abre a nuvem por onde passa; o rastro cicatriza aos poucos.
+ * aeronave — movida pelo scroll — empurra a nuvem de leve, num fluxo suave, que volta ao lugar aos poucos.
  * Sem WebGL ou com movimento reduzido, ficam as camadas de imagem (CSS) como fallback.
  */
 
 const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
-const N = 36; // 12 pontos de rastro por aeronave
+const N = 24; // 8 pontos de rastro por aeronave
 const FS = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -29,62 +29,50 @@ uniform vec3 uShadow, uLight, uNightS, uNightL;
 float hash(vec2 p){ vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
 float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
   return mix(mix(hash(i), hash(i + vec2(1., 0.)), u.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), u.x), u.y); }
-float fbm(vec2 p){ float v = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 5; i++){ v += a * noise(p); p = m * p; a *= .5; } return v; }
-// densidade de uma camada: domain warping lento (a nuvem se forma e se desfaz) + forma de cúmulo
-float layer(vec2 q, float t, float lo, float hi){
-  float w = fbm(q * .8 + vec2(t * .021, -t * .013));
-  float n = fbm(q * 1.35 + vec2(w * 1.1, w * .6) + vec2(t * .008, 0.));
-  return smoothstep(lo, hi, n);
+// poucas oitavas: massas macias e fofas (nada de textura granulada/"neve")
+float fbm(vec2 p){ float v = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 5; i++){ v += a * noise(p); p = m * p; a *= .52; } return v; }
+float puff(vec2 q, float t){
+  float w = fbm(q * .6 + vec2(t * .012, t * .007));
+  return fbm(q + vec2(w * .7, w * .35) + vec2(t * .006, 0.));
 }
 void main(){
   vec2 uv = gl_FragCoord.xy / uRes; float asp = uRes.x / uRes.y; vec2 p = vec2(uv.x * asp, uv.y);
   float t = uTime;
-  // ---- ar deslocado pelas aeronaves: empurra para fora, torce em vórtice e abre um canal ----
-  vec2 disp = vec2(0.); float cut = 0.;
+  // ar deslocado pelas aeronaves: fluxo laminar suave na direção do voo (sem vórtice, sem buraco)
+  vec2 disp = vec2(0.);
   for (int i = 0; i < ${N}; i++){
     vec4 a = uA[i]; if (a.w < .002) continue;
-    vec4 b = uB[i];
     vec2 d = p - vec2(a.x * asp, a.y); float r = a.z;
-    float g = exp(-dot(d, d) / (r * r));
-    vec2 perp = vec2(-d.y, d.x);
-    float spin = b.z * (.8 + .4 * sin(t * 1.7 + float(i) * 1.3));
-    disp += (d * .55 + perp * spin * 1.25 + b.xy * r * .35) * g * a.w;
-    cut += g * a.w;
+    float g = exp(-dot(d, d) / (r * r)) * a.w;
+    disp += (uB[i].xy * r * .55 + d * .18) * g;
   }
-  cut = clamp(cut, 0., 1.);
-  float desc = uProg * 1.6; // descendo pelo céu: as nuvens sobem
-  // camada alta (véus finos), camada média (fiapos que cruzam), banco baixo (cúmulos)
-  vec2 qh = (p - disp * .25) * vec2(.9, 2.4) + vec2(t * .006, desc * 1.1 + 3.);
-  float dh = layer(qh, t * .6, .56, .86) * smoothstep(.45, .8, uv.y + desc * .25) * .55;
-  vec2 qm = (p - disp * .8) * vec2(1.05, 2.) + vec2(t * .024, desc * 1.7 + 7.);
-  float dm = layer(qm, t, .5, .78) * smoothstep(.12, .42, uv.y) * smoothstep(.98, .62, uv.y) * .9;
-  vec2 qb = (p - disp) * vec2(.85, 1.25) + vec2(t * .012, desc * 2.2 - 1.);
-  float hb = uv.y - .06 - (fbm(vec2(p.x * 1.1 + t * .01, desc)) - .5) * .32 + desc * .05;
-  float db = layer(qb, t * .8, .4, .7) * smoothstep(.5, .05, hb);
-  // canal aberto pela aeronave, com borda levemente mais densa (a nuvem empurrada se acumula)
-  float ring = cut * (1. - cut) * 4.;
-  float keep = 1. - cut * .72;
-  dm = dm * keep + ring * dm * .35; db = db * keep + ring * db * .3; dh *= 1. - cut * .5;
-  // luz: amostra deslocada em direção à luz (alto à direita) → base sombreada, topo iluminado
-  vec2 L = vec2(.054, .084);
-  float lb = layer(qb + L * vec2(.85, 1.25), t * .8, .4, .7);
-  float lm = layer(qm + L * vec2(1.05, 2.), t, .55, .8);
-  float shB = clamp(.62 + (db - lb) * 1.4 + uv.y * .25, 0., 1.);
-  float shM = clamp(.7 + (dm - lm) * 1.2, 0., 1.);
+  float desc = uProg * 1.4; // descendo pelo céu: as nuvens sobem devagar
+  vec2 q = p - disp;
+  // banco macio: bordas laterais e base, céu limpo no meio (como um enquadramento)
+  float side = max(smoothstep(.42, .0, uv.x), smoothstep(.58, 1., uv.x));
+  float low = smoothstep(.52, .0, uv.y - desc * .04);
+  // retrato (celular): sem colunas laterais — nuvens espalhadas e banco na base
+  float wide = clamp((asp - .6) / .6, 0., 1.);
+  float frame = clamp(max(side * .9 * wide, low) + mix(.26, .12, wide), 0., 1.);
+  float n1 = puff(q * vec2(1.7, 2.3) + vec2(0., desc * 2.6), t);
+  float d1 = smoothstep(.47, .57, n1 * (.52 + .62 * frame));
+  // véu alto, muito leve, que cruza devagar
+  float n2 = puff(q * vec2(.7, 2.2) + vec2(t * .01, desc * 1.2 + 5.), t * .7);
+  float d2 = smoothstep(.56, .74, n2) * .32 * smoothstep(.3, .75, uv.y);
+  // luz suave vinda de cima: topo branco, base azul-clara (nunca cinza)
+  float n1l = puff(q * vec2(1.7, 2.3) + vec2(0., desc * 2.6) + vec2(.05, .08), t);
+  float shade = clamp(.62 + (n1 - n1l) * 4.5 + uv.y * .2, 0., 1.);
   vec3 S = mix(uShadow, uNightS, uDeep), Lc = mix(uLight, uNightL, uDeep);
-  vec3 cb = mix(S, Lc, shB), cm = mix(S, Lc, shM), ch = Lc;
-  // composição (de trás para frente), alfa pré-multiplicado
-  float vis = (.35 + .65 * uOpen) * (1. - .45 * uDeep);
-  float ah = dh * vis * .8, am = dm * vis, ab = clamp(db * 1.15, 0., 1.) * vis;
-  vec3 col = ch * ah; float al = ah;
-  col = cm * am + col * (1. - am); al = am + al * (1. - am);
-  col = cb * ab + col * (1. - ab); al = ab + al * (1. - ab);
-  col += Lc * ring * .06 * vis; // brilho úmido na borda do canal
+  vec3 c1 = mix(S, Lc, shade);
+  float vis = (.4 + .6 * uOpen) * (1. - .35 * uDeep);
+  float a2 = d2 * vis, a1 = d1 * vis * .96;
+  vec3 col = Lc * a2; float al = a2;
+  col = c1 * a1 + col * (1. - a1); al = a1 + al * (1. - a1);
   float dither = (hash(gl_FragCoord.xy + t) - .5) / 255.;
   gl_FragColor = vec4(col + dither * al, al);
 }`;
 
-type Pt = { x: number; y: number; r: number; s: number; dx: number; dy: number; born: number; spin: number };
+type Pt = { x: number; y: number; r: number; s: number; dx: number; dy: number; born: number };
 
 function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) | null {
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
@@ -106,14 +94,14 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
   const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
   const palette = () => {
     const dusk = document.documentElement.dataset.theme === 'dusk';
-    gl.uniform3fv(uShadow, hex(dusk ? '#aeb0dc' : '#a9c3e4')); gl.uniform3fv(uLight, hex(dusk ? '#fbf9ff' : '#ffffff'));
-    gl.uniform3fv(uNightS, hex(dusk ? '#1b1648' : '#10284d')); gl.uniform3fv(uNightL, hex(dusk ? '#5a5498' : '#5d7fb2'));
+    gl.uniform3fv(uShadow, hex(dusk ? '#d9d6f2' : '#d6e5f6')); gl.uniform3fv(uLight, hex(dusk ? '#fbf9ff' : '#ffffff'));
+    gl.uniform3fv(uNightS, hex(dusk ? '#3b3478' : '#2f4b85')); gl.uniform3fv(uNightL, hex(dusk ? '#8a84c4' : '#8ea6d6'));
   };
   palette();
   const themeObs = new MutationObserver(palette); themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   let W = 0, H = 0;
   const resize = () => {
-    const k = innerWidth < 860 ? 0.5 : 0.56; // nuvem é macia: meia resolução, ampliada pelo navegador
+    const k = innerWidth < 860 ? 0.55 : 0.72; // nuvem é macia: meia resolução, ampliada pelo navegador
     const w = Math.max(2, Math.round(innerWidth * k)), h = Math.max(2, Math.round(innerHeight * k));
     if (w !== W || h !== H) { W = w; H = h; canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
   };
@@ -132,18 +120,18 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
       if (pl.on > 0.01) {
         const last = tr[tr.length - 1];
         const moved = !last || Math.hypot(pl.x - last.x, pl.y - last.y) > pl.r * 0.35;
-        if (moved) { tr.push({ x: pl.x, y: pl.y, r: pl.r, s: pl.on, dx: pl.vx, dy: pl.vy, born: time, spin: tr.length % 2 ? 1 : -1 }); if (tr.length > 12) tr.shift(); }
+        if (moved) { tr.push({ x: pl.x, y: pl.y, r: pl.r, s: pl.on, dx: pl.vx, dy: pl.vy, born: time }); if (tr.length > 8) tr.shift(); }
         else { last.s = pl.on; last.born = time; }
       }
     });
     A.fill(0); B.fill(0);
     let j = 0;
     outer: for (const tr of trails) for (const q of tr) {
-      const age = time - q.born, life = Math.exp(-age / 2.8);
+      const age = time - q.born, life = Math.exp(-age / 3.4);
       if (life < 0.01) continue;
       const m = Math.hypot(q.dx, q.dy) || 1;
-      A[j * 4] = q.x / vw; A[j * 4 + 1] = 1 - q.y / vh; A[j * 4 + 2] = (q.r / vh) * (0.8 + Math.min(1.2, age * 0.45)); A[j * 4 + 3] = q.s * life;
-      B[j * 4] = q.dx / m; B[j * 4 + 1] = -q.dy / m; B[j * 4 + 2] = q.spin;
+      A[j * 4] = q.x / vw; A[j * 4 + 1] = 1 - q.y / vh; A[j * 4 + 2] = (q.r / vh) * (1 + Math.min(1, age * 0.35)); A[j * 4 + 3] = q.s * life;
+      B[j * 4] = q.dx / m; B[j * 4 + 1] = -q.dy / m;
       if (++j >= N) break outer;
     }
     gl.uniform2f(uRes, W, H); gl.uniform1f(uTime, time);
@@ -209,7 +197,7 @@ export default function SkyFinale() {
     <div ref={root} className="sf-skywrap" aria-hidden="true">
       {/* banco de nuvens que sobe sobre o fim do hangar (transição) */}
       <div className="sf-skybank">
-        <i className="sf-skybank__l1" /><i className="sf-skybank__l2" /><i className="sf-skybank__l3" />
+        <i className="sf-skybank__l1" /><i className="sf-skybank__l2" /><i className="sf-skybank__l3" /><i className="sf-skybank__l4" />
       </div>
       {/* céu contínuo atrás de todo o final */}
       <div className="sf-sky">

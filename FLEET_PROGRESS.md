@@ -196,3 +196,10 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Três aeronaves (Citation Sovereign, King Air C90 GTX, R66) entram grandes com rastro e turbulência leve e pousam no topo de cards alinhados; botão "Tenho este modelo" em vidro, sempre ao pé do card.
 - QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844 (scripts/qa/sky.mjs).
 - Deploy produção V12: dpl_2EqjovVZNcryCNszLcFkapGDDNpJ (6257a04) — READY em https://777-labs-aviation.vercel.app. Rollback: V11 dpl_J1sDp3ZfMD6jdJU8rrZDVVRqFM9N.
+
+## V13 — Céu limpo estilo Aura (paleta SimFly) — 2026-11-27
+- Nuvens refeitas: massas brancas e fofas emoldurando bordas e base, céu limpo no centro, deriva lenta; sombra azul-clara (sem cinza); sem textura granulada nem vórtices. Celular: nuvens espalhadas + banco na base (sem colunas laterais).
+- Aeronaves empurram a nuvem só de leve, num fluxo laminar na direção do voo, que volta ao lugar.
+- Transição do hangar: sem véu chapado (a "faixa de luz"); banco de nuvens mais branco e acumulado (camada extra no centro).
+- "Aeronaves que buscamos": tinta sólida, sem granulado, sem copy vazada e sem empurrão de vento — mantém só a revelação.
+- QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844.

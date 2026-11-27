@@ -68,11 +68,15 @@ html[data-theme='dusk'] .finale {
    que se dissolve na névoa do céu — sem linha reta, sem recorte. */
 .sf-skybank { position: absolute; left: 0; right: 0; top: -100svh; height: 160svh; overflow: hidden; z-index: 5; isolation: isolate; pointer-events: none; }
 .sf-skybank::after { content: ''; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--sky-fog) 14%, transparent) 26%, color-mix(in srgb, var(--sky-fog) 62%, transparent) 46%, var(--sky-fog) 62.5%, var(--sky-fog) 78%, transparent 100%); }
+  background: linear-gradient(180deg, transparent 0%, transparent 44%, color-mix(in srgb, var(--sky-fog) 70%, transparent) 54%, var(--sky-fog) 62.5%, var(--sky-fog) 78%, transparent 100%); }
+/* as texturas de nuvem sempre brancas (sem azul-acinzentado) */
+.sf-skybank > i { filter: brightness(1.22) saturate(.4); }
 .sf-skybank__l1 { left: -12%; right: -12%; top: 22%; height: 52%; background-image: url('/media/sky-bank-a.webp'); background-size: 100% 100%;
   transform: translate3d(0, calc((1 - var(--sky-in)) * 46%), 0); opacity: min(1, calc(var(--sky-in) * 1.8)); }
 .sf-skybank__l2 { left: -22%; width: 82%; top: 30%; height: 46%; background-image: url('/media/sky-puff.webp'); background-size: 100% 100%;
   transform: translate3d(calc((1 - var(--sky-in)) * -12vw), calc((1 - var(--sky-in)) * 60%), 0); opacity: min(1, calc(var(--sky-in) * 1.5)); }
+.sf-skybank__l4 { left: 14%; width: 72%; top: 34%; height: 40%; background-image: url('/media/sky-bank-a.webp'); background-size: 100% 100%;
+  transform: translate3d(0, calc((1 - var(--sky-in)) * 70%), 0) scaleX(-1); opacity: min(1, calc(var(--sky-in) * 1.6)); }
 .sf-skybank__l3 { right: -22%; width: 82%; top: 28%; height: 48%; background-image: url('/media/sky-bank-b.webp'); background-size: 100% 100%;
   transform: translate3d(calc((1 - var(--sky-in)) * 14vw), calc((1 - var(--sky-in)) * 55%), 0) scaleX(-1); opacity: min(1, calc(var(--sky-in) * 1.5)); }
 
@@ -86,26 +90,12 @@ html[data-theme='dusk'] .finale {
 .sf-wanted .sf-wf__title { grid-column: 1 / -1; grid-row: 1 / 3; display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; margin: 0;
   font: 500 clamp(2.1rem, 5.8vw, 6.8rem)/1.02 'SimFly Wide', var(--font-sans); letter-spacing: -.03em; color: var(--sky-ink); text-shadow: none; }
 .sf-wf__title span { display: block; white-space: nowrap; will-change: transform, opacity; }
-.sf-wf {
-  /* grão fino em dois tons: pontos claros e escuros sobre a tinta — a copy fica sólida, impressa, premium */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.25 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' seed='23' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 .02 0 0 0 0 .06 0 0 0 1.5 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-.sf-wf__head:not(.sf-wf__head--ghost) .sf-wf__title span { color: transparent;
-  background: var(--grain), var(--grain-dark), linear-gradient(180deg, color-mix(in srgb, var(--sky-ink) 92%, #3d6aa8), color-mix(in srgb, var(--sky-ink) 92%, #000) 56%, color-mix(in srgb, var(--sky-ink) 86%, #5a86c2));
-  background-size: 160px 160px, 160px 160px, 100% 100%; background-position: 0 0, 37px 61px, 0 0; -webkit-background-clip: text; background-clip: text; }
-/* as palavras reagem ao vento das aeronaves (empurrão sutil que volta) */
-.sf-wf__l { grid-column: 1 / -1; grid-row: 1; transform: translate3d(calc((1 - var(--title-in)) * -16vw + var(--wake-x) * .35), calc(var(--wake) * -.06em), 0); opacity: var(--title-in); }
-.sf-wf__r { grid-column: 2; grid-row: 2; justify-self: end; transform: translate3d(calc((1 - var(--title-in)) * 16vw + var(--wake-x) * .55), calc(var(--wake) * .05em), 0); opacity: var(--title-in); }
+.sf-wf__l { grid-column: 1 / -1; grid-row: 1; transform: translate3d(calc((1 - var(--title-in)) * -16vw), 0, 0); opacity: var(--title-in); }
+.sf-wf__r { grid-column: 2; grid-row: 2; justify-self: end; transform: translate3d(calc((1 - var(--title-in)) * 16vw), 0, 0); opacity: var(--title-in); }
 .sf-wf__lede { grid-column: 1; grid-row: 2; align-self: center; position: relative; contain: inline-size; margin: 0; padding-top: .35em; font-size: 1rem !important;
   font: 400 clamp(.8rem, .9vw, .98rem)/1.5 'SimFly Wide', var(--font-sans); letter-spacing: -.005em; color: var(--sky-ink-soft);
   opacity: calc(var(--title-in) * (1 - var(--cards-in) * .35)); transform: translate3d(calc((1 - var(--title-in)) * -6vw), 0, 0); }
-/* cópia vazada (acima das aeronaves): letras em vidro — contorno, reflexo e o avião aparecendo através */
-.sf-wf__head--ghost { z-index: 5; opacity: var(--ghost, 0); }
-.sf-wf__head--ghost .sf-wf__lede { visibility: hidden; }
-.sf-wf__head--ghost .sf-wf__title span { color: transparent; mix-blend-mode: multiply;
-  background: var(--grain), linear-gradient(180deg, color-mix(in srgb, var(--sky-ink) 86%, transparent), color-mix(in srgb, var(--sky-ink) 66%, transparent) 62%, color-mix(in srgb, var(--sky-ink) 78%, transparent));
-  background-size: 160px 160px, 100% 100%; -webkit-background-clip: text; background-clip: text; }
-.sf-wf__head--ghost { mix-blend-mode: multiply; }
+
 
 /* cards: mesma altura, botões no mesmo alinhamento (sempre ao pé do card) */
 .sf-wf__cards { position: absolute; left: clamp(20px, 6vw, 110px); right: clamp(20px, 6vw, 110px); bottom: clamp(22px, 6svh, 64px); margin: 0; padding: 0; list-style: none;
@@ -151,10 +141,6 @@ html[data-theme='dusk'] .finale {
 .sf-plane[data-landed='true'] .sf-plane__body { animation: sfHover 5.5s ease-in-out infinite; }
 .sf-plane[data-k='c90'][data-landed='true'] .sf-plane__body { animation-delay: -1.8s; }
 .sf-plane[data-k='r66'][data-landed='true'] .sf-plane__body { animation-duration: 3.6s; animation-delay: -.9s; }
-/* nuvem empurrada sob a aeronave (o ar deslocado) */
-.sf-plane__wash { position: absolute; left: 10%; right: 6%; top: 46%; height: 52%; border-radius: 50%; opacity: 0; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, .5), rgba(232, 242, 253, .22) 55%, transparent); filter: blur(6px); animation: sfWash 4.2s ease-in-out infinite alternate; }
-@keyframes sfWash { from { scale: 1 .9; } to { scale: 1.12 1.05; } }
 /* fio de vapor fino e brilhante no centro do rastro */
 .sf-plane__trail::after { content: ''; position: absolute; left: 0; top: 50%; width: 92%; height: 5%; translate: 0 -50%; border-radius: 999px;
   background: linear-gradient(90deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .14) 30%, transparent 62%); filter: blur(1px); }
@@ -176,6 +162,7 @@ html[data-theme='dusk'] .finale {
   /* texturas de nuvem sem esmagar na tela estreita */
   .sf-skybank__l1 { left: -70%; right: -70%; }
   .sf-skybank__l2 { left: -60%; width: 170%; }
+  .sf-skybank__l4 { left: -20%; width: 140%; }
   .sf-skybank__l3 { right: -60%; width: 170%; }
   .sf-sky__near { width: 190%; }
   .sf-sky__mid { left: -60%; right: -60%; }
@@ -193,7 +180,7 @@ html[data-theme='dusk'] .finale {
 
 /* ---------- movimento reduzido: tudo no lugar, sem voo ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .sf-plane__body, .sf-plane[data-landed='true'] .sf-plane__body, .sf-plane__wash, .sf-sky > i { animation: none !important; }
+  .sf-plane__body, .sf-plane[data-landed='true'] .sf-plane__body, .sf-sky > i { animation: none !important; }
   .sf-sky__wisp { translate: 20vw 0; }
   .sf-wanted--sky { height: auto; }
   .sf-wf__stage { position: relative; height: 100svh; min-height: 640px; }

@@ -26,14 +26,12 @@ export default function WantedFlight() {
     const section = root.closest<HTMLElement>('#procuramos')!;
     const stage = root.querySelector<HTMLElement>('.sf-wf__stage')!;
     const finale = root.closest<HTMLElement>('.finale');
-    const head = root.querySelector<HTMLElement>('.sf-wf__head:not(.sf-wf__head--ghost)')!;
     skyWake.planes = ORDER.map(() => ({ x: 0, y: 0, r: 0, on: 0, vx: 0, vy: 0 }));
     const planes = ORDER.map((k) => ({
       k,
       el: root.querySelector<HTMLElement>(`.sf-plane[data-k="${k}"]`)!,
       img: root.querySelector<HTMLImageElement>(`.sf-plane[data-k="${k}"] img`)!,
       trail: root.querySelector<HTMLElement>(`.sf-plane[data-k="${k}"] .sf-plane__trail`)!,
-      wash: root.querySelector<HTMLElement>(`.sf-plane[data-k="${k}"] .sf-plane__wash`)!,
       slot: root.querySelector<HTMLElement>(`.sf-wcard[data-k="${k}"] .sf-wcard__slot`)!,
     }));
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -59,8 +57,7 @@ export default function WantedFlight() {
       root.style.setProperty('--fp', p.toFixed(4));
       root.style.setProperty('--title-in', smooth(0, 0.2, p).toFixed(4));
       root.style.setProperty('--cards-in', smooth(0.46, 0.72, p).toFixed(4));
-      let wakeX = 0, wake = 0, ghost = 0;
-      const hr = head.getBoundingClientRect();
+      let wakeX = 0, wake = 0;
       for (const pl of planes) {
         const cfg = plan[pl.k];
         const t = ease(clamp((p - cfg.t0) / (cfg.t1 - cfg.t0)));
@@ -85,21 +82,12 @@ export default function WantedFlight() {
         // rastro de vento: atrás da aeronave, alinhado ao movimento, some ao pousar
         pl.trail.style.opacity = (flying * 0.9).toFixed(3);
         pl.trail.style.transform = `translateY(-50%) rotate(${(ang * 180 / Math.PI + 180 - tilt).toFixed(1)}deg)`;
-        // copy vazada: quanto da aeronave está sobre o título (as letras viram vidro por cima dela)
-        if (t > 0 && t < 1) {
-          const hw = w / 2, hh = (w * ar) / 2, px = sr.left + x, py = sr.top + y;
-          const ox = Math.max(0, Math.min(px + hw, hr.right) - Math.max(px - hw, hr.left));
-          const oy = Math.max(0, Math.min(py + hh, hr.bottom) - Math.max(py - hh, hr.top));
-          ghost = Math.max(ghost, Math.min(1, (ox * oy) / Math.max(1, 0.06 * hr.width * hr.height)));
-        }
-        pl.wash.style.opacity = (flying * 0.75).toFixed(3);
         // o céu vivo lê isto: a aeronave empurra e abre as nuvens por onde passa
         const wk = skyWake.planes[ORDER.indexOf(pl.k)];
         wk.x = sr.left + x; wk.y = sr.top + y; wk.r = w * 0.17; wk.on = t > 0 && t < 1 ? Math.max(0.15, flying) : 0; wk.vx = dx; wk.vy = dy;
         wakeX += dx * flying * 0.00012 * (pl.k === 'sovereign' ? 1.6 : 1); wake = Math.max(wake, flying);
       }
       // as nuvens reagem à passagem das aeronaves
-      root.style.setProperty('--ghost', ghost.toFixed(3));
       if (finale) { finale.style.setProperty('--wake', wake.toFixed(3)); finale.style.setProperty('--wake-x', `${(wakeX * 40).toFixed(1)}px`); }
     };
     const queue = () => { if (!raf && visible) raf = requestAnimationFrame(draw); };
@@ -141,18 +129,9 @@ export default function WantedFlight() {
         {ORDER.map((k) => (
           <div key={k} className="sf-plane" data-k={k} aria-hidden="true">
             <span className="sf-plane__trail" />
-            <span className="sf-plane__wash" />
             <span className="sf-plane__body"><img src={IMG[k]} alt={ALT[k]} decoding="async" loading="lazy" draggable={false} /></span>
           </div>
         ))}
-        {/* cópia "vazada" do título acima das aeronaves: quando uma passa por cima, as letras viram vidro */}
-        <div className="sf-wf__head sf-wf__head--ghost" aria-hidden="true">
-          <div className="sf-wf__title">
-            <span className="sf-wf__l"><T k="wanted.t1" /></span>
-            <span className="sf-wf__r"><T k="wanted.t2" /></span>
-          </div>
-          <p className="sf-wf__lede"><T k="wanted.lede" /></p>
-        </div>
       </div>
     </div>
   );
