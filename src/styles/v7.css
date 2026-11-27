@@ -603,9 +603,16 @@ dialog.sfm .sfh__burger--x:focus-visible { outline: 1px solid currentColor; outl
 }
 html[data-motion='reduced'] dialog.sfm .sfh__burger--x .sfm__close-glyph { transform: none !important; transition: none !important; }
 
-/* V10.1 — larger, restrained geometric headline; Manrope is already hosted locally. */
+/* V10.2 — Outfit ExtraBold, gently curved geometric display. Preserve V10.1 scale, color and reaction. */
+@font-face {
+  font-family: 'SimFly Services Outfit';
+  src: url('/fonts/outfit-extrabold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
 #interior #interior-title {
-  font-family: var(--font-manrope), var(--font-sans), sans-serif;
+  font-family: 'SimFly Services Outfit', var(--font-manrope), var(--font-sans), sans-serif;
   font-weight: 800;
   font-size: clamp(2.65rem, 5.05vw, 5.6rem);
   font-style: normal;
