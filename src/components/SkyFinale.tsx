@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { skyWake } from './skyWake';
 
 /**
  * Céu do final (V11): ao descer do hangar, um banco de nuvens brancas e azuis sobe e cobre a cena;
@@ -10,13 +9,12 @@ import { skyWake } from './skyWake';
  *   --sky-open 0→1  as nuvens se abrem (o céu aparece)
  *   --sky-deep 0→1  o céu escurece até o azul profundo do contato/rodapé
  *   --sky-prog 0→1  descida pelo céu (as camadas de nuvem sobem em paralaxe)
- * Céu vivo: um shader 2D desenha as nuvens (formando, derivando com o vento, sombreadas pela luz) e cada
- * aeronave — movida pelo scroll — empurra a nuvem de leve, num fluxo suave, que volta ao lugar aos poucos.
+ * Céu vivo: um shader 2D desenha as nuvens (formando devagar, derivando com o vento, sombreadas pela luz),
+ * emoldurando a cena; o scroll/toque faz o céu subir em paralaxe. Nada de arrasto/deformação atrás das aeronaves.
  * Sem WebGL ou com movimento reduzido, ficam as camadas de imagem (CSS) como fallback.
  */
 
 const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
-const N = 24; // 8 pontos de rastro por aeronave
 const FS = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -24,7 +22,6 @@ precision highp float;
 precision mediump float;
 #endif
 uniform vec2 uRes; uniform float uTime, uOpen, uDeep, uProg;
-uniform vec4 uA[${N}]; uniform vec4 uB[${N}];
 uniform vec3 uShadow, uLight, uNightS, uNightL;
 float hash(vec2 p){ vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
 float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
@@ -38,29 +35,21 @@ float puff(vec2 q, float t){
 void main(){
   vec2 uv = gl_FragCoord.xy / uRes; float asp = uRes.x / uRes.y; vec2 p = vec2(uv.x * asp, uv.y);
   float t = uTime;
-  // ar deslocado pelas aeronaves: fluxo laminar suave na direção do voo (sem vórtice, sem buraco)
-  vec2 disp = vec2(0.);
-  for (int i = 0; i < ${N}; i++){
-    vec4 a = uA[i]; if (a.w < .002) continue;
-    vec2 d = p - vec2(a.x * asp, a.y); float r = a.z;
-    float g = exp(-dot(d, d) / (r * r)) * a.w;
-    disp += (uB[i].xy * r * .55 + d * .18) * g;
-  }
   float desc = uProg * 1.4; // descendo pelo céu: as nuvens sobem devagar
-  vec2 q = p - disp;
+  vec2 q = p;
   // banco macio: bordas laterais e base, céu limpo no meio (como um enquadramento)
   float side = max(smoothstep(.42, .0, uv.x), smoothstep(.58, 1., uv.x));
   float low = smoothstep(.52, .0, uv.y - desc * .04);
   // retrato (celular): sem colunas laterais — nuvens espalhadas e banco na base
   float wide = clamp((asp - .6) / .6, 0., 1.);
   float frame = clamp(max(side * .9 * wide, low) + mix(.26, .12, wide), 0., 1.);
-  float n1 = puff(q * vec2(1.7, 2.3) + vec2(0., desc * 2.6), t);
+  float n1 = puff(q * vec2(1.7, 2.3) + vec2(0., desc * 1.1), t);
   float d1 = smoothstep(.47, .57, n1 * (.52 + .62 * frame));
   // véu alto, muito leve, que cruza devagar
-  float n2 = puff(q * vec2(.7, 2.2) + vec2(t * .01, desc * 1.2 + 5.), t * .7);
+  float n2 = puff(q * vec2(.7, 2.2) + vec2(t * .01, desc * .6 + 5.), t * .7);
   float d2 = smoothstep(.56, .74, n2) * .32 * smoothstep(.3, .75, uv.y);
   // luz suave vinda de cima: topo branco, base azul-clara (nunca cinza)
-  float n1l = puff(q * vec2(1.7, 2.3) + vec2(0., desc * 2.6) + vec2(.05, .08), t);
+  float n1l = puff(q * vec2(1.7, 2.3) + vec2(0., desc * 1.1) + vec2(.05, .08), t);
   float shade = clamp(.62 + (n1 - n1l) * 4.5 + uv.y * .2, 0., 1.);
   vec3 S = mix(uShadow, uNightS, uDeep), Lc = mix(uLight, uNightL, uDeep);
   vec3 c1 = mix(S, Lc, shade);
@@ -71,8 +60,6 @@ void main(){
   float dither = (hash(gl_FragCoord.xy + t) - .5) / 255.;
   gl_FragColor = vec4(col + dither * al, al);
 }`;
-
-type Pt = { x: number; y: number; r: number; s: number; dx: number; dy: number; born: number };
 
 function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) | null {
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
@@ -87,10 +74,8 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = (n: string) => gl.getUniformLocation(prog, n);
-  const uRes = U('uRes'), uTime = U('uTime'), uOpen = U('uOpen'), uDeep = U('uDeep'), uProg = U('uProg'), uA = U('uA'), uB = U('uB');
+  const uRes = U('uRes'), uTime = U('uTime'), uOpen = U('uOpen'), uDeep = U('uDeep'), uProg = U('uProg');
   const uShadow = U('uShadow'), uLight = U('uLight'), uNightS = U('uNightS'), uNightL = U('uNightL');
-  const A = new Float32Array(N * 4), B = new Float32Array(N * 4);
-  const trails: Pt[][] = [[], [], []];
   const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
   const palette = () => {
     const dusk = document.documentElement.dataset.theme === 'dusk';
@@ -113,30 +98,8 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
     if (dead || document.hidden || finale.dataset.skyActive !== 'true') return; // dorme fora da tela
     resize();
     const time = (now - t0) / 1000;
-    // rastro: guarda pontos por onde cada aeronave passou; o ponto vivo acompanha a aeronave
-    const vh = innerHeight, vw = innerWidth;
-    skyWake.planes.forEach((pl, i) => {
-      const tr = trails[i]; if (!tr) return;
-      if (pl.on > 0.01) {
-        const last = tr[tr.length - 1];
-        const moved = !last || Math.hypot(pl.x - last.x, pl.y - last.y) > pl.r * 0.35;
-        if (moved) { tr.push({ x: pl.x, y: pl.y, r: pl.r, s: pl.on, dx: pl.vx, dy: pl.vy, born: time }); if (tr.length > 8) tr.shift(); }
-        else { last.s = pl.on; last.born = time; }
-      }
-    });
-    A.fill(0); B.fill(0);
-    let j = 0;
-    outer: for (const tr of trails) for (const q of tr) {
-      const age = time - q.born, life = Math.exp(-age / 3.4);
-      if (life < 0.01) continue;
-      const m = Math.hypot(q.dx, q.dy) || 1;
-      A[j * 4] = q.x / vw; A[j * 4 + 1] = 1 - q.y / vh; A[j * 4 + 2] = (q.r / vh) * (1 + Math.min(1, age * 0.35)); A[j * 4 + 3] = q.s * life;
-      B[j * 4] = q.dx / m; B[j * 4 + 1] = -q.dy / m;
-      if (++j >= N) break outer;
-    }
     gl.uniform2f(uRes, W, H); gl.uniform1f(uTime, time);
     gl.uniform1f(uOpen, v('--sky-open')); gl.uniform1f(uDeep, v('--sky-deep')); gl.uniform1f(uProg, v('--sky-prog'));
-    gl.uniform4fv(uA, A); gl.uniform4fv(uB, B);
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = requestAnimationFrame(frame);

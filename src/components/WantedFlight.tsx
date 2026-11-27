@@ -4,7 +4,6 @@ import { CONTACT } from '@/content/fleet';
 import { fmt, useM } from '@/i18n';
 import { T } from '@/i18n/T';
 import { track } from '@/lib/analytics';
-import { skyWake } from './skyWake';
 
 /** ordem dos cards = ordem de chegada: o jato cruza a tela inteira até o primeiro card */
 const ORDER = ['sovereign', 'c90', 'r66'] as const;
@@ -26,7 +25,6 @@ export default function WantedFlight() {
     const section = root.closest<HTMLElement>('#procuramos')!;
     const stage = root.querySelector<HTMLElement>('.sf-wf__stage')!;
     const finale = root.closest<HTMLElement>('.finale');
-    skyWake.planes = ORDER.map(() => ({ x: 0, y: 0, r: 0, on: 0, vx: 0, vy: 0 }));
     const planes = ORDER.map((k) => ({
       k,
       el: root.querySelector<HTMLElement>(`.sf-plane[data-k="${k}"]`)!,
@@ -82,9 +80,6 @@ export default function WantedFlight() {
         // rastro de vento: atrás da aeronave, alinhado ao movimento, some ao pousar
         pl.trail.style.opacity = (flying * 0.9).toFixed(3);
         pl.trail.style.transform = `translateY(-50%) rotate(${(ang * 180 / Math.PI + 180 - tilt).toFixed(1)}deg)`;
-        // o céu vivo lê isto: a aeronave empurra e abre as nuvens por onde passa
-        const wk = skyWake.planes[ORDER.indexOf(pl.k)];
-        wk.x = sr.left + x; wk.y = sr.top + y; wk.r = w * 0.17; wk.on = t > 0 && t < 1 ? Math.max(0.15, flying) : 0; wk.vx = dx; wk.vy = dy;
         wakeX += dx * flying * 0.00012 * (pl.k === 'sovereign' ? 1.6 : 1); wake = Math.max(wake, flying);
       }
       // as nuvens reagem à passagem das aeronaves
@@ -96,7 +91,7 @@ export default function WantedFlight() {
     addEventListener('scroll', queue, { passive: true }); addEventListener('resize', queue);
     planes.forEach((pl) => { if (!pl.img.complete) pl.img.addEventListener('load', queue, { once: true }); });
     visible = true; draw();
-    return () => { skyWake.planes = []; io.disconnect(); cancelAnimationFrame(raf); removeEventListener('scroll', queue); removeEventListener('resize', queue); };
+    return () => { io.disconnect(); cancelAnimationFrame(raf); removeEventListener('scroll', queue); removeEventListener('resize', queue); };
   }, []);
 
   return (

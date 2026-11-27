@@ -204,3 +204,7 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - "Aeronaves que buscamos": tinta sólida, sem granulado, sem copy vazada e sem empurrão de vento — mantém só a revelação.
 - QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844.
 - Deploy produção V13: dpl_72ppgNLsNoiAss6kvQL63Cmwqxb4 (c0b8477) — READY. Rollback: V12 dpl_2EqjovVZNcryCNszLcFkapGDDNpJ.
+
+## V14 — Céu sem arrasto — 2026-11-27
+- Removida a deformação das nuvens atrás das aeronaves (dava "borrão/furacão" ao rolar) e o módulo skyWake. O céu só deriva com o vento e sobe em paralaxe suave com o scroll; rastro de vento e pouso nos cards mantidos.
+- QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844.
