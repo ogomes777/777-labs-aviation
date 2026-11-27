@@ -915,7 +915,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         if (globeRef.current) globeRef.current.root.visible = false;
         flightWorld.group.visible = true;
         flightWorld.update(cam.position, time);
-        { const dc = cam.position.distanceTo(sim.pos); flightWorld.cloudU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.highU.uClear.value = sim.inside ? 6 : dc + 30; }
+        { const dc = cam.position.distanceTo(sim.pos); flightWorld.cloudU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.highU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.wispU.uClear.value = sim.inside ? 6 : dc + 40; /* fiapos rentes à câmera nunca cobrem o avião */ }
         const pal = lerpPalette(SKY_PALETTES.dawn, SKY_PALETTES.dusk, 0.55, tmp.pal);
         env.skyGroup.visible = false; // o voo usa o céu atmosférico próprio (world.ts)
         const su = env.sky.uniforms, cu = env.sea.uniforms;
