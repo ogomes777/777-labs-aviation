@@ -174,3 +174,4 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Correções: qualidade travada durante o voo; perspectiva aérea afina com a altitude (até −72% acima de ~3.400 m); nuvens mais leves (menos instâncias, descarte de transparência baixa, distantes somem suaves); borrão de velocidade nasce no avião (ele fica nítido); luz e bloom do voo calibrados; o voo zera peça isolada/camadas/raio-X do Atlas (antes a fuselagem podia entrar "fantasma").
 - V9.2 em produção: dpl_7Mjiftqdui7ig6v1gBSfT9Y1gWhQ (8874dae). Rollback: dpl_A2DmxyMbLmizuHt58vheGxhgMJ8W (V9.1).
 - V9.3: fiapos de nuvem de alta velocidade (rentes à câmera) também se abrem em volta do avião — eram eles que cobriam a fuselagem branca com um véu branco (só motores, cauda e janelas escuras apareciam).
+- V9.3 em produção: dpl_3iASHSAmdLYmNZ4QpC2Af3p6QFKg (72ff8df). Rollback: dpl_7Mjiftqdui7ig6v1gBSfT9Y1gWhQ (V9.2).
