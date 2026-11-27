@@ -603,8 +603,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         jet.parts.motores.children.forEach((m) => { const z = (m as THREE.Object3D).position.z; if (m.type === 'Group') m.position.set(m.position.x, (m.userData.y0 ??= m.position.y) + off.y * e, (m.userData.z0 ??= z) + Math.sign(m.userData.z0) * 1.6 * e); else m.position.set(0, off.y * e, 0); });
       } else jet.parts[id].position.copy(off).multiplyScalar(e);
     });
-    // corte do teto (cutaway)
-    let cut = 100;
+    // corte do teto (cutaway). Neutro = muito acima de tudo: o plano corta y > constante — com 100 m, o casco
+    // do avião sumia no test drive acima de ~100 m de altura (só asas, cauda e janelas ficavam)
+    const NO_CUT = 1e7;
+    let cut = NO_CUT;
     if (t > 3.98 && t < 4.82) {
       const down = ramp(t, 4.0, 4.25), up = ramp(t, 4.62, 4.8);
       cut = THREE.MathUtils.lerp(s.R + 1.6, 0.34, down) + up * 3;
@@ -613,9 +615,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       // planta: teto cortado na linha das janelas; vista sentado: teto volta quando a câmera está abaixo dele
       const insC = crafts.current.find((c) => c.id === st.inspect);
       const cy = insC ? insC.group.position.y + insC.cutY : 0.32;
-      cut = st.inspectMode === 'seat' ? (cam.position.y < cy + 0.55 ? 100 : cy) : 100;
+      cut = st.inspectMode === 'seat' ? (cam.position.y < cy + 0.55 ? NO_CUT : cy) : NO_CUT;
     }
-    if (anatomyActive && st.part === 'cabine') cut = 100;
+    if (anatomyActive && st.part === 'cabine') cut = NO_CUT;
+    if (st.flight) cut = NO_CUT; // voo: casco sempre inteiro, em qualquer altitude
     CUT.constant = cut;
 
     // ----- mapas de ambiente e luzes -----
@@ -995,7 +998,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           // o borrão de velocidade nasce no avião: ele fica sempre nítido no quadro
           tmp.proj.copy(sim.pos).project(cam); (fx.speed.uniforms.get('uCenter')!.value as THREE.Vector2).set(clamp(tmp.proj.x * 0.5 + 0.5, 0, 1), clamp(tmp.proj.y * 0.5 + 0.5, 0, 1));
         }
-        if (fx.bloom) { const b = fx.bloom as unknown as { intensity: number; __base?: number }; b.__base ??= b.intensity; b.intensity = b.__base * 0.45; }
+        if (fx.bloom) { const b = fx.bloom as unknown as { intensity: number; __base?: number }; b.__base ??= b.intensity; b.intensity = b.__base * 0.25; } // pintura branca não vira halo contra o céu claro
         flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.55) / 0.4, 0, 1) * 0.4 * (agl > 60 ? 1 : 0) * (sim.inside ? 0 : 1) : 0;
         flightWorld.wispU.uLit.value.set('#fffaf2'); flightWorld.wispU.uShade.value.set('#9aa7bc'); flightWorld.wispU.uHaze.value.copy(sk.uHaze.value); flightWorld.wispU.uSun.value.copy(sk.uSun.value);
       }

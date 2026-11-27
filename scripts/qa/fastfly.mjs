@@ -11,7 +11,7 @@ await p.waitForTimeout(3000);
 await p.evaluate(() => window.__777.ui.set({ flight: 'praetor-600' }));
 await p.waitForTimeout(6000);
 await p.keyboard.press('x'); // vista externa
-const probe = async (tag) => { const r = await p.evaluate(() => { const c = window.__777fleet.find(x => x.id === 'praetor-600'); let skin = null; c.group.traverse(o => { if (!skin && o.isMesh && o.material && o.material.transparent !== undefined && o.name && /skin|fus/i.test(o.name)) skin = { name: o.name, op: o.material.opacity, tr: o.material.transparent, vis: o.visible, dw: o.material.depthWrite }; }); return JSON.stringify({ pos: [Math.round(c.group.position.x), Math.round(c.group.position.z)], skin, view: document.querySelector('.sf-flight__tools button[aria-label]')?.textContent, inst: document.querySelector('.sf-flight__inst')?.textContent }); }); console.log(tag, r); await p.screenshot({ path: `/tmp/claude-0/shots/ff-${tag}.png` }); };
+const probe = async (tag) => { const r = await p.evaluate(() => { const c = window.__777fleet.find(x => x.id === 'praetor-600'); let skin = null; c.group.traverse(o => { if (!skin && o.isMesh && o.material && o.material.transparent !== undefined && o.name && /skin|fus/i.test(o.name)) skin = { name: o.name, op: o.material.opacity, tr: o.material.transparent, vis: o.visible, dw: o.material.depthWrite }; }); const sh = []; c.group.traverse(o => { if (/shadow|halo/.test(o.name)) sh.push(o.name + ':' + o.visible + ':' + (o.material?.opacity ?? '')); }); return JSON.stringify({ sh, pos: [Math.round(c.group.position.x), Math.round(c.group.position.z)], skin, view: document.querySelector('.sf-flight__tools button[aria-label]')?.textContent, inst: document.querySelector('.sf-flight__inst')?.textContent }); }); console.log(tag, r); await p.screenshot({ path: `/tmp/claude-0/shots/ff-${tag}.png` }); };
 await probe('ground');
 await p.keyboard.press('Space'); await p.waitForTimeout(9000);
 await p.keyboard.down('Shift'); await p.waitForTimeout(8000); await p.keyboard.up('Shift');
@@ -19,4 +19,8 @@ await probe('fast');
 await p.keyboard.down('w'); await p.waitForTimeout(900); await p.keyboard.up('w'); await p.waitForTimeout(5000); await probe('climb');
 await p.keyboard.down('d'); await p.waitForTimeout(500); await p.keyboard.up('d'); await p.waitForTimeout(800); await probe('bank');
 await p.waitForTimeout(3000); await probe('bank2');
+// vista lateral (como nas capturas do usuário): gira o olhar 90°
+await p.mouse.move(800, 400); await p.mouse.down(); await p.mouse.move(540, 400, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(400); await probe('side');
+await p.keyboard.down('s'); await p.waitForTimeout(700); await p.keyboard.up('s'); await p.waitForTimeout(2500);
+await p.mouse.move(800, 400); await p.mouse.down(); await p.mouse.move(540, 400, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(400); await probe('side2');
 await b.close();

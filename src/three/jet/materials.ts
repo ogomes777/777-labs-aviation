@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { WIN, type JetSpec } from './spec';
 
 /** Plano de corte do cutaway (mantém y <= constant). Compartilhado por fuselagem e interior. */
-export const CUT = new THREE.Plane(new THREE.Vector3(0, -1, 0), 100);
+export const CUT = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e7); // neutro: nada é cortado até o cutaway pedir
 export const CUT_PLANES = [CUT];
 
 export interface WindowUniforms { [k: string]: THREE.IUniform }

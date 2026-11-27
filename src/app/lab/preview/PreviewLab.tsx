@@ -27,7 +27,7 @@ function Fleet({ id }: { id: FleetId }) {
   const box = useMemo(() => new THREE.Box3(), []);
   useFrame(() => {
     const r = state.req; if (!r || r.kind !== 'fleet') return;
-    CUT.constant = 100;
+    CUT.constant = 1e7;
     if (r.view) {
       craft.isolate(null); craft.setXray(0); craft.focusPart(null);
       craft.group.updateMatrixWorld(true); box.setFromObject(craft.group);
@@ -74,7 +74,7 @@ function Anatomy() {
   useEffect(() => () => { an.dispose(); jet.dispose(); }, [an, jet]);
   useFrame((_, dt) => {
     const r = state.req; if (!r || r.kind !== 'anatomy') return;
-    CUT.constant = r.part === 'cabine' ? 0.34 : 100;
+    CUT.constant = r.part === 'cabine' ? 0.34 : 1e7;
     jet.parts.trem.visible = true;
     an.restoreFrame();
     an.apply(camera as THREE.PerspectiveCamera, r.part, r.detail, 0, 0.65, false, Math.min(dt, 0.05), 1.2, size.width, size.height);
