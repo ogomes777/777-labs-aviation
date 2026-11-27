@@ -208,3 +208,4 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 ## V14 — Céu sem arrasto — 2026-11-27
 - Removida a deformação das nuvens atrás das aeronaves (dava "borrão/furacão" ao rolar) e o módulo skyWake. O céu só deriva com o vento e sobe em paralaxe suave com o scroll; rastro de vento e pouso nos cards mantidos.
 - QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844.
+- Deploy produção V14: dpl_7P3NYPLpxNdkpkJfDrK3hdMrxguo (3e3c761) — READY. Rollback: V13 dpl_72ppgNLsNoiAss6kvQL63Cmwqxb4.
