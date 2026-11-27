@@ -718,3 +718,46 @@ html[data-lang='pt'] #experiencia .sf27-gate-top { white-space: nowrap; }
 @media (max-width: 360px) {
   #experiencia .sf27-hangar-gate h2 { font-size: clamp(1.25rem, 6vw, 1.5rem); }
 }
+
+/* V10.5 — Cloud Silk: a finer first line and pastel cloud light inside the italic lettering. */
+#experiencia .sf27-hangar-gate h2 .sf27-gate-top {
+  font-family: var(--font-text), 'SimFly Gate Editorial', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -.035em;
+  text-shadow: 0 2px 9px rgba(16,45,76,.26), 0 5px 22px rgba(16,45,76,.12);
+}
+#experiencia .sf27-hangar-gate h2 .sf27-gate-bottom {
+  color: #c4e1ff;
+  text-shadow: 0 2px 12px rgba(35,85,142,.24);
+  padding: .07em .12em .18em;
+  margin: -.07em -.12em -.18em;
+}
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom {
+    background-image:
+      radial-gradient(ellipse at 19% 20%, #fff 0%, #f1f8ff 17%, transparent 46%),
+      radial-gradient(ellipse at 78% 78%, #e5f4ff 0%, transparent 39%),
+      linear-gradient(118deg, #a7c9f0 0%, #eaf5ff 24%, #b8dcff 46%, #91b9e8 64%, #e9f5ff 83%, #a8cef5 100%);
+    background-size: 100% 100%, 100% 100%, 140% 100%;
+    background-position: center, center, 50% 50%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 1px 1px rgba(35,77,132,.28)) drop-shadow(0 3px 9px rgba(36,81,139,.25));
+    transition: background-position 700ms ease, filter 350ms ease;
+  }
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom:is(:hover,:active) {
+    background-position: center, center, 90% 50%;
+    filter: drop-shadow(0 1px 1px rgba(35,77,132,.28)) drop-shadow(0 3px 12px rgba(93,157,224,.38));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom { transition: none; }
+}
+@media (forced-colors: active) {
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom {
+    color: CanvasText; -webkit-text-fill-color: CanvasText; background: none; filter: none;
+  }
+}
