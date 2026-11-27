@@ -512,25 +512,29 @@ html[data-theme='dusk'] .simfly-cloud-bridge::after { content: ''; position: abs
 .sfh__more[aria-expanded='true'] i { transform: translateY(1.5px) rotate(225deg); }
 @media (max-width: 860px) { .sfh__more { gap: 5px; } }
 
-/* A single atmospheric surface derived from SimFly's official wing mark.
-   The center is deliberately quiet, with no route chart or radar artifacts. */
+/* SimFly menu: a single navy atmosphere with a feather-light official wing. */
 dialog.sfm {
   background:
-    radial-gradient(ellipse at 88% 42%, rgba(var(--sf-accent-rgb), .10), transparent 58%),
-    linear-gradient(135deg, var(--sf-night) 12%, var(--sf-night-2) 100%) !important;
+    radial-gradient(ellipse at 76% 27%, rgba(87, 145, 205, .17), transparent 52%),
+    radial-gradient(ellipse at 92% 64%, rgba(42, 99, 158, .12), transparent 61%),
+    linear-gradient(125deg, #081525 8%, #0b1b30 58%, #102b46 100%) !important;
 }
 dialog.sfm::after { content: none; animation: none; }
 dialog.sfm .sfm__identity, dialog.sfm .sfm__identity * { pointer-events: none; }
 .sfm__identity { position: fixed; inset: 0; overflow: hidden; z-index: 0; }
 .sfm__identity-wing {
-  position: absolute; top: 50%; right: -6vw; width: min(56vw, 940px);
-  aspect-ratio: 1306 / 608; overflow: hidden; color: var(--sf-glow);
-  transform: translateY(-50%); opacity: .055;
-  mask-image: linear-gradient(90deg, transparent, #000 32%, #000 86%, transparent);
+  position: absolute; top: 50%; right: -5vw; width: min(78vw, 1350px);
+  transform: translateY(-50%); opacity: .16;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 24%, #000 88%, transparent 100%);
 }
-.sfm__identity-wing svg { display: block; width: 267.075%; max-width: none; height: auto; }
+.sfm__identity-wing svg { display: block; width: 100%; height: auto; }
 @media (max-width: 700px) {
-  .sfm__identity-wing { width: 96vw; right: -27vw; opacity: .045; }
+  .sfm__identity-wing { width: 142vw; right: -36vw; opacity: .12; }
+}
+html[data-theme='dusk'] dialog.sfm {
+  background:
+    radial-gradient(ellipse at 76% 27%, rgba(126, 122, 195, .15), transparent 52%),
+    linear-gradient(125deg, #101326 8%, #171c36 58%, #26334e 100%) !important;
 }
 @media (prefers-reduced-motion: reduce) { .sfh__more i { transition: none; } }
 html[data-motion='reduced'] .sfm__dice { transition: none; }
