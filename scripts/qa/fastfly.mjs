@@ -16,5 +16,7 @@ await probe('ground');
 await p.keyboard.press('Space'); await p.waitForTimeout(9000);
 await p.keyboard.down('Shift'); await p.waitForTimeout(8000); await p.keyboard.up('Shift');
 await probe('fast');
-for (let k = 0; k < 4; k++) { await p.keyboard.down('w'); await p.waitForTimeout(1500); await p.keyboard.up('w'); await p.waitForTimeout(5000); await probe('high' + k); }
+await p.keyboard.down('w'); await p.waitForTimeout(900); await p.keyboard.up('w'); await p.waitForTimeout(5000); await probe('climb');
+await p.keyboard.down('d'); await p.waitForTimeout(500); await p.keyboard.up('d'); await p.waitForTimeout(800); await probe('bank');
+await p.waitForTimeout(3000); await probe('bank2');
 await b.close();

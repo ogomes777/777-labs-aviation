@@ -316,8 +316,9 @@ export function createFlightWorld(gy: number) {
         float near = smoothstep(4.0, 26.0, vD) * mix(smoothstep(40.0, 260.0, vD), 1.0, step(0.5, uFarNear));
         // a aeronave nunca some atrás de nuvem: as que ficam entre a câmera e ela se abrem
         float clear = uClear > 0.0 ? smoothstep(uClear, uClear * 2.2 + 60.0, vD) : 1.0;
+        clear *= 1.0 - smoothstep(9000.0, 14000.0, vD); // nuvens muito distantes somem suaves (sem tapete serrilhado)
         gl_FragColor = vec4(col, a * vEdge * near * uOpacity * clear);
-        if (gl_FragColor.a < 0.004) discard;
+        if (gl_FragColor.a < 0.02) discard;
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
@@ -342,10 +343,10 @@ export function createFlightWorld(gy: number) {
   return { mesh, u: cloudU, sort, dispose: () => { geo.dispose(); base.dispose(); cloudM.dispose(); } };
   };
   // cúmulos (≈ 800–1.500 m) em mosaico maior — sem bordas de mosaico visíveis lá do alto
-  const clouds = makeClouds(300, 22000, gy + 800, 560, 380, 620, 0, 11, 0.62);
+  const clouds = makeClouds(210, 22000, gy + 800, 560, 420, 640, 0, 11, 0.62);
   // altocúmulos esparsos e achatados (≈ 2.700 m): profundidade de camadas
-  const high = makeClouds(80, 30000, gy + 2600, 400, 700, 900, 0, 47, 0.34);
-  high.u.uOpacity.value = 0.72;
+  const high = makeClouds(40, 30000, gy + 2600, 400, 800, 1000, 0, 47, 0.34);
+  high.u.uOpacity.value = 0.55;
   // nuvens próximas na altitude da aeronave: passam rasgando quando a velocidade sobe
   const wisps = makeClouds(70, 2600, -70, 140, 40, 90, 1, 29, 0.6);
   wisps.u.uOpacity.value = 0;

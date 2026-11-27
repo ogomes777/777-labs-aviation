@@ -275,6 +275,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- regulador de desempenho: mede o FPS real e ajusta o nível (com histerese) -----
     const pm = perfMon.current;
     if (rawDt > 0.25) { pm.acc = 0; pm.n = 0; pm.cool = Math.max(pm.cool, 2); } // volta de pausa/aba: não conta como FPS baixo
+    else if (ui.get().flight) { pm.acc = 0; pm.n = 0; pm.bad = 0; pm.good = 0; } // no voo a qualidade não muda no meio (sem trocas bruscas em altitude)
     else if (!pm.lock && !frame.freezeClock && !document.hidden) {
       pm.acc += rawDt; pm.n += 1;
       if (pm.acc > 1.2) {
@@ -866,6 +867,9 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const fid = st.flight;
       const craft = fid ? crafts.current.find((c) => c.id === fid) : null;
       if (fid && craft && sim.id !== fid) {
+        // o voo sempre começa com o avião inteiro: sem peça isolada, sem camadas abertas, sem raio-X
+        crafts.current.forEach((c) => { c.focusPart(null); c.isolate(null); c.setXray(0); c.setFade(1); });
+        applyInspect(craft.entries, 0, null, time); inspectP.current = 0;
         sim.start(fid, craft, env.gy, time);
         const names = new Set(['grass', 'sky-dome', 'ridge-ring']);
         flightHidden.current = [];
@@ -873,6 +877,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         crafts.current.forEach((c) => { c.setFade(1); c.setXray(0); c.isolate(null); });
       }
       if ((!fid || !craft) && sim.id) {
+        if (fx.bloom) { const b = fx.bloom as unknown as { intensity: number; __base?: number }; if (b.__base !== undefined) b.intensity = b.__base; }
+        if (fx.speed) { fx.speed.uniforms.get('uStrength')!.value = 0; (fx.speed.uniforms.get('uCenter')!.value as THREE.Vector2).set(0.62, 0.5); }
         sim.stop();
         flightHidden.current?.forEach((o) => { o.visible = true; }); flightHidden.current = null;
         flightWorld.group.visible = false;
@@ -929,12 +935,20 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         fu.uHaze.value.copy(sk.uHaze.value); ku.uHaze.value.copy(sk.uHaze.value); fu.uSky.value.set('#5d86c4');
         ku.uLit.value.set('#fffaf2'); ku.uShade.value.set('#8d9bb2');
         { const hu = flightWorld.highU; hu.uSun.value.copy(su.uSun.value); hu.uHaze.value.copy(sk.uHaze.value); hu.uLit.value.set('#fffaf4'); hu.uShade.value.set('#a3afc4'); }
+        // ar mais limpo em altitude: a perspectiva aérea afina conforme o avião sobe (nada de chão "lavado" de branco lá em cima)
+        const altK = clamp((agl - 250) / 3200, 0, 1), fogK = 1 - 0.72 * altK * (2 - altK);
+        flightWorld.earthU.uFog.value = 0.00011 * fogK; flightWorld.cloudU.uFog.value = 0.00011 * fogK; flightWorld.highU.uFog.value = 0.00011 * fogK; flightWorld.wispU.uFog.value = 0.00011 * fogK;
         const fog = scene.fog as THREE.FogExp2;
-        fog.color.copy(sk.uHaze.value); fog.density = 0.00012;
+        fog.color.copy(sk.uHaze.value); fog.density = 0.00012 * fogK;
         (scene.background as THREE.Color).set('#c9dcf0');
-        lights.sun.intensity = 2.5; lights.hemi.intensity = 0.62; lights.key.intensity = 0; lights.rim.intensity = 0.8;
+        lights.sun.intensity = 1.75; lights.hemi.intensity = 0.5; lights.key.intensity = 0; lights.rim.intensity = 0.55; // sem estourar a pintura branca contra o horizonte
         if (fx.dof) fx.dof.bokehScale = 0;
-        if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' ? 0 : 0.0014 * clamp((vk - 0.55) / 0.45, 0, 1);
+        if (fx.speed) {
+          fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' || sim.inside ? 0 : 0.0012 * clamp((vk - 0.55) / 0.45, 0, 1);
+          // o borrão de velocidade nasce no avião: ele fica sempre nítido no quadro
+          tmp.proj.copy(sim.pos).project(cam); (fx.speed.uniforms.get('uCenter')!.value as THREE.Vector2).set(clamp(tmp.proj.x * 0.5 + 0.5, 0, 1), clamp(tmp.proj.y * 0.5 + 0.5, 0, 1));
+        }
+        if (fx.bloom) { const b = fx.bloom as unknown as { intensity: number; __base?: number }; b.__base ??= b.intensity; b.intensity = b.__base * 0.45; }
         flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.55) / 0.4, 0, 1) * 0.4 * (agl > 60 ? 1 : 0) * (sim.inside ? 0 : 1) : 0;
         flightWorld.wispU.uLit.value.set('#fffaf2'); flightWorld.wispU.uShade.value.set('#9aa7bc'); flightWorld.wispU.uHaze.value.copy(sk.uHaze.value); flightWorld.wispU.uSun.value.copy(sk.uSun.value);
       }

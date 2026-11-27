@@ -168,3 +168,7 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Matrix no hangar: poltronas e assentos dos pilotos ajustados à curvatura real do casco (altura e posição); peças internas que tocariam o casco não aparecem por fora.
 - QA: scripts/qa/hotspots.mjs, scripts/qa/matrix.mjs, scripts/qa/fastfly.mjs.
 - V9.1 em produção: dpl_A2DmxyMbLmizuHt58vheGxhgMJ8W (c1eb58a). Rollback: dpl_86JPwS46ec8GtDEoqi8dC4qLpwa5 (V9).
+
+### V9.2 — voo contínuo em qualquer altitude (27/11)
+- Causa da "queda de qualidade" e do avião sumindo ao subir: (1) o regulador de desempenho baixava resolução/efeitos no meio do voo quando o campo de nuvens enchia a tela; (2) a névoa de distância não afinava com a altitude, lavando o chão de branco; (3) borrão de velocidade centrado fora do avião e pintura branca estourada contra o horizonte.
+- Correções: qualidade travada durante o voo; perspectiva aérea afina com a altitude (até −72% acima de ~3.400 m); nuvens mais leves (menos instâncias, descarte de transparência baixa, distantes somem suaves); borrão de velocidade nasce no avião (ele fica nítido); luz e bloom do voo calibrados; o voo zera peça isolada/camadas/raio-X do Atlas (antes a fuselagem podia entrar "fantasma").
