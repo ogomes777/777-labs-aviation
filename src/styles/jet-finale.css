@@ -235,7 +235,7 @@ html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: r
  .jf .jf-b { padding-top:11svh; }
  .jf .jf-b .jf__eyebrow { margin-bottom:12px; }
  .jf .jf-b .jf__title { font-size:clamp(2rem,min(4.2vw,7.5svh),5.2rem); }
- .jf .jf__giant--b { bottom:7svh; font-size:min(32vw,47svh,40rem); }
+ .jf .jf__giant--b { bottom:7svh; font-size:min(32vw,59svh,40rem); }
 }
 @media(max-width:860px) {
  .jf .jf-a .jf-btn { height:40px; padding:0 14px; font-size:.58rem; }
