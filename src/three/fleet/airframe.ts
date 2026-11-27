@@ -254,7 +254,22 @@ function xrayMaterial() {
   });
 }
 
-export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail: number }): FleetCraftBuild {
+/** Constrói tudo de uma vez (testes, usos síncronos). */
+export function buildFleetCraft(id: FleetId, opts: BuildOpts): FleetCraftBuild {
+  const it = buildFleetCraftSteps(id, opts); let r = it.next();
+  while (!r.done) r = it.next();
+  return r.value;
+}
+export interface BuildOpts { textureSize: number; detail: number; /** aviões de cenário: sem interior nem estrutura interna (nunca abertos) */ lite?: boolean }
+/**
+ * Construção em etapas (gerador): quem chama pode distribuir as etapas em momentos ociosos —
+ * nenhuma tarefa longa na thread principal (sem travar a rolagem ao chegar no hangar).
+ */
+export function* buildFleetCraftSteps(id: FleetId, opts: BuildOpts): Generator<void, FleetCraftBuild, void> {
+  // QA: custo de cada etapa da construção (só com ?qa)
+  const qa = typeof location !== 'undefined' && location.search.includes('qa');
+  let tq = qa ? performance.now() : 0;
+  const lap = (k: string) => { if (!qa) return; const n = performance.now(); const w = window as unknown as { __777cost?: Record<string, number[]> }; ((w.__777cost ??= {})['af:' + k] ??= []).push(Math.round(n - tq)); tq = n; };
   const s = FLEET_SPECS[id];
   const prop = s.nose === 'prop';
   const spinnerLen = prop ? 0.38 : 0;
@@ -279,6 +294,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     return m;
   };
 
+  lap('setup'); yield;
   // ---------- materiais PBR ----------
   const livery = tr(liveryTexture(s, f, L, opts.textureSize));
   const paint = tr(new THREE.MeshPhysicalMaterial({ color: '#ffffff', map: livery, roughness: 0.24, metalness: 0.08, clearcoat: 1, clearcoatRoughness: 0.06, side: THREE.DoubleSide }));
@@ -303,6 +319,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   lining.clippingPlanes = CUT_PLANES;
   const xray = tr(xrayMaterial());
 
+  lap('livery+mat'); yield;
   // ---------- FUSELAGEM ----------
   const noseCut = prop ? s.Ln : s.Ln * 0.34;
   mesh(systems.fuselagem, fuselageGeometry(f, { nu: Math.round(160 * detail), nv: Math.round(64 * detail), d0: noseCut * 0.995, d1: L }), paint, 'skin', 'skin');
@@ -338,7 +355,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     m.position.set(fx(s.wing.d + s.wing.root * 0.45), -s.R * 0.9, 0);
   }
   // estrutura interna ilustrativa: cavernas + longarinas
-  {
+  if (!opts.lite) {
     const geos: THREE.BufferGeometry[] = [];
     const d0 = s.Ln * 0.7, d1 = L - s.Lt * 0.45;
     for (let d = d0; d <= d1; d += prop ? 0.42 : 0.6) {
@@ -355,6 +372,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     geos.forEach((g) => g.dispose());
   }
 
+  lap('fuselage'); yield;
   // ---------- ASAS ----------
   const foil = naca(0.02, 0.4, prop ? 0.14 : 0.115, Math.round(22 * detail));
   const wl = s.wing.winglet;
@@ -404,7 +422,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     surf('flap', prop ? 0.06 : 0.1, prop ? 0.58 : 0.56, 0.72);
     surf('aileron', prop ? 0.62 : 0.6, prop ? 0.93 : 0.9, 0.74);
     // longarinas e nervuras (ilustrativas)
-    {
+    if (!opts.lite) {
       const geos: THREE.BufferGeometry[] = [];
       const bar = (a: THREE.Vector3, b: THREE.Vector3, r: number) => {
         const len = a.distanceTo(b); const c = new THREE.CylinderGeometry(r, r, len, 6);
@@ -420,6 +438,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     if (side === -1) wingAnchors.push(station(-1, 0.55).le.clone().add(V(-station(-1, 0.55).chord * 0.4, 0.16, 0)));
   }
 
+  lap('wings'); yield;
   // ---------- EMPENAGEM ----------
   const thinFoil = naca(0, 0.3, 0.1, 16);
   const tail = s.tail;
@@ -454,6 +473,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   mesh(stabG, loft(stabSt, thinFoil, true, true), tail.kind === 'T' ? finPaint : wingPaint, 'stab', 'skin');
   mesh(stabG, loft(stabSt, trailingFoil(thinFoil, 0.7, 1.08), true, true), surfacePaint, 'elevator', 'skin');
 
+  lap('tail'); yield;
   // ---------- PROPULSÃO ----------
   const lathe = (pts: [number, number][], seg = 40) => {
     const g = new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), Math.round(seg * detail));
@@ -523,6 +543,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     propAnchor = V(fx(0) - 0.1, 0.1, -0.35);
   }
 
+  lap('engines'); yield;
   // ---------- TREM DE POUSO ----------
   const gy = -s.axisH;
   const wheel = (r: number, w: number) => { const t = new THREE.TorusGeometry(r * 0.76, r * 0.25, 12, Math.round(28 * detail)); t.scale(1, 1, w / (r * 0.5)); return t; };
@@ -547,6 +568,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   const mainD = s.wing.d + s.wing.root * 0.62;
   for (const side of [1, -1] as const) leg(side === 1 ? 'gear-main-R' : 'gear-main-L', fx(mainD), side * s.gear.track / 2, s.wing.y + 0.05, s.gear.mainWheel, twin);
 
+  lap('gear'); yield;
   // ---------- CABINE (interior ilustrativo) ----------
   const floorY = s.cabin.floor;
   const cab = new THREE.Group(); cab.name = 'cabin-interior'; systems.cabine.add(cab);
@@ -554,10 +576,11 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     mesh(cab, fuselageGeometry(f, { nu: Math.round(50 * detail), nv: Math.round(36 * detail), inset: 0.07, d0: s.cabin.start, d1: s.cabin.end }), lining, 'lining');
   }
   // poltronas, móveis e cockpit pela planta de fábrica (mesma fonte da planta 2D)
-  const cabinB = buildCabin(s, f, L, { lux: false, clip: CUT_PLANES });
-  cab.add(cabinB.group); disposables.push(cabinB);
-  const seats: FleetCraftBuild['seats'] = cabinB.seats;
+  const cabinB = opts.lite ? null : buildCabin(s, f, L, { lux: false, clip: CUT_PLANES });
+  if (cabinB) { cab.add(cabinB.group); disposables.push(cabinB); }
+  const seats: FleetCraftBuild['seats'] = cabinB?.seats ?? [];
 
+  lap('cabin'); yield;
   // ---------- PORTAS ----------
   {
     const dr = s.door; const pts: number[] = []; const uvs: number[] = []; const nu = 8, nv = 12;
@@ -576,6 +599,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     mesh(systems.portas, g, doorMat, 'door', 'skin');
   }
 
+  lap('doors'); yield;
   // ---------- micropeças visíveis (catálogo V6; posições ilustrativas) ----------
   {
     const navMat = (c: string) => tr(new THREE.MeshStandardMaterial({ color: c, emissive: new THREE.Color(c), emissiveIntensity: 1.6, roughness: 0.3 }));
@@ -604,6 +628,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     }
   }
 
+  lap('micro'); yield;
   // ---------- sombra de contato (assenta a aeronave no piso) ----------
   {
     const sm = tr(new THREE.MeshBasicMaterial({ map: contactShadowTexture(), transparent: true, depthWrite: false, opacity: 0.85, color: '#000000' }));
@@ -614,6 +639,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
     group.add(wing);
   }
 
+  lap('shadow'); yield;
   // ---------- âncoras de hotspot (lado esquerdo, voltado à câmera) ----------
   const anchors: Record<SystemId, THREE.Vector3> = {
     fuselagem: f.point(prop ? s.Ln + 0.6 : s.Ln * 0.82, Math.PI / 2 + 0.6, 0),
@@ -634,12 +660,14 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   group.updateMatrixWorld(true);
   for (const sid of SYSTEMS) { const o = refObj[sid]; anchorRefs[sid] = { obj: o, local: o.worldToLocal(group.localToWorld(anchors[sid].clone())) }; }
 
+  lap('anchors'); yield;
   // ---------- limites por sistema (enquadramento de câmera) ----------
   group.updateMatrixWorld(true);
   const bounds = {} as FleetCraftBuild['bounds'];
   const box = new THREE.Box3(), sph = new THREE.Sphere();
   for (const sid of SYSTEMS) { box.setFromObject(systems[sid]); box.getBoundingSphere(sph); bounds[sid] = { center: sph.center.clone(), radius: Math.max(0.6, sph.radius) }; }
 
+  lap('bounds'); yield;
   // ---------- desmontagem: vetores por conjunto (posição = base + vetor × progresso; nunca acumula) ----------
   const entries: InspectEntry[] = [];
   const add = (part: SystemId, obj: THREE.Object3D | undefined, off: THREE.Vector3, w: [number, number], spin = 0) => {
@@ -659,6 +687,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   if (tail.kind !== 'T') add('empenagem', stabG, V(-2.2 * k, 0.6 * k, 0), [0.34, 0.84]);
   systems.trem.children.forEach((g) => add('trem', g, V(0, -1.6 * k, 0), [0.4, 0.9]));
 
+  lap('explode'); yield;
   // ---------- IDs de peça (ligam a malha ao catálogo do atlas) ----------
   const PART_OF: Record<string, string> = {
     skin: 'skin', fairing: 'skin', radome: 'radome', windshield: 'windshield', frames: 'frames', sensors: 'sensors',
@@ -756,6 +785,7 @@ export function buildFleetCraft(id: FleetId, opts: { textureSize: number; detail
   };
   const isolate = (sid: SystemId | null) => { for (const k2 of SYSTEMS) systems[k2].visible = !sid || k2 === sid; };
 
+  lap('parts+xray'); yield;
   return {
     id, spec: s, group, systems, anchors, anchorRefs, bounds, entries, seats, floorY, fuse: f, fusL: L, cutY: s.R * 0.26, size: s.envelope.length, axisH: s.axisH,
     setXray, isolate, setFade, focusPart, partBounds, partIds,

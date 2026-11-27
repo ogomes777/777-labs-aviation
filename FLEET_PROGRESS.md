@@ -175,3 +175,12 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - V9.2 em produção: dpl_7Mjiftqdui7ig6v1gBSfT9Y1gWhQ (8874dae). Rollback: dpl_A2DmxyMbLmizuHt58vheGxhgMJ8W (V9.1).
 - V9.3: fiapos de nuvem de alta velocidade (rentes à câmera) também se abrem em volta do avião — eram eles que cobriam a fuselagem branca com um véu branco (só motores, cauda e janelas escuras apareciam).
 - V9.3 em produção: dpl_3iASHSAmdLYmNZ4QpC2Af3p6QFKg (72ff8df). Rollback: dpl_7Mjiftqdui7ig6v1gBSfT9Y1gWhQ (V9.2).
+
+### V11 — desempenho e limpeza (27/11, sobre a V10.8 em produção)
+- Medição (scripts/qa/perf-audit.mjs, cpu.mjs, costs.mjs, buildprof.mjs): CPU por quadro do loop 3D baixa em todos os estados; as travadas vinham de tarefas pontuais.
+- Shaders: `checkShaderErrors` desligado em produção (forçava compilação síncrona e leitura de log na primeira aparição de cada material); variantes de raio-X pré-compiladas junto com cada avião; hangar e mundo do voo pré-aquecidos sem aparecer na tela.
+- Aviões: construção em etapas curtas (gerador), uma por momento ocioso — nenhum bloco de ~100 ms no meio da rolagem; texturas 1024 px fora do modo alto; texturas enviadas à GPU aos poucos antes de o avião aparecer; aviões de cenário sem interior/estrutura interna e construídos um por vez no tempo ocioso; geometria das poltronas compartilhada.
+- 3D montado no primeiro respiro do navegador (hero e primeira rolagem livres); mundo do test drive montado só no ocioso pós-frota ou ao decolar (antes ~200 ms na abertura).
+- Pontinhos: teste de visibilidade uma vez por parada (antes a cada 6 quadros).
+- Mídia: vídeo do hero 18 → 10 MB no desktop (SSIM 0,991) e versão 720p de 6,9 MB para celular/economia de dados; aviões PNG 2,2 MB → WebP ~390 KB (SSIM visível 0,990); mídias sem uso removidas.
+- Código morto removido: 7 componentes nunca importados (AircraftControls, CharterInquiry, DestinationsPanel, FleetTitlePlane, HeroActions, LiteHeroVideo, SceneProgress), heli.ts, jetEntries/heliEntries, BRAND/NAV antigos, getM.

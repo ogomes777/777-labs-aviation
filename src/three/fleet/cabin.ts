@@ -81,8 +81,15 @@ const leatherTex = () => canvasTex(512, 512, (g) => {
   }
 });
 
-/** poltrona executiva (giratória), ocupante olhando para +x; encosto em −x */
+/** geometria das poltronas compartilhada entre aviões (mesma escala = mesma malha; nunca descartada) */
+const seatCache = new Map<string, { leather: THREE.BufferGeometry; trim: THREE.BufferGeometry }>();
 function seatGeometries(sc: number) {
+  const k = sc.toFixed(3); let g = seatCache.get(k);
+  if (!g) { g = buildSeatGeometries(sc); seatCache.set(k, g); }
+  return g;
+}
+/** poltrona executiva (giratória), ocupante olhando para +x; encosto em −x */
+function buildSeatGeometries(sc: number) {
   const L: THREE.BufferGeometry[] = [], T: THREE.BufferGeometry[] = [];
   const rb = (w: number, h: number, d: number, r: number) => new RoundedBoxGeometry(w * sc, h * sc, d * sc, 3, r * sc);
   const pan = rb(0.56, 0.15, 0.6, 0.06); pan.translate(0.02 * sc, 0.45 * sc, 0); L.push(pan);
@@ -363,7 +370,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
   const obst: { x: number; z: number; r: number }[] = [];
   const blocks: { d0: number; d1: number; side: number; inner: number }[] = [];
   // ---------- poltronas ----------
-  const sg = seatGeometries(sc); tr(sg.leather); tr(sg.trim);
+  const sg = seatGeometries(sc);
   const seats: CabinBuild['seats'] = [];
   const seatZ = (d: number, side: number) => side * (wallZ(d, floorY + 0.5) - ledge - 0.31 * sc);
   C.seats.forEach((st, i) => {
@@ -498,7 +505,7 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
   {
     const cp = s.cabin.cockpit;
     // assentos de tripulação
-    const cg = seatGeometries(sc * 0.95); tr(cg.leather); tr(cg.trim);
+    const cg = seatGeometries(sc * 0.95);
     const cky = Math.max(0.6, Math.min(1, (topY(crewD, Math.abs(pilotZ) + 0.15 * sc) - floorY - 0.04) / (1.34 * sc * 0.95)));
     for (const side of [-1, 1]) { const m = new THREE.Mesh(cg.leather, M.crew); m.name = 'crew-seat'; m.userData.xray = 'solid'; m.position.set(fx(crewD), floorY, side * Math.abs(pilotZ)); m.scale.set(1, cky, 1); ck.add(m); const t = new THREE.Mesh(cg.trim, M.trim); t.name = 'crew-seat'; t.position.copy(m.position); t.scale.copy(m.scale); ck.add(t); }
     // painel principal, glareshield e console central

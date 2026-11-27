@@ -1,7 +1,7 @@
 'use client';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { MeshReflectorMaterial } from '@react-three/drei';
-import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { damp, frame, pulse, ramp, ui, clamp, fleetDwell } from '@/experience/director';
@@ -20,7 +20,7 @@ import { createAirflow } from './env/airflow';
 import PostFX, { fx } from './PostFX';
 import { createTraffic } from './env/traffic';
 import { applyInspect } from './inspector';
-import { buildFleetCraft, type FleetCraftBuild } from './fleet/airframe';
+import { buildFleetCraft, buildFleetCraftSteps, type BuildOpts, type FleetCraftBuild } from './fleet/airframe';
 import { FLEET_SPECS } from './fleet/specs';
 import { FLEET } from '@/content/fleet';
 import { prefs } from '@/i18n';
@@ -67,14 +67,14 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const skyGroup = new THREE.Group();
     skyGroup.add(sky.mesh, sea.mesh, puffs.mesh);
     const gy = groundY(SPECS.XR);
-    const hangar = createHangar(gy);
+    const hangar = qaTime('createHangar', () => createHangar(gy));
     const grid = createBlueprintGrid(gy);
     const maps = createEnvMaps(gl, sky.mesh);
     maps.get('sky');
     return { sky, sea, puffs, skyGroup, hangar, grid, maps, gy };
   }, [gl, quality]);
 
-  const jet = useMemo<JetBuild>(() => buildJet(variant, { textureSize: quality === 'high' ? 2048 : 1024, detail }), [variant, quality, detail]);
+  const jet = useMemo<JetBuild>(() => qaTime('buildJet', () => buildJet(variant, { textureSize: quality === 'high' ? 2048 : 1024, detail })), [variant, quality, detail]);
   const anatomy24 = useMemo(() => createAnatomy24(jet), [jet]);
   useEffect(() => () => { anatomy24.dispose(); jet.dispose(); }, [jet, anatomy24]);
   useEffect(() => () => {
@@ -128,6 +128,14 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     return { group: g, carts, spr, dispose: () => { glow.dispose(); body.dispose(); dark.dispose(); } };
   }, []);
   useEffect(() => () => life.dispose(), [life]);
+  // mundo do test drive: montado só quando precisa (ocioso depois da frota, ou ao decolar) — nada disso pesa na abertura do site
+  const flightHolder = useMemo(() => new THREE.Group(), []);
+  const fwRef = useRef<ReturnType<typeof createFlightWorld> | null>(null);
+  const getFlightWorld = useCallback(() => {
+    if (!fwRef.current) { fwRef.current = qaTime('createFlightWorld', () => createFlightWorld(env.gy)); flightHolder.add(fwRef.current.group); }
+    return fwRef.current;
+  }, [env.gy, flightHolder]);
+  useEffect(() => () => { fwRef.current?.dispose(); if (fwRef.current) flightHolder.remove(fwRef.current.group); fwRef.current = null; }, [env.gy, flightHolder]);
   type Traffic = FleetCraftBuild & { off: number; mode: 'land' | 'takeoff' | 'over' | 'parked'; land: THREE.Sprite; strobes: THREE.Sprite[]; beacon: THREE.Sprite; smoke: THREE.Sprite[] };
   const traffic2 = useRef<Traffic[]>([]);
   useEffect(() => {
@@ -139,21 +147,47 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const wait = () => { if (cancelled) return; if (frame.t > 1.1) window.setTimeout(cb, 60); else if (ric) ric(() => window.setTimeout(wait, 400), { timeout: 1500 }); else window.setTimeout(wait, 500); };
       wait();
     };
+    // constrói um avião em etapas curtas, uma por momento ocioso (sem tarefa longa no meio da rolagem)
+    const buildSteps = (id: (typeof FLEET)[number]['id'], opts: BuildOpts) => new Promise<FleetCraftBuild>((resolve, reject) => {
+      const it = buildFleetCraftSteps(id, opts); let work = 0, worst = 0;
+      const pump = () => {
+        if (cancelled) return;
+        try { const s0 = performance.now(); const r = it.next(); const dw = performance.now() - s0; work += dw; worst = Math.max(worst, dw); if (r.done) { if (QA_MODE) { const w = window as unknown as { __777cost?: Record<string, number[]> }; ((w.__777cost ??= {})['buildFleet:' + id] ??= []).push(Math.round(work), Math.round(worst)); } resolve(r.value); } else step(pump); } catch (e) { reject(e); }
+      };
+      pump();
+    });
+    // longe do hangar: só no tempo ocioso; chegando perto: uma etapa por quadro (nunca um bloco longo)
+    const step = (cb: () => void) => { if (frame.t > 1.1 || !ric) requestAnimationFrame(() => window.setTimeout(cb, 0)); else ric(() => cb(), { timeout: 400 }); };
+    // compila os shaders de um grupo escondido sem mostrá-lo (a varredura acontece na chamada) e sobe as texturas
+    const warm = (g: THREE.Object3D) => {
+      const v = g.visible; g.visible = true;
+      const pr = gl.compileAsync ? gl.compileAsync(g, camera, scene) : Promise.resolve();
+      g.visible = v;
+      pr.then(() => uploadTextures(g), () => uploadTextures(g));
+    };
+    // envia as texturas de um objeto para a GPU aos poucos (uma por quadro): nada de engasgo na primeira aparição
+    const uploadTextures = (root: THREE.Object3D) => new Promise<void>((resolve) => {
+      const set = new Set<THREE.Texture>();
+      root.traverse((o) => { const m = (o as THREE.Mesh).material; if (!m) return; for (const mat of ([] as THREE.Material[]).concat(m)) for (const v of Object.values(mat)) if (v && (v as THREE.Texture).isTexture) set.add(v as THREE.Texture); });
+      const list = [...set];
+      const step = () => { if (cancelled) { resolve(); return; } const t = list.shift(); if (!t) { resolve(); return; } try { gl.initTexture(t); } catch { /* sem upload antecipado: sobe no primeiro desenho */ } requestAnimationFrame(step); };
+      step();
+    });
     const next = () => {
       if (cancelled) return;
       const item = todo.shift();
       if (!item) {
-        // depois da frota: dois jatos de tráfego em ciclo de pouso (ilustração do mesmo gerador, sem rótulo comercial)
-        if (!cancelled) {
+        // depois da frota: cenário (um avião por vez, no tempo ocioso) e o mundo do test drive pré-montado
+        const extras: (() => void)[] = [];
+        extras.push(() => {
           // aeronave real estacionada dentro do hangar de portão aberto (nariz para o portão)
-          const hb = buildFleetCraft('praetor-500', { textureSize: 1024, detail: 0.6 });
+          const hb = qaTime('buildParked', () => buildFleetCraft('praetor-500', { textureSize: 1024, detail: 0.6, lite: true }));
           hb.group.position.set(-193, env.gy + hb.axisH, 61); hb.group.rotation.y = 0.95;
           life.group.add(hb.group);
           traffic2.current.push(Object.assign(hb, { off: 0, mode: 'parked' as const, land: life.spr('#000000', 0.01), strobes: [], beacon: life.spr('#000000', 0.01), smoke: [] }));
-        }
-        ([['praetor-600', 'land', 0], ['citation-cj2-plus', 'takeoff', 0.35], ['legacy-450', 'over', 0.6]] as const).forEach(([id, mode, off]) => {
-          if (cancelled) return;
-          const tb = buildFleetCraft(id, { textureSize: 512, detail: 0.45 });
+        });
+        ([['praetor-600', 'land', 0], ['citation-cj2-plus', 'takeoff', 0.35], ['legacy-450', 'over', 0.6]] as const).forEach(([id, mode, off]) => extras.push(() => {
+          const tb = qaTime('buildTraffic', () => buildFleetCraft(id, { textureSize: 512, detail: 0.45, lite: true }));
           tb.group.traverse((o) => { if (o.name.startsWith('contact-shadow')) o.visible = false; });
           const land = life.spr('#fffaf0', 16); land.position.set(tb.size / 2 + 0.6, -0.4, 0); tb.group.add(land);
           const strobes = [-1, 1].map((sd) => { const st2 = life.spr('#ffffff', 5); st2.position.set(0, 0, sd * FLEET_SPECS[id].envelope.span * 0.5); tb.group.add(st2); return st2; });
@@ -162,12 +196,21 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           const smoke = [-1, 1].map((sd) => { const sp = life.spr('#cfc8bd', 3); sp.material.blending = THREE.NormalBlending; sp.position.set(-1.5, -tb.axisH + 0.4, sd * FLEET_SPECS[id].gear.track / 2); tb.group.add(sp); return sp; });
           life.group.add(tb.group);
           traffic2.current.push(Object.assign(tb, { off, mode, land, strobes, beacon, smoke }));
+        }));
+        extras.push(() => {
+          const fw = getFlightWorld();
+          warm(fw.group);
         });
+        // cenário e mundo do voo só no tempo realmente ocioso (nunca no meio de um gesto do visitante)
+        const lazy = (cb: () => void) => { if (ric) ric(() => cb(), { timeout: 2500 }); else window.setTimeout(cb, 250); };
+        const runExtra = () => { if (cancelled) return; const f = extras.shift(); if (!f) return; f(); lazy(runExtra); };
+        lazy(runExtra);
         return;
       }
-      let b: FleetCraftBuild;
-      try { b = buildFleetCraft(item.id, { textureSize: 2048, detail: quality === 'high' ? 1 : 0.85 }); }
-      catch (err) { console.error('[simfly] falha ao construir', item.id, err); idle(next); return; }
+      buildSteps(item.id, { textureSize: quality === 'high' ? 2048 : 1024, detail: quality === 'high' ? 1 : 0.85 }).then((b) => placeCraft(item, b), (err) => { console.error('[simfly] falha ao construir', item.id, err); idle(next); });
+    };
+    const placeCraft = (item: (typeof FLEET)[number], b: FleetCraftBuild) => {
+      if (cancelled) { b.dispose(); return; }
       b.group.position.set(item.x, env.gy + b.axisH, ROW_Z);
       const c: Craft = Object.assign(b, { x: item.x });
       // halo de apresentação no chão (aparece quando esta aeronave é a escolhida)
@@ -193,13 +236,18 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       };
       // pré-compila as duas variantes (vívida e translúcida) para o destaque não travar ao rolar
       const compile = (): Promise<unknown> => (gl.compileAsync ? gl.compileAsync(c.group, camera, scene) : Promise.resolve());
+      // variantes vívida, translúcida e raio-X (planta/raio-X/peças) compiladas antes; texturas sobem para a GPU antes de o avião aparecer
       c.setFade(0.5);
-      compile().then(() => { c.setFade(1); return compile(); }).then(done, done);
+      compile().then(() => { c.setFade(1); return compile(); })
+        .then(() => { c.setXray(1); return compile(); })
+        .then(() => { c.setXray(0); return uploadTextures(c.group); })
+        .then(done, () => { c.setXray(0); done(); });
     };
-    const start = window.setTimeout(() => idle(next), 1800);
+    // hangar pré-aquecido (shaders compilados e texturas na GPU) antes de o visitante chegar nele
+    const start = window.setTimeout(() => { warm(env.hangar.group); idle(next); }, 1800);
     return () => { cancelled = true; window.clearTimeout(start); crafts.current.forEach((c) => { lineup.remove(c.group); c.dispose(); }); crafts.current = []; traffic2.current.forEach((t) => { life.group.remove(t.group); t.dispose(); }); traffic2.current = []; };
-  }, [lineup, quality, gl, camera, scene, env.gy, life]);
-  const traffic = useMemo(() => createTraffic(), []);
+  }, [lineup, quality, gl, camera, scene, env.gy, env.hangar.group, life, getFlightWorld]);
+  const traffic = useMemo(() => qaTime('createTraffic', () => createTraffic()), []);
   useEffect(() => () => traffic.dispose(), [traffic]);
   const inspectP = useRef(0);
   const lastRegion = useRef<string | null>(null);
@@ -227,8 +275,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     return { g, sun, hemi, key, rim, cab, winL, winR };
   }, []);
   // ---------- test drive (V7) ----------
-  const flightWorld = useMemo(() => createFlightWorld(env.gy), [env.gy]);
-  useEffect(() => () => flightWorld.dispose(), [flightWorld]);
   const sim = useMemo(() => new FlightSim(), []);
   const flightHidden = useRef<THREE.Object3D[] | null>(null);
   useEffect(() => {
@@ -501,7 +547,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
 
     // globo
     if (!globeRef.current && t > 5.6) {
-      const g = createGlobe(quality); g.root.position.copy(GLOBE_CENTER); globeHolder.add(g.root); globeRef.current = g;
+      const g = qaTime('createGlobe', () => createGlobe(quality)); g.root.position.copy(GLOBE_CENTER); globeHolder.add(g.root); globeRef.current = g;
     }
     const globe = globeRef.current;
     if (globe) globe.root.visible = globeW > 0.001;
@@ -755,7 +801,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           let hidden = false, px2 = (tmp.proj.x * 0.5 + 0.5) * size.width, py2 = (-tmp.proj.y * 0.5 + 0.5) * size.height, pz2 = tmp.proj.z;
           if (show) {
             const key = `${tgt.id}:${sid}`;
-            if (hotTick.n % 6 === 0 || !hotOcc.has(key)) {
+            if (!hotOcc.has(key)) { // uma vez por parada (os pontos só aparecem com tudo parado)
               ref.obj.localToWorld(hotP.copy(ref.local));
               const occluded = (pt: THREE.Vector3) => {
                 cam.getWorldPosition(hotO);
@@ -881,10 +927,11 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         if (fx.speed) { fx.speed.uniforms.get('uStrength')!.value = 0; (fx.speed.uniforms.get('uCenter')!.value as THREE.Vector2).set(0.62, 0.5); }
         sim.stop();
         flightHidden.current?.forEach((o) => { o.visible = true; }); flightHidden.current = null;
-        flightWorld.group.visible = false;
+        if (fwRef.current) fwRef.current.group.visible = false;
         env.sea.mesh.visible = true; env.puffs.mesh.visible = true;
       }
       if (sim.id && craft) {
+        const flightWorld = getFlightWorld();
         // celular em pé: a câmera gira 90° com lente de paisagem (o canvas não é girado — medição e custo intactos)
         const rot = flightUi.get().rotate && size.width < size.height;
         const portrait = size.width < size.height && !rot;
@@ -953,7 +1000,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         flightWorld.wispU.uLit.value.set('#fffaf2'); flightWorld.wispU.uShade.value.set('#9aa7bc'); flightWorld.wispU.uHaze.value.copy(sk.uHaze.value); flightWorld.wispU.uSun.value.copy(sk.uSun.value);
       }
     }
-    if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown }).__777env = { ...env, gl }; }
+    if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown; __777frame: unknown }).__777env = { ...env, gl }; (window as unknown as { __777frame: unknown }).__777frame = frame; }
     // custo de CPU do loop de direção (sem o desenho da GPU), média móvel — exposto para QA
     const cpu = performance.now() - cpu0;
     frame.cpuMs = frame.cpuMs * 0.95 + cpu * 0.05; frame.cpuMax = Math.max(frame.cpuMax, cpu);
@@ -967,7 +1014,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={env.hangar.group} />
       <primitive object={env.grid.mesh} />
       <primitive object={globeHolder} />
-      <primitive object={flightWorld.group} />
+      <primitive object={flightHolder} />
       <primitive object={jet.group} />
       <primitive object={lineup} />
       <primitive object={life.group} />
@@ -1060,6 +1107,8 @@ const hotSkins = (g: THREE.Object3D) => {
   return a.filter((o) => { let p: THREE.Object3D | null = o; while (p) { if (!p.visible) return false; p = p.parent; } return true; });
 };
 const hotRay = new THREE.Raycaster(), hotP = new THREE.Vector3(), hotDir = new THREE.Vector3(), hotOcc = new Map<string, number>();
+/** QA: mede trabalhos pesados da thread principal (só com ?qa) */
+const qaTime = <T,>(label: string, f: () => T): T => { if (!QA_MODE) return f(); const t0 = performance.now(); const r = f(); const w = window as unknown as { __777cost?: Record<string, number[]> }; ((w.__777cost ??= {})[label] ??= []).push(Math.round(performance.now() - t0)); return r; };
 const QA_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).has('qa');
 export default function Experience({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const dpr = useBudgetDpr();
@@ -1072,6 +1121,7 @@ export default function Experience({ quality, onReady }: { quality: Q; onReady: 
       camera={{ fov: 30, near: 0.02, far: 7000, position: [27, 4.2, 58] }}
       frameloop="always"
       flat={false}
+      onCreated={({ gl }) => { gl.debug.checkShaderErrors = new URLSearchParams(location.search).has('shadercheck'); /* produção: sem leitura síncrona de log de shader (travava a primeira aparição de cada material) */ }}
     >
       <World quality={quality} onReady={onReady} />
       <RenderGate />

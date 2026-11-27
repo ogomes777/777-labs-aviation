@@ -85,4 +85,3 @@ export const useTheme = () => prefs.useStore((s) => s.theme);
 /** Interpolação simples de {chaves}. */
 export const fmt = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (_, k) => (k in vars ? String(vars[k]) : `{${k}}`));
 /** Leitura não reativa (para loops/handlers). */
-export const getM = () => prefs.get().m;

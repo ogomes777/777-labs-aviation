@@ -1,19 +1,4 @@
 // Conteúdo editorial original. Nenhuma especificação de aeronave, rota operada, tarifa ou credencial é declarada.
-export const BRAND = {
-  name: '777 LABS AVIATION',
-  short: '777',
-  concept: 'Concept by SET77 Labs',
-  disclaimer:
-    '777 LABS AVIATION é uma marca conceitual criada pela SET77 Labs para demonstrar uma experiência digital. Não opera voos, não possui aeronaves, frota, certificado de operador (AOC) ou licenças, e não comercializa fretamentos.',
-};
-
-export const NAV = [
-  { href: '#aeronave', label: 'Aeronave' },
-  { href: '#frota', label: 'Frota' },
-  { href: '#experiencia', label: 'Experiência' },
-  { href: '#planejar', label: 'Contato' },
-] as const;
-
 export type ChapterId = 'top' | 'portal' | 'aeronave' | 'frota' | 'engenharia' | 'interior' | 'experiencia' | 'destinos' | 'planejar';
 
 /** Capítulos do filme: cada um vale 1 unidade de tempo global (t). */

@@ -29,12 +29,14 @@ export default function SimFlyHero(){
  if(bar.current){bar.current.style.transform=`scaleX(${p})`;bar.current.parentElement!.parentElement!.style.opacity=String(1-ramp(p,.9,.98));}
  };
  const queue=()=>{if(!disposed&&!raf)raf=requestAnimationFrame(draw);};const loaded=()=>{v.pause();queue();};const err=()=>{if(!fallback){fallback=true;fps=30;v.src='/media/simfly-hero-original.mp4';v.load();}else el.dataset.videoError='true';};
+ // celular/telas pequenas/economia de dados: versão 720p (6,9 MB em vez de 10 MB); desktop: 1080p
+ if(!fallback){const nc=(navigator as Navigator&{connection?:{saveData?:boolean}}).connection;const small=Math.min(innerWidth,innerHeight)<700||innerWidth<900||!!nc?.saveData;v.src=small?'/media/simfly-hero-scrub-m.mp4':'/media/simfly-hero-scrub.mp4';v.load();}
  v.addEventListener('loadedmetadata',loaded);v.addEventListener('loadeddata',loaded);v.addEventListener('seeked',seek);v.addEventListener('error',err);if(fallback){v.src='/media/simfly-hero-original.mp4';v.load();}window.addEventListener('scroll',queue,{passive:true});window.addEventListener('resize',queue);reduced.addEventListener('change',queue);queue();return()=>{disposed=true;cancelAnimationFrame(raf);v.removeEventListener('loadedmetadata',loaded);v.removeEventListener('loadeddata',loaded);v.removeEventListener('seeked',seek);v.removeEventListener('error',err);window.removeEventListener('scroll',queue);window.removeEventListener('resize',queue);reduced.removeEventListener('change',queue);if(document.documentElement.dataset.simflyZone==='hero')delete document.documentElement.dataset.simflyZone;};},[mounted]);
  return <div ref={root} className="simfly-film">
- <video ref={video} src="/media/simfly-hero-scrub.mp4" poster="/media/simfly-hero-poster.webp" muted playsInline preload="auto" aria-hidden="true"/>
+ <video ref={video} poster="/media/simfly-hero-poster.webp" muted playsInline preload="auto" aria-hidden="true"/>
  <div className="simfly-shade" aria-hidden="true"/>
  <h1 id="hero-title" data-focus-target className="simfly-title" aria-label="SimFly"><span>SIM</span><span data-text="FLY">FLY</span></h1>
- <img ref={plane} className="simfly-launch-plane" src="/media/simfly-plane-dorsal.png" alt="" aria-hidden="true" decoding="async"/>
+ <img ref={plane} className="simfly-launch-plane" src="/media/simfly-plane-dorsal.webp" alt="" aria-hidden="true" decoding="async"/>
  <div className="simfly-title simfly-title--outline" aria-hidden="true"><span>SIM</span><span>FLY</span></div>
  <div className="simfly-copies" ref={copies}><p>{m.hero.c1a}<br/><em data-text={m.hero.c1b}>{m.hero.c1b}</em></p><p>{m.hero.c2a}<br/><em data-text={m.hero.c2b}>{m.hero.c2b}</em></p><p>{m.hero.c3a}<br/><em data-text={m.hero.c3b}>{m.hero.c3b}</em></p></div>
  <div className="simfly-cue" aria-hidden="true"><i><b ref={bar}/></i></div>

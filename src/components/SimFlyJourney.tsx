@@ -239,7 +239,7 @@ const fade=1-glow.current,HR=Math.min(R*1.4,Math.min(w-cx,cx,h-cy,cy)-1);let g=c
    <path ref={ahead} pathLength="1" fill="none" stroke="url(#sf-ahead)" strokeWidth="1.9" strokeLinecap="round" opacity="0"/>
   </svg>
   <div className="simfly-continuum__aircopy" ref={copy}><article><h2 id="sobre-title" data-focus-target>{m.about.a1}<br/>{m.about.a2} <em>{m.about.a3}</em></h2><p>{m.about.ap}</p></article><article><h2>{m.about.b1}<br/>{m.about.b2} <em>{m.about.b3}</em></h2><p>{m.about.bp}</p></article></div>
-  <div className="simfly-continuum__plane" ref={plane}><img src="/media/simfly-plane-cutout.png" alt="" decoding="async"/><div className="simfly-approach-rig"><img className="simfly-approach-source" src="/media/simfly-plane-approach-3840.png" alt="" decoding="async"/><img className="simfly-approach-source simfly-approach-lamp-off" src="/media/simfly-plane-approach-lamp-off.png" alt="" decoding="async" aria-hidden="true"/></div></div>
+  <div className="simfly-continuum__plane" ref={plane}><img src="/media/simfly-plane-cutout.webp" alt="" decoding="async"/><div className="simfly-approach-rig"><img className="simfly-approach-source" src="/media/simfly-plane-approach-3840.webp" alt="" decoding="async"/><img className="simfly-approach-source simfly-approach-lamp-off" src="/media/simfly-plane-approach-lamp-off.webp" alt="" decoding="async" aria-hidden="true"/></div></div>
   <div className="simfly-continuum__meta" ref={meta}/>
 
  <div className="simfly-handoff__optical" ref={optical} aria-hidden="true"/>
@@ -268,8 +268,8 @@ const fade=1-glow.current,HR=Math.min(R*1.4,Math.min(w-cx,cx,h-cy,cy)-1);let g=c
  .simfly-handoff__optical,.simfly-handoff__pearl{position:absolute;inset:0;pointer-events:none;opacity:0;}
  .simfly-handoff__optical{z-index:7;background:radial-gradient(ellipse at var(--sf-light-x,110%) 47%,#f3fafff0 0%,#cde7fa99 29%,#578ec940 53%,#15365400 79%);}
  .simfly-handoff__pearl{z-index:8;background:#f4f1ea;}
- .simfly-continuum__plane::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:var(--sf-glint,0);background:linear-gradient(110deg,transparent 32%,#85c9ff55 43%,#f9fdff 50%,#c1e5ff80 57%,transparent 68%);background-size:250% 100%;background-position:var(--sf-sweep,125%) 50%;mask:url('/media/simfly-plane-cutout.png') center / 100% 100% no-repeat;-webkit-mask:url('/media/simfly-plane-cutout.png') center / 100% 100% no-repeat;}
- .simfly-continuum__plane[data-approach=true]::after{mask-image:url('/media/simfly-plane-approach-3840.png');-webkit-mask-image:url('/media/simfly-plane-approach-3840.png');}
+ .simfly-continuum__plane::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:var(--sf-glint,0);background:linear-gradient(110deg,transparent 32%,#85c9ff55 43%,#f9fdff 50%,#c1e5ff80 57%,transparent 68%);background-size:250% 100%;background-position:var(--sf-sweep,125%) 50%;mask:url('/media/simfly-plane-cutout.webp') center / 100% 100% no-repeat;-webkit-mask:url('/media/simfly-plane-cutout.webp') center / 100% 100% no-repeat;}
+ .simfly-continuum__plane[data-approach=true]::after{mask-image:url('/media/simfly-plane-approach-3840.webp');-webkit-mask-image:url('/media/simfly-plane-approach-3840.webp');}
  .simfly-continuum{position:fixed;inset:0;z-index:35;isolation:isolate;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#f5f7fa;}
  .simfly-continuum__light,.simfly-continuum__night{position:absolute;inset:0;pointer-events:none;}.simfly-continuum__light{background:radial-gradient(ellipse at 74% 55%,#e4edf7,#f5f7fa 76%);}.simfly-continuum__night{background:radial-gradient(ellipse at 70% 52%,#173753,#0d2036 38%,#091525 74%);opacity:0;}
  .simfly-routes__dust{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transform:translate3d(var(--dx,0px),calc(var(--dy,0px) + var(--scroll-drift,0px)),0);transition:transform .35s ease-out;}

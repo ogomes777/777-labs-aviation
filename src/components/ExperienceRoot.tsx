@@ -42,6 +42,17 @@ export default function ExperienceRoot() {
   useEffect(() => { document.documentElement.dataset.motion = motion; }, [motion]);
 
   const cinematic = mounted && motion === 'cinematic' && webgl && quality !== 'lite';
+  // o 3D (aviões, hangar, céu) é montado no primeiro respiro do navegador — o hero e a primeira rolagem ficam livres
+  const [threeOn, setThreeOn] = useState(false);
+  useEffect(() => {
+    if (!cinematic || threeOn) return;
+    const deep = location.hash && location.hash !== '#top';
+    if (deep) { setThreeOn(true); return; }
+    const ric = (window as unknown as { requestIdleCallback?: (c: () => void, o?: object) => number }).requestIdleCallback;
+    let done = false; const go = () => { if (!done) { done = true; setThreeOn(true); } };
+    const id = ric ? ric(go, { timeout: 1400 }) : window.setTimeout(go, 700);
+    return () => { done = true; if (!ric) window.clearTimeout(id); };
+  }, [cinematic, threeOn]);
   useEffect(() => { nav.cinematic = cinematic; nav.veil = navVeilRef.current; domRefs.veil = veilRef.current; domRefs.route = document.getElementById('route-path') as SVGPathElement | null; }, [cinematic]);
 
   // intro de página: CSS puro (global.css) — a classe sai depois para liberar as revelações de scroll
@@ -211,7 +222,7 @@ export default function ExperienceRoot() {
           <source srcSet="/media/poster-desktop.avif" type="image/avif" />
           <img src="/media/poster-desktop.webp" alt="" fetchPriority="high" decoding="async" />
         </picture>
-        {cinematic && <Experience quality={quality === 'high' ? 'high' : 'balanced'} onReady={onReady} />}
+        {cinematic && threeOn && <Experience quality={quality === 'high' ? 'high' : 'balanced'} onReady={onReady} />}
         <div ref={veilRef} className="stage__veil" />
         <div className="stage__vignette" />
         <div className="stage__grain" />
