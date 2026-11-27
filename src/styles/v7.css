@@ -538,3 +538,26 @@ html[data-theme='dusk'] dialog.sfm {
 }
 @media (prefers-reduced-motion: reduce) { .sfh__more i { transition: none; } }
 html[data-motion='reduced'] .sfm__dice { transition: none; }
+
+/* V9.7 — bare language chevron; retain an accessible invisible hit area. */
+.sfh__more, .sfh__more:hover, .sfh__more[aria-expanded='true'] {
+  border: 0 !important; background: transparent !important; box-shadow: none !important;
+}
+.sfh__more { justify-content: center; min-width: 28px; height: 36px !important; }
+.sfh__more i { display: block; }
+.sfh__more:focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
+@media (max-width: 860px) {
+  .sfh__more { min-width: 40px; height: 44px !important; }
+}
+/* Rotate the close icon itself, not the menu or its approved typography. */
+.sfh__burger--x[data-closing='true'] {
+  animation: sfmCloseSpin 240ms cubic-bezier(.35, .05, .5, 1) both;
+}
+@keyframes sfmCloseSpin {
+  from { transform: rotate(0deg); opacity: 1; }
+  to { transform: rotate(90deg); opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sfh__burger--x[data-closing='true'] { animation: none; }
+}
+html[data-motion='reduced'] .sfh__burger--x[data-closing='true'] { animation: none; }
