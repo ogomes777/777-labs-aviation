@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="144" viewBox="0 0 384 144">
+  <defs>
+    <filter id="cloud" x="0" y="0" width="384" height="144" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".008 .021" numOctaves="3" seed="77" stitchTiles="stitch" result="vapour"/>
+      <feColorMatrix in="vapour" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1 0 0 0 0" result="whiteMist"/>
+      <feComponentTransfer in="whiteMist">
+        <feFuncA type="table" tableValues="0 0 0 .04 .28 .75 .95 1 1"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="384" height="144" fill="#fff" filter="url(#cloud)"/>
+</svg>

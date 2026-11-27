@@ -843,3 +843,42 @@ html[data-motion='reduced'] #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom 
   #experiencia .sf27-hangar-gate button { background: ButtonFace; color: ButtonText; border-color: ButtonText; box-shadow: none; }
   #experiencia .sf27-hangar-gate button::before, #experiencia .sf27-hangar-gate button::after { display: none; }
 }
+
+/* V10.7 — Cotton Cloud: interleaved, seamless organic mist inside the letterforms.
+   Two independently moving scales of a static, tileable fractal texture.
+   No animated SVG filter, extra render loop or moving glow stripe. */
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom,
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom:is(:hover,:active) {
+    background-color: #afd5fa;
+    background-image:
+      url('/media/simfly-cotton-cloud.svg'),
+      url('/media/simfly-cotton-cloud.svg'),
+      linear-gradient(145deg,#c8e6ff 0%,#a3cdf6 48%,#c4e3ff 100%);
+    background-repeat: repeat, repeat, no-repeat;
+    background-size: 3.65em 1.38em, 2.45em 1.62em, 100% 100%;
+    background-position: 0 0, .8em -.4em, center;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 1px 1px rgba(23,61,109,.38)) drop-shadow(0 3px 8px rgba(59,111,174,.23));
+  }
+  #experiencia .sf27-hangar-gate[data-open='true'] h2 .sf27-gate-bottom {
+    animation: sfCottonDrift 6.8s linear infinite;
+  }
+}
+@keyframes sfCottonDrift {
+  from { background-position: 0 0, .8em -.4em, center; }
+  to { background-position: 3.65em 1.38em, -1.65em 1.22em, center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #experiencia .sf27-hangar-gate[data-open='true'] h2 .sf27-gate-bottom { animation: none; }
+}
+html[data-motion='reduced'] #experiencia .sf27-hangar-gate[data-open='true'] h2 .sf27-gate-bottom { animation: none; }
+@media (forced-colors: active) {
+  #experiencia .sf27-hangar-gate[data-open='true'] h2 .sf27-gate-bottom {
+    animation: none; background: none; color: CanvasText; -webkit-text-fill-color: CanvasText; filter: none;
+  }
+}
