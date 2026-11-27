@@ -111,24 +111,24 @@ function TurbineAsset() {
     const safari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
     const choose = () => { setPlaying(false); setMode(mq.matches ? 'still' : safari ? 'animated' : 'video'); };
     choose(); mq.addEventListener('change', choose);
-    const io = new IntersectionObserver(([e]) => setAwake(e.isIntersecting), { rootMargin: '600px' });
+    const io = new IntersectionObserver(([e]) => setAwake(e.isIntersecting), { rootMargin: '350px' });
     if (host.current) io.observe(host.current);
     return () => { io.disconnect(); mq.removeEventListener('change', choose); };
   }, []);
   useEffect(() => {
     const v = video.current; if (!v || mode !== 'video') return;
-    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 2.2; v.play().catch(() => { if (!document.hidden) setMode('animated'); }); } else v.pause(); };
+    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 2.0; v.play().catch(() => { if (!document.hidden) setMode('animated'); }); } else v.pause(); };
     sync(); document.addEventListener('visibilitychange', sync);
     return () => { document.removeEventListener('visibilitychange', sync); v.pause(); };
   }, [awake, mode]);
   const real = poster || (mode === 'video' && playing) || (mode === 'animated' && animated);
   return (
     <div ref={host} className={'jf-media' + (real ? ' jf-media--real' : '')} aria-hidden="true">
-      <div className="jf-media__legacy"><Turbine /></div>
-      <img className={'jf-media__layer' + (poster ? ' is-ready' : '')} src={MEDIA + '/turbofan.png'} alt="" decoding="async" loading="lazy" onLoad={() => setPoster(true)} />
-      {mode === 'video' && <video ref={video} className={'jf-media__layer' + (playing ? ' is-ready' : '')} src={MEDIA + '/turbofan.webm'} loop muted playsInline preload={awake ? 'auto' : 'none'} onPlaying={() => setPlaying(true)} onError={() => { setPlaying(false); setMode('animated'); }} />}
+      {!real && <div className="jf-media__legacy"><Turbine /></div>}
+      <img className={'jf-media__layer' + (poster ? ' is-ready' : '')} src={MEDIA + '/turbofan-optimized-poster.webp'} alt="" decoding="async" loading="lazy" onLoad={() => setPoster(true)} />
+      {mode === 'video' && <video ref={video} className={'jf-media__layer' + (playing ? ' is-ready' : '')} src={MEDIA + '/turbofan-optimized.webm'} loop muted playsInline preload={awake ? 'auto' : 'none'} onPlaying={() => setPlaying(true)} onError={() => { setPlaying(false); setMode('animated'); }} />}
       {mode === 'animated' && awake && <img className={'jf-media__layer' + (animated ? ' is-ready' : '')} src={MEDIA + '/turbofan-fallback.webp'} alt="" decoding="async" onLoad={() => setAnimated(true)} onError={() => setMode('still')} />}
-      {real && <i className={'jf-media__tone' + ((playing || (mode === 'animated' && animated)) ? ' is-live' : '')} />}
+      {real && awake && <i className={'jf-media__tone' + ((playing || (mode === 'animated' && animated)) ? ' is-live' : '')} />}
     </div>
   );
 }
