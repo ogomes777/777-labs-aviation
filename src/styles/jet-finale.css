@@ -225,7 +225,7 @@ html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: r
 @media(prefers-reduced-motion:reduce) { .jf .jf-glow-sweep { animation:none!important; background:none; -webkit-text-fill-color:currentColor; } }
 
 /* V21 — minimal contact, separated footer type and leaner composition */
-.jf .jf__giant--a { -webkit-text-stroke-color:color-mix(in srgb,var(--ink) 14%,transparent); }
+.jf .jf__giant--a { -webkit-text-stroke-color:color-mix(in srgb,var(--ink) 8%,transparent); }
 .jf .jf-a .jf__actions { gap:8px; margin-top:18px; }
 .jf .jf-a .jf-btn { height:40px; padding:0 16px; font-size:.61rem; letter-spacing:.10em; box-shadow:none; }
 .jf .jf-a .jf-btn--solid { border:1px solid transparent; }
