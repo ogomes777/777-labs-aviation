@@ -154,3 +154,23 @@ html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: r
   .jf-media__tone { animation:none!important; }
   .jf-media__layer { transition:none; }
 }
+
+/* V17 — continuous sky, editorial contact and lighter compositing */
+.jf__stage { background: transparent; }
+.jf__giant--a { right: 4vw; left: auto; top: 20%; font-size: clamp(4rem, 14vw, 18rem); color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb,var(--ink) 38%,transparent); z-index: 2; transform: translate3d(0,calc(-50% - var(--down) * 30svh),0); }
+.jf__giant--b { color: color-mix(in srgb,var(--ink) 23%,transparent); }
+.jf-a { max-width: min(27rem, 31vw); left: clamp(20px,5vw,90px); top: 63%; }
+.jf-a .jf__title { font-size: clamp(1.6rem,2.7vw,3.2rem); overflow-wrap: normal; letter-spacing: -.035em; }
+.jf-a .jf__eyebrow { font-size: .65rem; }
+.jf-a .jf__actions { gap: 8px; margin-top: 20px; }
+.jf-a .jf-btn { height: 42px; padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.jf__title--foot { text-shadow: 0 0 12px rgba(111,178,255,.48), 0 0 28px rgba(143,196,255,.32); }
+.jf-media,.jf__nose-wrap { filter: none; }
+.jf-media--real .jf-media__legacy { display:none; }
+.jf-media__tone { mix-blend-mode: normal; }
+.jf__mist i { filter:none; }
+@media(max-width:860px) {
+ .jf__giant--a { top: 13%; right: 5vw; font-size: clamp(3rem,16vw,7rem); -webkit-text-stroke-width: 1px; }
+ .jf-a { top:auto; bottom:max(28px,env(safe-area-inset-bottom)); max-width:none; left:20px; right:20px; }
+ .jf-a .jf__title { font-size:clamp(1.5rem,6.5vw,2.5rem); }
+}

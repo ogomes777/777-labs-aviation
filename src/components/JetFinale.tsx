@@ -149,13 +149,13 @@ function TurbineAsset() {
     const safari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
     const choose = () => { setPlaying(false); setMode(mq.matches ? 'still' : safari ? 'animated' : 'video'); };
     choose(); mq.addEventListener('change', choose);
-    const io = new IntersectionObserver(([e]) => setAwake(e.isIntersecting), { rootMargin: '100px' });
+    const io = new IntersectionObserver(([e]) => setAwake(e.isIntersecting), { rootMargin: '600px' });
     if (host.current) io.observe(host.current);
     return () => { io.disconnect(); mq.removeEventListener('change', choose); };
   }, []);
   useEffect(() => {
     const v = video.current; if (!v || mode !== 'video') return;
-    const sync = () => { if (awake && !document.hidden) v.play().catch(() => { if (!document.hidden) setMode('animated'); }); else v.pause(); };
+    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 1.8; v.play().catch(() => { if (!document.hidden) setMode('animated'); }); } else v.pause(); };
     sync(); document.addEventListener('visibilitychange', sync);
     return () => { document.removeEventListener('visibilitychange', sync); v.pause(); };
   }, [awake, mode]);
@@ -164,7 +164,7 @@ function TurbineAsset() {
     <div ref={host} className={'jf-media' + (real ? ' jf-media--real' : '')} aria-hidden="true">
       <div className="jf-media__legacy"><Turbine /></div>
       <img className={'jf-media__layer' + (poster ? ' is-ready' : '')} src={MEDIA + '/turbofan.png'} alt="" decoding="async" loading="lazy" onLoad={() => setPoster(true)} />
-      {mode === 'video' && <video ref={video} className={'jf-media__layer' + (playing ? ' is-ready' : '')} src={MEDIA + '/turbofan.webm'} loop muted playsInline preload="none" onPlaying={() => setPlaying(true)} onError={() => { setPlaying(false); setMode('animated'); }} />}
+      {mode === 'video' && <video ref={video} className={'jf-media__layer' + (playing ? ' is-ready' : '')} src={MEDIA + '/turbofan.webm'} loop muted playsInline preload={awake ? 'auto' : 'none'} onPlaying={() => setPlaying(true)} onError={() => { setPlaying(false); setMode('animated'); }} />}
       {mode === 'animated' && awake && <img className={'jf-media__layer' + (animated ? ' is-ready' : '')} src={MEDIA + '/turbofan-fallback.webp'} alt="" decoding="async" onLoad={() => setAnimated(true)} onError={() => setMode('still')} />}
       {real && <i className={'jf-media__tone' + ((playing || (mode === 'animated' && animated)) ? ' is-live' : '')} />}
     </div>
@@ -188,7 +188,7 @@ export default function JetFinale() {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const clamp = (x: number) => Math.min(1, Math.max(0, x));
     const smooth = (a: number, b: number, x: number) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
-    let raf = 0, visible = false, last = performance.now(), angle = 0, lastP = 0, vel = 0;
+    let raf = 0, visible = false, last = performance.now(), angle = 0, lastP = 0, vel = 0, gust = 0;
     const groups = [el.querySelector<HTMLElement>('.jf-a')!, el.querySelector<HTMLElement>('.jf-b')!];
     const tick = (now: number) => {
       raf = 0;
@@ -201,17 +201,19 @@ export default function JetFinale() {
       set('--jp', p);
       set('--rise', smooth(0.02, 0.24, p));      // turbina e cópia sobem com a seção
       set('--mist', smooth(0.10, 0.27, p));      // a nuvem chega antes do giro
-      const spin = smooth(0.3, 0.5, p);
+      const target = smooth(0.10, 0.23, p) * (1 - smooth(0.54, 0.72, p));
+      gust = reduced.matches ? target : gust + (target - gust) * Math.min(1, dt * 9);
+      const spin = gust;
       set('--spin', spin);                        // pás trocam de cor ao acelerar
       set('--down', smooth(0.54, 0.72, p));      // turbina desce e sai
-      set('--nose', smooth(0.60, 0.84, p));       // nariz entra de cima
+      set('--nose', smooth(0.59, 0.72, p));       // nariz entra de cima
       set('--foot', smooth(0.74, 0.9, p));       // rodapé aparece
       set('--copy-a', smooth(0.12, 0.26, p) * (1 - smooth(0.5, 0.6, p)));
       // giro: um pouco de vida parado, acelera com a fase e com a velocidade do scroll
       if (!reduced.matches) {
-        const rps = 0.05 + spin * 1.2 + Math.min(2.4, Math.abs(vel) * 9);
+        const rps = 0.8 + spin * 2.0 + Math.min(2.4, Math.abs(vel) * 9);
         angle = (angle + rps * 360 * dt) % 360;
-        if (fan) fan.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+        if (fan && !el.querySelector('.jf-media--real')) fan.style.transform = `rotate(${angle.toFixed(2)}deg)`;
         set('--blur', clamp((rps - 0.5) / 2));
       }
       // grupo invisível não recebe foco nem clique
@@ -219,8 +221,8 @@ export default function JetFinale() {
       groups[1].style.visibility = Number(el.style.getPropertyValue('--foot')) < 0.02 ? 'hidden' : '';
       if (visible && !document.hidden) raf = requestAnimationFrame(tick);
     };
-    const start = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); }, { rootMargin: '20% 0px' });
+    const start = () => { if (visible && !document.hidden && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); else { cancelAnimationFrame(raf); raf = 0; } }, { rootMargin: '20% 0px' });
     io.observe(el);
     document.addEventListener('visibilitychange', start);
     tick(performance.now());

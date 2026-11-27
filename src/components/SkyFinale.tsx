@@ -86,16 +86,18 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
   const themeObs = new MutationObserver(palette); themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   let W = 0, H = 0;
   const resize = () => {
-    const k = innerWidth < 860 ? 0.55 : 0.72; // nuvem é macia: meia resolução, ampliada pelo navegador
+    const k = innerWidth < 860 ? 0.30 : 0.42; // nuvem é macia: meia resolução, ampliada pelo navegador
     const w = Math.max(2, Math.round(innerWidth * k)), h = Math.max(2, Math.round(innerHeight * k));
     if (w !== W || h !== H) { W = w; H = h; canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
   };
-  let raf = 0, dead = false;
+  let raf = 0, dead = false, lastFrame = 0;
   const t0 = performance.now();
   const v = (name: string) => Number(finale.style.getPropertyValue(name) || 0);
   const frame = (now: number) => {
     raf = 0;
     if (dead || document.hidden || finale.dataset.skyActive !== 'true') return; // dorme fora da tela
+    if (now - lastFrame < 32) { raf = requestAnimationFrame(frame); return; }
+    lastFrame = now;
     resize();
     const time = (now - t0) / 1000;
     gl.uniform2f(uRes, W, H); gl.uniform1f(uTime, time);
