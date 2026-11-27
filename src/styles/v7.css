@@ -562,50 +562,43 @@ html[data-motion='reduced'] .sfm__dice { transition: none; }
 }
 html[data-motion='reduced'] .sfh__burger--x[data-closing='true'] { animation: none; }
 
-/* V9.8 — tactile close mark: the glyph reacts, never the surrounding layout. */
+/* V9.9 — the X actually spins on hover and touch, even while the menu stays open. */
 dialog.sfm .sfh__burger--x {
-  color: inherit;
+  transform: none;
   background: transparent;
-  transform: rotate(0deg) scale(1);
-  transition: transform 240ms cubic-bezier(.22,.72,.2,1), color 180ms ease, opacity 240ms ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-dialog.sfm .sfh__burger--x i {
-  transition: transform 320ms var(--ease-ui), box-shadow 180ms ease;
+dialog.sfm .sfm__close-glyph {
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  transform: rotate(0deg);
+  transition: transform 440ms cubic-bezier(.22,.72,.2,1);
 }
-@media (hover: hover) and (pointer: fine) {
-  dialog.sfm .sfh__burger--x:not([data-closing='true']):hover {
-    transform: rotate(24deg) scale(1.12);
-    color: #bce5ff;
+@media (any-hover: hover) {
+  dialog.sfm .sfh__burger--x:not([data-closing='true']):hover .sfm__close-glyph {
+    transform: rotate(180deg);
   }
-  dialog.sfm .sfh__burger--x:hover i { box-shadow: 0 0 7px rgba(132,201,255,.65); }
 }
-dialog.sfm .sfh__burger--x:focus-visible { outline: 1px solid #bce5ff; outline-offset: 3px; color: #bce5ff; }
-dialog.sfm .sfh__burger--x:not([data-closing='true']):active {
-  transform: rotate(38deg) scale(.9);
-  color: #d8f0ff;
+dialog.sfm .sfh__burger--x:not([data-closing='true']):active .sfm__close-glyph,
+dialog.sfm .sfh__burger--x:not([data-closing='true'])[data-touch-spin='true'] .sfm__close-glyph {
+  transform: rotate(180deg);
+  transition-duration: 320ms;
 }
-dialog.sfm .sfh__burger--x:active i,
-dialog.sfm .sfh__burger--x[data-closing='true'] i {
-  box-shadow: 0 0 9px rgba(132,201,255,.75);
-}
-/* Transition from the live hover/press pose, avoiding a reset before closing. */
 dialog.sfm .sfh__burger--x[data-closing='true'] {
   animation: none;
-  transform: rotate(114deg) scale(.86);
-  color: #bce5ff;
-  opacity: .35;
   pointer-events: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  dialog.sfm .sfh__burger--x,
-  dialog.sfm .sfh__burger--x:not([data-closing='true']):hover,
-  dialog.sfm .sfh__burger--x:not([data-closing='true']):active,
-  dialog.sfm .sfh__burger--x[data-closing='true'] { transform: none; transition: none; }
-  dialog.sfm .sfh__burger--x i { transition: none; }
+dialog.sfm .sfh__burger--x[data-closing='true'] .sfm__close-glyph {
+  transform: rotate(360deg);
+  transition-duration: 240ms;
 }
-html[data-motion='reduced'] dialog.sfm .sfh__burger--x,
-html[data-motion='reduced'] dialog.sfm .sfh__burger--x:not([data-closing='true']):hover,
-html[data-motion='reduced'] dialog.sfm .sfh__burger--x:not([data-closing='true']):active,
-html[data-motion='reduced'] dialog.sfm .sfh__burger--x[data-closing='true'] { transform: none; transition: none; }
+dialog.sfm .sfh__burger--x:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.sfm .sfh__burger--x .sfm__close-glyph { transform: none !important; transition: none !important; }
+}
+html[data-motion='reduced'] dialog.sfm .sfh__burger--x .sfm__close-glyph { transform: none !important; transition: none !important; }

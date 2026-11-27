@@ -28,6 +28,7 @@ export default function SiteHeader() {
   const [langs, setLangs] = useState(false);
   const menuRef = useRef<HTMLDialogElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
+  const closeBtn = useRef<HTMLButtonElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const langBtn = useRef<HTMLButtonElement>(null);
 
@@ -64,6 +65,15 @@ export default function SiteHeader() {
     const timer = window.setTimeout(() => { setMenu(false); setClosing(false); }, 240);
     return () => window.clearTimeout(timer);
   }, [closing, menu]);
+  const clearTouchSpin = () => { if (closeBtn.current) delete closeBtn.current.dataset.touchSpin; };
+  const trackTouchSpin = (e: React.PointerEvent<HTMLDialogElement>) => {
+    if (e.pointerType !== 'touch' || !closeBtn.current || closing) return;
+    const b = closeBtn.current;
+    const r = b.getBoundingClientRect();
+    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (inside) { if (!b.dataset.touchSpin) b.dataset.touchSpin = 'true'; }
+    else if (b.dataset.touchSpin) delete b.dataset.touchSpin;
+  };
   const closeWithSpin = () => {
     if (closing) return;
     if (motion === 'reduced' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setMenu(false); return; }
@@ -135,13 +145,15 @@ export default function SiteHeader() {
         </div>
       )}
 
-      <dialog ref={menuRef} className="sfm" aria-label={m.header.menu} onClose={() => { setMenu(false); setClosing(false); menuBtn.current?.focus(); }} onCancel={() => setMenu(false)}
+      <dialog ref={menuRef} className="sfm" aria-label={m.header.menu} onClose={() => { clearTouchSpin(); setMenu(false); setClosing(false); menuBtn.current?.focus(); }} onCancel={() => setMenu(false)}
+        onPointerDownCapture={trackTouchSpin} onPointerMoveCapture={trackTouchSpin}
+        onPointerUpCapture={clearTouchSpin} onPointerCancelCapture={clearTouchSpin}
         onClick={(e) => { if (e.target === menuRef.current) setMenu(false); }}>
         {menu && <MenuSky />}
         <div className="sfm__inner">
           <div className="sfm__top">
             <span />
-            <button type="button" className="sfh__burger sfh__burger--x" data-closing={closing ? 'true' : undefined} onClick={closeWithSpin} autoFocus aria-label={m.header.close}><i /><i /></button>
+            <button ref={closeBtn} type="button" className="sfh__burger sfh__burger--x" data-closing={closing ? 'true' : undefined} onClick={closeWithSpin} autoFocus aria-label={m.header.close}><span className="sfm__close-glyph" aria-hidden="true"><i /><i /></span></button>
           </div>
           <nav className="sfm__nav" aria-label={m.header.nav}>
             {SECTIONS.map((s, i) => (
