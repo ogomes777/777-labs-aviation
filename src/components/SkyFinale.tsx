@@ -27,7 +27,7 @@ float hash(vec2 p){ vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.
 float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
   return mix(mix(hash(i), hash(i + vec2(1., 0.)), u.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), u.x), u.y); }
 // poucas oitavas: massas macias e fofas (nada de textura granulada/"neve")
-float fbm(vec2 p){ float v = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 5; i++){ v += a * noise(p); p = m * p; a *= .52; } return v; }
+float fbm(vec2 p){ float v = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 4; i++){ v += a * noise(p); p = m * p; a *= .52; } return v; }
 float puff(vec2 q, float t){
   float w = fbm(q * .6 + vec2(t * .012, t * .007));
   return fbm(q + vec2(w * .7, w * .35) + vec2(t * .006, 0.));
@@ -86,7 +86,7 @@ function startSky(canvas: HTMLCanvasElement, finale: HTMLElement): (() => void) 
   const themeObs = new MutationObserver(palette); themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   let W = 0, H = 0;
   const resize = () => {
-    const k = innerWidth < 860 ? 0.30 : 0.42; // nuvem é macia: meia resolução, ampliada pelo navegador
+    const k = innerWidth < 860 ? 0.24 : 0.34; // nuvem é macia: meia resolução, ampliada pelo navegador
     const w = Math.max(2, Math.round(innerWidth * k)), h = Math.max(2, Math.round(innerHeight * k));
     if (w !== W || h !== H) { W = w; H = h; canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
   };

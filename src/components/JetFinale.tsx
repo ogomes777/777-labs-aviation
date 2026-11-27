@@ -117,7 +117,7 @@ function TurbineAsset() {
   }, []);
   useEffect(() => {
     const v = video.current; if (!v || mode !== 'video') return;
-    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 2.0; v.play().catch(() => { if (!document.hidden) setMode('animated'); }); } else v.pause(); };
+    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 2.5; v.play().catch((error: unknown) => { if (error instanceof DOMException && error.name === 'AbortError') return; if (!document.hidden && awake) setMode('animated'); }); } else v.pause(); };
     sync(); document.addEventListener('visibilitychange', sync);
     return () => { document.removeEventListener('visibilitychange', sync); v.pause(); };
   }, [awake, mode]);
@@ -128,7 +128,7 @@ function TurbineAsset() {
       <img className={'jf-media__layer' + (poster ? ' is-ready' : '')} src={MEDIA + '/turbofan-optimized-poster.webp'} alt="" decoding="async" loading="lazy" onLoad={() => setPoster(true)} />
       {mode === 'video' && <video ref={video} className={'jf-media__layer' + (playing ? ' is-ready' : '')} src={MEDIA + '/turbofan-optimized.webm'} loop muted playsInline preload={awake ? 'auto' : 'none'} onPlaying={() => setPlaying(true)} onError={() => { setPlaying(false); setMode('animated'); }} />}
       {mode === 'animated' && awake && <img className={'jf-media__layer' + (animated ? ' is-ready' : '')} src={MEDIA + '/turbofan-fallback.webp'} alt="" decoding="async" onLoad={() => setAnimated(true)} onError={() => setMode('still')} />}
-      {real && awake && <i className={'jf-media__tone' + ((playing || (mode === 'animated' && animated)) ? ' is-live' : '')} />}
+      
     </div>
   );
 }
@@ -206,11 +206,9 @@ export default function JetFinale() {
 
         {/* 1 · contato */}
         <section className="jf-a" aria-labelledby="planejar-title">
-          <p className="jf__eyebrow">{m.contact.presence}</p>
           <h2 id="planejar-title" className="jf__title" data-focus-target>
             <span>{m.contact.t1}</span> <span className="jf__soft">{m.contact.t2}</span>
           </h2>
-          <p className="jf__lede">{m.contact.lede}</p>
           <div className="jf__actions">
             <a className="jf-btn jf-btn--solid" href={wa} target="_blank" rel="noopener noreferrer" onClick={() => track('contact_click', { from: 'finale-wa' })}>{m.contact.whatsapp}</a>
             <a className="jf-btn" href={`mailto:${CONTACT.email}`} onClick={() => track('contact_click', { from: 'finale-mail' })}>{CONTACT.email}</a>
