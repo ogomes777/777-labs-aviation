@@ -52,16 +52,17 @@ export function createFlightWorld(gy: number) {
         float shore = min(coast, isl);
         // terra: talhões, matas, cercas vivas (detalhe só quando cabe no pixel)
         vec2 fs = vec2(150.0, 96.0);
-        vec2 cell = floor((p + vec2(fbm(p * 0.004) * 40.0)) / fs);
+        vec2 pw0 = p + vec2(fbm(p * 0.0021) * 160.0, fbm(p * 0.0021 + 7.0) * 160.0);
+        vec2 cell = floor(pw0 / fs);
         float r = hash(cell);
         vec3 avgLand = vec3(0.30, 0.31, 0.18);
         vec3 land = mix(vec3(0.24, 0.28, 0.15), vec3(0.40, 0.35, 0.20), step(0.52, r));
         land = mix(land, vec3(0.30, 0.34, 0.17), step(0.78, r));
         land = mix(land, vec3(0.47, 0.41, 0.27), step(0.93, r));
         land *= 0.86 + 0.28 * mix(0.5, noise(p * 0.06), micro);
-        vec2 f = fract(p / fs);
+        vec2 f = fract(pw0 / fs);
         float hedge = smoothstep(0.0, 0.035, min(min(f.x, 1.0 - f.x), min(f.y, 1.0 - f.y)));
-        land *= mix(1.0, 0.76 + 0.24 * hedge, fine);
+        land *= mix(1.0, 0.9 + 0.1 * hedge, fine);
         land = mix(avgLand, land, fine);
         float forest = smoothstep(0.56, 0.68, fbm(p * 0.0011 + 3.0));
         land = mix(land, vec3(0.09, 0.13, 0.07) * (0.85 + 0.3 * mix(0.5, noise(p * 0.15), micro)), forest);
@@ -273,7 +274,7 @@ export function createFlightWorld(gy: number) {
   const cloudU = {
     uMap: { value: tex }, uCam: { value: new THREE.Vector3() }, uTile: { value: TILE },
     uLit: { value: new THREE.Color('#fff1e0') }, uShade: { value: new THREE.Color('#9aa4b8') }, uHaze: { value: new THREE.Color('#e7c7ac') },
-    uSun: { value: new THREE.Vector3(-0.6, 0.25, 0.75).normalize() }, uFog: { value: 0.00011 }, uOpacity: { value: 1 }, uRel: { value: rel }, uFarNear: { value: rel }, uDrift: { value: new THREE.Vector2() }, uTime: { value: 0 }, uAspect: { value: aspect },
+    uSun: { value: new THREE.Vector3(-0.6, 0.25, 0.75).normalize() }, uFog: { value: 0.00011 }, uOpacity: { value: 1 }, uRel: { value: rel }, uFarNear: { value: rel }, uDrift: { value: new THREE.Vector2() }, uTime: { value: 0 }, uAspect: { value: aspect }, uClear: { value: 0 },
   };
   const cloudM = new THREE.ShaderMaterial({
     uniforms: cloudU, transparent: true, depthWrite: false, fog: false,
@@ -295,7 +296,7 @@ export function createFlightWorld(gy: number) {
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D uMap; uniform vec3 uLit, uShade, uHaze; uniform float uFog, uOpacity, uFarNear, uTime;
+      uniform sampler2D uMap; uniform vec3 uLit, uShade, uHaze; uniform float uFog, uOpacity, uFarNear, uTime, uClear;
       varying vec2 vUv; varying float vD; varying float vEdge; varying float vSeed; varying float vY; varying float vSil;
       void main(){
         vec2 uv = vUv; if (fract(vSeed * 7.0) > 0.5) uv.x = 1.0 - uv.x;
@@ -313,7 +314,9 @@ export function createFlightWorld(gy: number) {
         float fogF = 1.0 - exp(-pow(vD * uFog, 1.35));
         col = mix(col, uHaze, clamp(fogF * 0.85, 0.0, 1.0));
         float near = smoothstep(4.0, 26.0, vD) * mix(smoothstep(40.0, 260.0, vD), 1.0, step(0.5, uFarNear));
-        gl_FragColor = vec4(col, a * vEdge * near * uOpacity);
+        // a aeronave nunca some atrás de nuvem: as que ficam entre a câmera e ela se abrem
+        float clear = uClear > 0.0 ? smoothstep(uClear, uClear * 2.2 + 60.0, vD) : 1.0;
+        gl_FragColor = vec4(col, a * vEdge * near * uOpacity * clear);
         if (gl_FragColor.a < 0.004) discard;
         #include <tonemapping_fragment>
         #include <colorspace_fragment>

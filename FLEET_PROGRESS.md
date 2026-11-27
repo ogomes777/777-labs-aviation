@@ -161,3 +161,9 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Testes: 26 unitários; E2E da frota 4/4; QA visual (planta, poltrona, 360°, andar, cockpit) em scripts/qa/interior.mjs.
 - V9 final: vista de cabine volta à primeira pessoa limpa sobre o nariz (sem painel nem molduras, a pedido); poltrona abre centrada na janela, olhar nivelado (horizonte), sem persiana, janela com túnel de profundidade real entre forro e casco, janelas um pouco mais altas (th 0,28 Embraer, 0,26 CJ2+). Interior de cockpit continua montado (visível ao andar até a frente).
 - V9 em produção: dpl_86JPwS46ec8GtDEoqi8dC4qLpwa5 (f2c182a). Rollback: dpl_4DX5RA6Gg1UEWJpZ1xu5ucNjXbct (0abd3bc) ou V8 dpl_A2SEYdYUnuVHYEwtqUrJxy8ckHLf.
+
+### V9.1 — avião sempre sólido, pontinhos corretos, Matrix sem poltronas vazando (27/11)
+- Voo: câmera externa suavizada no referencial do avião (a ~500 kt ela atrasava dezenas de metros e o avião saía do quadro); nuvens entre a câmera e o avião se abrem (o avião nunca some atrás delas); sombra de contato do hangar escondida no voo; borrão de velocidade e fiapos de nuvem mais suaves; campos com bordas orgânicas e cercas discretas.
+- Pontinhos azuis: regra de CSS da V7 (`.fleet .fhots { opacity }`) anulava o "escondido" — por isso ficavam soltos no 360°, com peça escolhida e na troca de avião. Agora somem na hora em qualquer movimento, só voltam com câmera e avião parados, ficam atrás do casco quando a peça está do outro lado e passam para o par simétrico visível (asa, motor, trem, cabine).
+- Matrix no hangar: poltronas e assentos dos pilotos ajustados à curvatura real do casco (altura e posição); peças internas que tocariam o casco não aparecem por fora.
+- QA: scripts/qa/hotspots.mjs, scripts/qa/matrix.mjs, scripts/qa/fastfly.mjs.

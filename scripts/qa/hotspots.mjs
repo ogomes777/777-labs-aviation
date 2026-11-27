@@ -1,0 +1,23 @@
+import { chromium } from 'playwright';
+// QA dos pontinhos azuis: parados no avião certo, somem em qualquer movimento (troca, 360°, peça escolhida)
+const out = process.argv[2] || '/tmp/claude-0/shots/h';
+const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+p.on('pageerror', e => console.log('PAGEERR', e.message));
+await p.goto('http://localhost:7777/?qa=1&quality=balanced&perf=lock&lang=pt#frota', { waitUntil: 'networkidle' });
+await p.waitForTimeout(2500);
+await p.evaluate(() => { const el = document.getElementById('frota'); window.scrollTo(0, el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * 0.06); });
+await p.waitForTimeout(9000);
+const st = async (tag) => { const v = await p.evaluate(() => { const l = document.querySelector('.fhots'); return (l ? `${l.dataset.visible} op=${getComputedStyle(l).opacity}` : 'none') + ' ' + JSON.stringify(window.__777hot); }); console.log(tag, v); await p.screenshot({ path: `${out}-${tag}.png` }); };
+const settle = async () => { for (let i = 0; i < 40; i++) { await p.waitForTimeout(1500); const h = await p.evaluate(() => window.__777hot); if (h && h.hotStill > 0.5) return; } };
+await settle(); await st('1idle');
+await p.evaluate(() => document.querySelectorAll('.fleet__nav .textbtn')[1].click());
+await p.waitForTimeout(250); await st('2moving');
+await settle(); await st('3settled');
+await p.evaluate(() => document.querySelector('.fcard[data-active="true"] .fcard__cta').click());
+await settle(); await st('4inspect');
+await p.mouse.move(700, 450); await p.mouse.down(); await p.mouse.move(400, 470, { steps: 5 }); await st('5dragging'); await p.mouse.up();
+await p.waitForTimeout(300); await st('6justreleased'); await settle(); await st('6afterdrag');
+await p.evaluate(() => [...document.querySelectorAll('button')].find((x) => x.textContent.trim().toUpperCase() === 'FUSELAGEM')?.click());
+await p.waitForTimeout(3000); await st('7system');
+await b.close();

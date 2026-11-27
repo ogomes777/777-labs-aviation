@@ -301,7 +301,10 @@ html[data-flight-rotate='true'] .sf-flight { width: 100vh !important; width: 100
 @media (max-width: 700px) { .sfh__logo { height: 19px; } }
 
 /* ---------- frota → globo: os cards saem antes, a noite sobe, o globo assume ---------- */
-.fleet .fleet__viewport:not([data-inspecting='true']), .fleet .fleet__nav:not([data-inspecting='true']), .fleet .fhots { opacity: calc(1 - var(--fleet-out, 0)); transform: translate3d(0, calc(var(--fleet-out, 0) * -24px), 0); }
+.fleet .fleet__viewport:not([data-inspecting='true']), .fleet .fleet__nav:not([data-inspecting='true']) { opacity: calc(1 - var(--fleet-out, 0)); transform: translate3d(0, calc(var(--fleet-out, 0) * -24px), 0); }
+/* pontinhos dos sistemas: só aparecem com câmera e avião parados; somem na hora em que algo se move */
+.fleet .fhots { opacity: 0; transition: opacity 90ms linear; }
+.fleet .fhots[data-visible='true'] { opacity: calc(1 - var(--fleet-out, 0)); transition: opacity 420ms var(--ease-ui); }
 .finale { cursor: grab; touch-action: pan-y; }
 .finale[data-grab='true'] { cursor: grabbing; }
 .finale a, .finale button { cursor: pointer; }

@@ -65,6 +65,7 @@ export class FlightSim {
   /** interior de luxo (poltrona/cockpit), montado na primeira vista de dentro */
   private interior: CabinBuild | null = null; private insideOn = false; private panelT = 0;
   private walkPos = new THREE.Vector3(); private lastView = '';
+  private camOff = new THREE.Vector3(); private tgtOff = new THREE.Vector3();
   private gearLegs: { o: THREE.Object3D; kind: 'nose' | 'R' | 'L' }[] = [];
   /** luzes de navegação, strobes, beacon e farol de pouso */
   private lights: { g: THREE.Group; nav: THREE.Sprite[]; strobe: THREE.Sprite[]; beacon: THREE.Sprite[]; land: THREE.Sprite[] } | null = null;
@@ -85,6 +86,8 @@ export class FlightSim {
     this.gearK = 1; this.gearLegs = [];
     craft.systems.trem.children.forEach((o) => { o.rotation.set(0, 0, 0); o.scale.setScalar(1); if (o.name.startsWith('gear-')) this.gearLegs.push({ o, kind: o.name === 'gear-nose' ? 'nose' : o.name.endsWith('R') ? 'R' : 'L' }); });
     this.buildLights(craft);
+    // a sombra de contato do hangar fica no chão: no voo ela não acompanha o avião
+    craft.group.traverse((o) => { if (o.name === 'contact-shadow') o.visible = false; });
   }
   private buildLights(craft: FleetCraftBuild) {
     this.disposeLights();
@@ -148,6 +151,7 @@ export class FlightSim {
     if (this.interior) { this.interior.group.parent?.remove(this.interior.group); this.interior.dispose(); this.interior = null; }
     this.rotors.forEach((r) => { r.rotation.x = 0; }); this.rotors = [];
     this.disposeLights();
+    c?.group.traverse((o) => { if (o.name === 'contact-shadow') o.visible = true; });
     this.gearLegs.forEach(({ o }) => { o.rotation.set(0, 0, 0); o.scale.setScalar(1); o.visible = true; }); this.gearLegs = [];
     if (c) { c.group.position.copy(this.saved.pos); c.group.rotation.copy(this.saved.rot); c.group.visible = this.saved.vis; c.systems.trem.visible = true; }
     this.craft = null; this.id = null;
@@ -461,12 +465,15 @@ export class FlightSim {
       this.tmp2.copy(c.group.position).addScaledVector(this.fwd, -d).addScaledVector(this.upL, d * 0.22);
       this.tmp.lerp(this.tmp2, man);
     }
-    if (this.tmp.y < gy + 1.2) this.tmp.y = gy + 1.2;
     this.fwd.set(1, 0, 0).applyQuaternion(q);
     this.tmp2.copy(c.group.position).addScaledVector(this.fwd, this.size * 0.35);
-    if (!this.camInit) { this.eye.copy(this.tmp); this.target.copy(this.tmp2); this.camInit = true; }
+    // suavização no referencial da aeronave (deslocamento câmera−avião): em qualquer velocidade o avião fica no quadro
+    this.tmp.sub(c.group.position); this.tmp2.sub(c.group.position);
+    if (!this.camInit) { this.camOff.copy(this.tmp); this.tgtOff.copy(this.tmp2); this.camInit = true; }
     const k = 1 - Math.exp(-(IN.lookAt && !ql ? 9 : 4.6 + man * 4) * dt);
-    this.eye.lerp(this.tmp, k); this.target.lerp(this.tmp2, 1 - Math.exp(-10 * dt));
+    this.camOff.lerp(this.tmp, k); this.tgtOff.lerp(this.tmp2, 1 - Math.exp(-10 * dt));
+    this.eye.copy(c.group.position).add(this.camOff); this.target.copy(c.group.position).add(this.tgtOff);
+    if (this.eye.y < gy + 1.2) this.eye.y = gy + 1.2;
     this.tmp.set(0, 1, 0).lerp(this.upL, man * 0.85 + 0.12).normalize();
     this.camUp.lerp(this.tmp, 1 - Math.exp(-5 * dt)).normalize();
   }

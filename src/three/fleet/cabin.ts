@@ -370,6 +370,14 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     const g = new THREE.Group(); g.name = `seat-${i + 1}`;
     let z = seatZ(st.d, st.side);
     if (st.facing === 0) z = st.side * (wallZ(st.d, floorY + 0.5) - 0.34 * sc);
+    // a poltrona inteira cabe no casco: o ombro do encosto respeita a curva da parede e o topo fica abaixo do teto
+    const topH = 1.34 * sc;
+    const fitY = (zz: number) => Math.max(0.6, Math.min(1, (topY(st.d, Math.abs(zz) + 0.15 * sc) - floorY - 0.04) / topH));
+    let ky = fitY(z);
+    const zMax = Math.max(0.3 * sc + 0.02, wallZ(st.d, floorY + topH * ky * 0.88) - 0.24 * sc);
+    if (st.facing !== 0 && Math.abs(z) > zMax) z = st.side * zMax;
+    ky = fitY(z);
+    g.scale.set(1, ky, 1);
     g.position.set(fx(st.d), floorY, z);
     g.rotation.y = st.facing === 1 ? 0 : st.facing === -1 ? Math.PI : st.side * (Math.PI / 2);
     const onDivan = st.facing === 0 && C.zones.some((z) => z.kind === 'divan' && z.side === st.side && st.d > z.d0 && st.d < z.d1);
@@ -491,7 +499,8 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
     const cp = s.cabin.cockpit;
     // assentos de tripulação
     const cg = seatGeometries(sc * 0.95); tr(cg.leather); tr(cg.trim);
-    for (const side of [-1, 1]) { const m = new THREE.Mesh(cg.leather, M.crew); m.name = 'crew-seat'; m.userData.xray = 'solid'; m.position.set(fx(crewD), floorY, side * Math.abs(pilotZ)); ck.add(m); const t = new THREE.Mesh(cg.trim, M.trim); t.name = 'crew-seat'; t.position.copy(m.position); ck.add(t); }
+    const cky = Math.max(0.6, Math.min(1, (topY(crewD, Math.abs(pilotZ) + 0.15 * sc) - floorY - 0.04) / (1.34 * sc * 0.95)));
+    for (const side of [-1, 1]) { const m = new THREE.Mesh(cg.leather, M.crew); m.name = 'crew-seat'; m.userData.xray = 'solid'; m.position.set(fx(crewD), floorY, side * Math.abs(pilotZ)); m.scale.set(1, cky, 1); ck.add(m); const t = new THREE.Mesh(cg.trim, M.trim); t.name = 'crew-seat'; t.position.copy(m.position); t.scale.copy(m.scale); ck.add(t); }
     // painel principal, glareshield e console central
     const pw = wallZ(panelD, floorY + 0.7) * 2 * 0.96;
     const ph = prop ? 0.3 : 0.32, py = floorY + (prop ? 0.44 : 0.56); // topo do glareshield ~25 cm abaixo dos olhos: o para-brisa domina a vista
@@ -581,6 +590,17 @@ export function buildCabin(s: FleetSpec, f: Fuselage, L: number, opts: { lux: bo
   // hangar: mescla os móveis estáticos por material (poucas chamadas de desenho por aeronave)
   if (!opts.lux) {
     group.updateMatrixWorld(true);
+    // nada do interior atravessa o casco visto de fora: peças que encostariam no teto/parede somem no hangar
+    {
+      const bb = new THREE.Box3(), c = new THREE.Vector3(); const drop: THREE.Object3D[] = [];
+      group.traverse((o) => {
+        const m = o as THREE.Mesh; if (!m.isMesh || ['lining', 'floor', 'lavatory', 'crew-seat'].includes(m.name) || m.name.startsWith('seat-')) return;
+        bb.setFromObject(m); bb.getCenter(c); const d = L / 2 - c.x;
+        const zEdge = Math.max(Math.abs(bb.min.z), Math.abs(bb.max.z));
+        if (bb.max.y > topY(d, Math.min(zEdge, s.R - inset - 0.02)) - 0.005 || zEdge > wallZ(d, bb.max.y) + 0.02) drop.push(m);
+      });
+      drop.forEach((m) => m.parent?.remove(m));
+    }
     const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
     const buckets = new Map<string, { mat: THREE.Material; name: string; geos: THREE.BufferGeometry[]; meshes: THREE.Mesh[] }>();
     group.traverse((o) => {

@@ -739,8 +739,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       const craftHome = !!tgt && (st.inspect ? true : Math.abs(tgt.group.position.z - FRONT_Z) < 0.25);
       tmp.hotStill = camStill && craftHome ? (tmp.hotStill ?? 0) + dt : 0;
       const show = !!tgt && inFleet && fleetOnScreen && (tmp.hotStill ?? 0) > 0.3 && (st.inspect ? st.inspectMode === 'parts' && !st.inspectSystem && tmp.viewW > 0.85 && inspectP.current < 0.02 : tmp.viewW < 0.05 && ramp(raw - 3, 0.0, 0.1) > 0.98);
-      hl.dataset.visible = show ? 'true' : 'false';
-      if (show && tgt) {
+      if (hl.dataset.visible !== (show ? 'true' : 'false')) hl.dataset.visible = show ? 'true' : 'false';
+      if (QA_MODE) (window as unknown as { __777hot: unknown }).__777hot = { settled, fleetOnScreen, tgt: tgt?.id, camStill, vel: +tmp.vel.length().toFixed(3), craftHome, z: tgt ? +(tgt.group.position.z - FRONT_Z).toFixed(3) : null, hotStill: +(tmp.hotStill ?? 0).toFixed(2), viewW: +tmp.viewW.toFixed(2), raw: +raw.toFixed(2), inspP: +inspectP.current.toFixed(2) };
+      hotTick.n++; if (!show) hotOcc.clear();
+      if (tgt && (show || (tmp.hotStill ?? 0) === 0)) {
         hl.dataset.aircraft = tgt.id;
         domRefs.fleetHotspots.forEach((el, sid) => {
           const ref = tgt.anchorRefs[sid];
@@ -748,8 +750,30 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
           ref.obj.updateWorldMatrix(true, false);
           tmp.proj.copy(ref.local); ref.obj.localToWorld(tmp.proj); tmp.proj.project(cam);
           const hx = (tmp.proj.x * 0.5 + 0.5) * size.width, hy = (-tmp.proj.y * 0.5 + 0.5) * size.height;
-          el.style.display = tmp.proj.z > 1 || hx < 18 || hx > size.width - 18 || hy < 70 || hy > size.height - 18 ? 'none' : '';
-          el.style.transform = `translate3d(${((tmp.proj.x * 0.5 + 0.5) * size.width).toFixed(1)}px, ${((-tmp.proj.y * 0.5 + 0.5) * size.height).toFixed(1)}px, 0)`;
+          // ponto atrás do próprio avião: usa o par simétrico do lado visível (asa, motor, trem, cabine); sem par, esconde
+          let hidden = false, px2 = (tmp.proj.x * 0.5 + 0.5) * size.width, py2 = (-tmp.proj.y * 0.5 + 0.5) * size.height, pz2 = tmp.proj.z;
+          if (show) {
+            const key = `${tgt.id}:${sid}`;
+            if (hotTick.n % 6 === 0 || !hotOcc.has(key)) {
+              ref.obj.localToWorld(hotP.copy(ref.local));
+              const occluded = (pt: THREE.Vector3) => {
+                cam.getWorldPosition(hotO);
+                hotDir.copy(pt).sub(hotO); const dist = hotDir.length(); hotDir.normalize();
+                hotRay.set(hotO, hotDir); hotRay.far = Math.max(0.2, dist - 0.7); hotRay.near = 0.1;
+                return hotRay.intersectObjects(hotSkins(tgt.group), false).some((h) => !((h.object as THREE.Mesh).material as THREE.Material).transparent);
+              };
+              let state: 0 | 1 | 2 = 0; // 0 visível, 1 usa espelho, 2 escondido
+              if (occluded(hotP)) {
+                if (sid !== 'portas') { tgt.group.worldToLocal(hotM.copy(hotP)); hotM.z = -hotM.z; tgt.group.localToWorld(hotM); state = occluded(hotM) ? 2 : 1; } else state = 2;
+              }
+              hotOcc.set(key, state);
+            }
+            const st2 = hotOcc.get(key) ?? 0;
+            if (st2 === 2) hidden = true;
+            if (st2 === 1) { ref.obj.localToWorld(hotP.copy(ref.local)); tgt.group.worldToLocal(hotM.copy(hotP)); hotM.z = -hotM.z; tgt.group.localToWorld(hotM); hotM.project(cam); px2 = (hotM.x * 0.5 + 0.5) * size.width; py2 = (-hotM.y * 0.5 + 0.5) * size.height; pz2 = hotM.z; }
+          }
+          el.style.display = hidden || pz2 > 1 || px2 < 18 || px2 > size.width - 18 || py2 < 70 || py2 > size.height - 18 ? 'none' : '';
+          el.style.transform = `translate3d(${px2.toFixed(1)}px, ${py2.toFixed(1)}px, 0)`;
         });
       }
     }
@@ -885,6 +909,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         if (globeRef.current) globeRef.current.root.visible = false;
         flightWorld.group.visible = true;
         flightWorld.update(cam.position, time);
+        { const dc = cam.position.distanceTo(sim.pos); flightWorld.cloudU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.highU.uClear.value = sim.inside ? 6 : dc + 30; }
         const pal = lerpPalette(SKY_PALETTES.dawn, SKY_PALETTES.dusk, 0.55, tmp.pal);
         env.skyGroup.visible = false; // o voo usa o céu atmosférico próprio (world.ts)
         const su = env.sky.uniforms, cu = env.sea.uniforms;
@@ -909,8 +934,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         (scene.background as THREE.Color).set('#c9dcf0');
         lights.sun.intensity = 2.5; lights.hemi.intensity = 0.62; lights.key.intensity = 0; lights.rim.intensity = 0.8;
         if (fx.dof) fx.dof.bokehScale = 0;
-        if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' ? 0 : 0.0032 * vk * vk;
-        flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.45) / 0.4, 0, 1) * 0.9 * (agl > 60 ? 1 : 0) : 0;
+        if (fx.speed) fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' ? 0 : 0.0014 * clamp((vk - 0.55) / 0.45, 0, 1);
+        flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.55) / 0.4, 0, 1) * 0.4 * (agl > 60 ? 1 : 0) * (sim.inside ? 0 : 1) : 0;
         flightWorld.wispU.uLit.value.set('#fffaf2'); flightWorld.wispU.uShade.value.set('#9aa7bc'); flightWorld.wispU.uHaze.value.copy(sk.uHaze.value); flightWorld.wispU.uSun.value.copy(sk.uSun.value);
       }
     }
@@ -1011,6 +1036,17 @@ function RenderGate() {
   return null;
 }
 
+const hotTick = { n: 0 };
+const hotO = new THREE.Vector3(), hotM = new THREE.Vector3();
+/** só o casco visível (pele, asas, cauda, naceles) bloqueia um ponto — nunca o interior ou sobreposições */
+const hotSkinCache = new WeakMap<THREE.Object3D, THREE.Object3D[]>();
+const hotSkins = (g: THREE.Object3D) => {
+  let a = hotSkinCache.get(g);
+  if (!a) { a = []; g.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && m.userData.xray === 'skin') a!.push(m); }); hotSkinCache.set(g, a); }
+  return a.filter((o) => { let p: THREE.Object3D | null = o; while (p) { if (!p.visible) return false; p = p.parent; } return true; });
+};
+const hotRay = new THREE.Raycaster(), hotP = new THREE.Vector3(), hotDir = new THREE.Vector3(), hotOcc = new Map<string, number>();
+const QA_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).has('qa');
 export default function Experience({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const dpr = useBudgetDpr();
   return (
