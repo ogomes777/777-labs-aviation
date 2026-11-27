@@ -602,3 +602,43 @@ dialog.sfm .sfh__burger--x:focus-visible { outline: 1px solid currentColor; outl
   dialog.sfm .sfh__burger--x .sfm__close-glyph { transform: none !important; transition: none !important; }
 }
 html[data-motion='reduced'] dialog.sfm .sfh__burger--x .sfm__close-glyph { transform: none !important; transition: none !important; }
+
+/* V10.0 — geometric display typography for the services headline only.
+   MuseoModerno Black (Omnibus-Type, SIL OFL 1.1), licensed Nura-style alternative. */
+@font-face {
+  font-family: 'SimFly Services Display';
+  src: url('/fonts/museomoderno-black.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+#interior #interior-title {
+  font-family: 'SimFly Services Display', var(--font-manrope), sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 3.6vw, 4.35rem);
+  font-style: normal;
+  font-optical-sizing: none;
+  font-synthesis: none;
+  line-height: .98;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+  max-width: min(100%, 9.8em);
+  text-wrap: balance;
+  text-align: left;
+  text-shadow: 0 0 18px rgba(var(--sf-accent-rgb), .16);
+}
+#interior #interior-title em {
+  display: block;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-shadow: inherit;
+  margin: .06em 0 0;
+}
+@media (max-width: 700px) {
+  #interior #interior-title {
+    font-size: clamp(1.85rem, 7.2vw, 3.35rem);
+    max-width: 100%;
+    line-height: 1.02;
+  }
+}
