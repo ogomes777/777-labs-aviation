@@ -1,0 +1,22 @@
+import { createHash } from 'node:crypto';
+import { inflateRawSync } from 'node:zlib';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
+const out='public/media/jet-finale/nose-approved.png';
+const expected='89619d85d5cc0c115d254543b1adf724ab630837a2235d473409460d8194511c';
+const hash=b=>createHash('sha256').update(b).digest('hex');
+try { if(hash(await readFile(out))===expected){ console.log('Approved aircraft asset verified'); process.exit(0); } } catch {}
+const response=await fetch('https://d2ol7oe51mr4n9.cloudfront.net/user_3JLfCZ2sSxSIbIdwwrCH6q94ve0/c1154ca0-10fc-4cea-8206-4f011d94603f.zip',{signal:AbortSignal.timeout(30000)});
+if(!response.ok) throw Error('Approved asset download failed: '+response.status);
+const zip=Buffer.from(await response.arrayBuffer());
+if(hash(zip)!=='d5fc5e2bc048a916dc2c0827baa1e65fa6ca7066e8c4f48907a60170781b70e8') throw Error('Approved ZIP checksum mismatch');
+let end=zip.length-22; while(end>=0&&zip.readUInt32LE(end)!==0x06054b50)end--;
+if(end<0||zip.readUInt16LE(end+10)!==1)throw Error('Expected single-file ZIP');
+const central=zip.readUInt32LE(end+16);
+if(zip.readUInt32LE(central)!==0x02014b50)throw Error('Bad ZIP directory');
+const size=zip.readUInt32LE(central+20), off=zip.readUInt32LE(central+42);
+if(zip.readUInt32LE(off)!==0x04034b50||zip.readUInt16LE(central+10)!==8)throw Error('Unexpected ZIP entry');
+const start=off+30+zip.readUInt16LE(off+26)+zip.readUInt16LE(off+28);
+const png=inflateRawSync(zip.subarray(start,start+size),{maxOutputLength:2000000});
+if(hash(png)!==expected)throw Error('Approved nose PNG checksum mismatch');
+await mkdir('public/media/jet-finale',{recursive:true}); await writeFile(out,png);
+console.log('Approved nose PNG verified and installed:',png.length,'bytes');

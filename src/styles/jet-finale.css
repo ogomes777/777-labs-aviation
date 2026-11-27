@@ -186,3 +186,40 @@ html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: r
 .jf .jf__giant--b { color: color-mix(in srgb,var(--ink) 28%,transparent); }
 .jf .jf__stage { background: none !important; border:0; box-shadow:none; }
 @media(max-width:860px) { .jf .jf__giant--a { top:13%; font-size:clamp(3rem,16vw,7rem); } .jf .jf-a { top:auto; bottom:max(28px,env(safe-area-inset-bottom)); max-width:none; right:20px; left:20px; } .jf .jf-a .jf__title { font-size:clamp(1.5rem,6.5vw,2.5rem); } }
+
+/* V19 — restore original giant geometry; animate the light across the glyphs */
+.jf .jf__giant--a {
+  right:2vw; left:auto; top:48%; font-size:clamp(7rem,21vw,29rem);
+  color:transparent!important; -webkit-text-fill-color:transparent!important;
+  -webkit-text-stroke:1.5px color-mix(in srgb,var(--ink) 20%,transparent);
+  z-index:0;
+  transform:translate3d(calc((1 - var(--rise)) * 12vw),calc(-50% + var(--down) * -30svh),0);
+}
+.jf .jf__turbine-wrap { z-index:1; }
+.jf .jf-a { top:51%; left:clamp(20px,5vw,90px); max-width:min(31rem,30vw); }
+.jf .jf-a .jf__actions { gap:10px; margin-top:24px; }
+.jf .jf-a .jf-btn { height:50px; padding:0 22px; font-size:.68rem; }
+.jf .jf-b { padding-top:15svh; }
+.jf .jf__foot { justify-content:flex-end; }
+.jf .jf__title--foot,.jf .jf__title--foot span { text-shadow:none; }
+.jf .jf-glow-sweep {
+  --glow-base:#0f2a4f;
+  color:var(--glow-base);
+  background:linear-gradient(110deg,var(--glow-base) 0%,var(--glow-base) 35%,#1269d7 44%,#63c9ff 50%,#d5f5ff 52%,#247be2 56%,var(--glow-base) 65%,var(--glow-base) 100%);
+  background-size:300% 100%;
+  background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation:jf-blue-sweep 3.1s linear infinite;
+  animation-play-state:paused;
+}
+.jf .jf-glow-sweep.jf__soft { --glow-base:#7890a8; animation-delay:.18s; }
+.jf-b[style*="visibility: hidden"] .jf-glow-sweep { animation-play-state:paused; }
+.jf-b:not([style*="visibility: hidden"]) .jf-glow-sweep { animation-play-state:running; }
+@keyframes jf-blue-sweep { from { background-position:100% 50%; } to { background-position:0% 50%; } }
+@media(max-width:860px) {
+ .jf .jf__giant--a { top:28%;right:1vw;font-size:clamp(5rem,25vw,12rem); }
+ .jf .jf-a { top:auto;bottom:max(44px,env(safe-area-inset-bottom));max-width:none;left:20px;right:20px; }
+ .jf .jf-a .jf-btn { height:46px;padding:0 17px;font-size:.61rem; }
+ .jf .jf-b { padding-top:0; }
+ .jf .jf__foot { align-items:flex-start; }
+}
+@media(prefers-reduced-motion:reduce) { .jf .jf-glow-sweep { animation:none!important; background:none; -webkit-text-fill-color:currentColor; } }

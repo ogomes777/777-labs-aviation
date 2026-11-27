@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { CONTACT } from '@/content/fleet';
 import { useM } from '@/i18n';
-import { navigate } from './navigation';
 import { track } from '@/lib/analytics';
 
 /**
@@ -134,16 +133,14 @@ function TurbineAsset() {
   );
 }
 function NoseAsset() {
-  const [ready, setReady] = useState(false);
-  return <div className={'jf-nose-media' + (ready ? ' is-ready' : '')} aria-hidden="true">
-    <img className="jf-nose-media__img" src={MEDIA + '/nose.png'} alt="" decoding="async" loading="eager" onLoad={() => setReady(true)} />
+  return <div className="jf-nose-media is-ready" aria-hidden="true">
+    <img className="jf-nose-media__img" src={MEDIA + '/nose-approved.png'} alt="" decoding="async" loading="eager" />
   </div>;
 }
 
 export default function JetFinale() {
   const m = useM();
   const root = useRef<HTMLDivElement>(null);
-  const credits = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const el = root.current; if (!el) return;
     const fan = el.querySelector<HTMLElement>('.jf-fan');
@@ -224,28 +221,14 @@ export default function JetFinale() {
         <footer className="jf-b" aria-label="SimFly">
           <p className="jf__eyebrow">SimFly</p>
           <h2 className="jf__title jf__title--foot">
-            <span>{tag.slice(0, cut).join(' ')}</span> <span className="jf__soft">{tag.slice(cut).join(' ')}</span>
+            <span className="jf-glow-sweep">{tag.slice(0, cut).join(' ')}</span> <span className="jf__soft jf-glow-sweep">{tag.slice(cut).join(' ')}</span>
           </h2>
           <p className="jf__lede">{m.footer.text}</p>
           <div className="jf__foot">
-            <nav className="jf__links" aria-label="SimFly">
-              <a href={`https://wa.me/${CONTACT.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-              <a href={`mailto:${CONTACT.email}`}>E-mail</a>
-              <a href="https://www.instagram.com/simfly.br" target="_blank" rel="noopener noreferrer">Instagram</a>
-              <button type="button" onClick={() => credits.current?.showModal()} aria-haspopup="dialog">{m.footer.credits}</button>
-              <a href="#top" onClick={(e) => { e.preventDefault(); navigate('#top'); }}>{m.footer.top}</a>
-            </nav>
             <p className="jf__rights">{m.footer.rights}<br /><small>{m.footer.disclaimer}</small></p>
           </div>
         </footer>
       </div>
-      <dialog ref={credits} className="sheet" aria-labelledby="credits-t" onClick={(e) => { if (e.target === credits.current) credits.current?.close(); }}>
-        <div className="sheet__body">
-          <button type="button" className="icon-btn sheet__close" onClick={() => credits.current?.close()} autoFocus>{m.header.close}</button>
-          <h2 id="credits-t">{m.footer.credits}</h2>
-          <ul>{m.footer.creditsList.map((c) => <li key={c}>{c}</li>)}</ul>
-        </div>
-      </dialog>
     </div>
   );
 }
