@@ -187,3 +187,11 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - V11 — CAUSA RAIZ do "avião sumindo em altitude": o plano de corte do cutaway (normal −Y, constante 100) recortava tudo acima de 100 m do mundo. A pintura da fuselagem usa esse corte; asas, cauda, motores e janelas não — por isso só a parte branca do corpo sumia ao subir. Agora o corte é neutro (1e7) fora do cutaway da planta e sempre neutro no voo. Também escondida a sombra de contato das asas (ficava flutuando sob o avião) e bloom do voo reduzido.
 - E2E completo: 18 passam; as 16 falhas são testes legados da base antiga (formulário #f-from, link "Planejar jornada", stills em #aeronave) — falham igualmente contra a produção V10.8, sem estas mudanças.
 - V11 em produção: dpl_J1sDp3ZfMD6jdJU8rrZDVVRqFM9N (2f356ac). Rollback: dpl_9bWAwypDTbLAWjeRmSZrXEuzJugS (V10.8).
+
+## V12 — Final em céu vivo (R11) — 2026-11-27
+- Removidos o globo final, a faixa azul-escura recortada e o código do globo (FinaleGlobe, globe.ts, WantedList).
+- Transição hangar → nuvens: banco de nuvens sobe sobre o fim do hangar; o 3D mantém o último enquadramento da Frota (antes caía numa pose vazia/escura).
+- Céu vivo em shader 2D (SkyFinale): nuvens que se formam e derivam, sombreadas; cada aeronave empurra, torce e abre a nuvem por onde passa e o rastro cicatriza. Tudo amarrado ao scroll/toque. Fallback em camadas de imagem sem WebGL / movimento reduzido.
+- "Aeronaves que buscamos": título editorial em Archivo Expanded (OFL) com granulado em dois tons; "buscamos." sob o "que", ao lado da linha menor; copy vazada (tinta translúcida) quando uma aeronave passa por cima; palavras reagem ao vento.
+- Três aeronaves (Citation Sovereign, King Air C90 GTX, R66) entram grandes com rastro e turbulência leve e pousam no topo de cards alinhados; botão "Tenho este modelo" em vidro, sempre ao pé do card.
+- QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844 (scripts/qa/sky.mjs).

@@ -53,7 +53,7 @@ export default function ExperienceRoot() {
     const id = ric ? ric(go, { timeout: 1400 }) : window.setTimeout(go, 700);
     return () => { done = true; if (!ric) window.clearTimeout(id); };
   }, [cinematic, threeOn]);
-  useEffect(() => { nav.cinematic = cinematic; nav.veil = navVeilRef.current; domRefs.veil = veilRef.current; domRefs.route = document.getElementById('route-path') as SVGPathElement | null; }, [cinematic]);
+  useEffect(() => { nav.cinematic = cinematic; nav.veil = navVeilRef.current; domRefs.veil = veilRef.current; }, [cinematic]);
 
   // intro de página: CSS puro (global.css) — a classe sai depois para liberar as revelações de scroll
   useEffect(() => {

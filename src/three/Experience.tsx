@@ -5,7 +5,7 @@ import { Component, useCallback, useEffect, useMemo, useRef, useState, type Reac
 import * as THREE from 'three';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { damp, frame, pulse, ramp, ui, clamp, fleetDwell } from '@/experience/director';
-import { buildTracks, sampleTracks, GLOBE_CENTER, type Track } from '@/experience/cameraPath';
+import { buildTracks, sampleTracks, type Track } from '@/experience/cameraPath';
 import { domRefs } from '@/experience/domRefs';
 import { buildJet, type JetBuild } from './jet/buildJet';
 import { CUT } from './jet/materials';
@@ -14,7 +14,6 @@ import { groundY, SPECS } from './jet/spec';
 import { createCloudPuffs, createCloudSea, createSkyDome, lerpPalette, SKY_PALETTES } from './env/sky';
 import { createEnvMaps, type EnvKey } from './env/envmaps';
 import { createBlueprintGrid, createHangar } from './env/hangar';
-import { createGlobe, facing } from './globe/globe';
 import { createContrails } from './env/contrails';
 import { createAirflow } from './env/airflow';
 import PostFX, { fx } from './PostFX';
@@ -27,7 +26,6 @@ import { prefs } from '@/i18n';
 import { createFlightWorld } from './flight/world';
 import { FlightSim } from './flight/sim';
 import { flightUi } from '@/experience/flight';
-import { DESTINATIONS } from '@/content/destinations';
 import type { PartId, VariantId, ViewId } from '@/content/site';
 
 type Q = 'high' | 'balanced';
@@ -250,12 +248,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const traffic = useMemo(() => qaTime('createTraffic', () => createTraffic()), []);
   useEffect(() => () => traffic.dispose(), [traffic]);
   const inspectP = useRef(0);
-  const lastRegion = useRef<string | null>(null);
 
   // globo: construído só quando o visitante se aproxima de Destinos
-  const globeHolder = useMemo(() => new THREE.Group(), []);
-  const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
-  useEffect(() => () => { globeRef.current?.dispose(); globeRef.current = null; }, [quality]);
 
   const tracks = useRef<Track[]>([]);
   useEffect(() => { tracks.current = buildTracks(jet, size.width / size.height); }, [jet, size.width, size.height]);
@@ -354,8 +348,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     let slot = sequence;
     if (toFleet >= 0) slot = toFleet < .5 ? 5.99999 : 6;
     if (toDest >= 0) slot = toDest < .5 ? 6.99999 : 7;
-    const raw = slot < 3 ? slot : slot < 6 ? slot + 1 : slot < 7 ? slot - 3 : slot;
-    const inFleet = slot >= 6 && slot < 7;
+    // V11: depois da Frota não há mais cena 3D (o céu do final cobre tudo) — o hangar permanece no último
+    // enquadramento até as nuvens o cobrirem, sem cair numa pose vazia/escura no meio da transição
+    const raw = slot < 3 ? slot : slot < 6 ? slot + 1 : slot < 7 ? slot - 3 : 3.9999;
+    const inFleet = slot >= 6;
     const t = slot < 3 ? slot : slot < 6 ? slot : inFleet ? 2.9999 : slot < 8 ? 6.32 + (slot - 7) * .68 : slot - 1;
     const trk = tracks.current;
     if (!trk.length) return;
@@ -545,28 +541,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       if (fm.mixStrength !== undefined) fm.mixStrength = 0.9 * hangarW; // concreto do pátio com leve brilho de umidade
     }
 
-    // globo
-    if (!globeRef.current && t > 5.6) {
-      const g = qaTime('createGlobe', () => createGlobe(quality)); g.root.position.copy(GLOBE_CENTER); globeHolder.add(g.root); globeRef.current = g;
-    }
-    const globe = globeRef.current;
-    if (globe) globe.root.visible = globeW > 0.001;
-    if (globe && globe.root.visible) {
-      globe.setOpacity(1);
-      const dest = st.destination ? DESTINATIONS.find((d) => d.id === st.destination) : null;
-      if (st.destination !== tmp.lastDest) { globe.setArc(st.destination); tmp.lastDest = st.destination; }
-      const reduce = st.motion === 'reduced';
-      let ty: number, tp: number;
-      if (dest) { const f = facing(dest.lat * 0.6 + -23.55 * 0.4, dest.lon * 0.6 + -46.63 * 0.4); ty = f.yaw; tp = f.pitch * 0.8; }
-      else { const f = facing(-12, -42); ty = f.yaw + (reduce ? 0 : Math.sin(time * 0.12) * 0.12); tp = f.pitch * 0.6; } // sempre o lado das rotas; deriva sutil, sem girar para longe
-      ty += frame.globeYaw; tp = clamp(tp + frame.globePitch, -0.9, 0.9);
-      tmp.globeYaw = damp(tmp.globeYaw, ty, 2.4, dt);
-      tmp.globePitch = damp(tmp.globePitch, tp, 2.4, dt);
-      globe.spin.rotation.y = tmp.globeYaw;
-      globe.root.rotation.x = tmp.globePitch;
-      const visible = new Set(DESTINATIONS.filter((d) => st.region === 'todos' || d.region === st.region).map((d) => d.id));
-      globe.update(dt, st.destination, visible, time);
-    }
 
     // ----- jato -----
     const jg = jet.group;
@@ -847,26 +821,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     traffic.group.visible = Math.max(skyA, skyB, epi) > 0.5;
     if (traffic.group.visible) { traffic.update(time, frame.px, frame.py); if (slot >= 5 && slot < 6 && t > 5.65) traffic.windowPass(cam, ramp(t,5.65,5.9999), time); }
 
-    // ----- rede de rotas no globo + traço conectando a janela ao globo -----
-    if (globe?.root.visible && lastRegion.current !== st.region) {
-      lastRegion.current = st.region;
-      globe.setNetwork(DESTINATIONS.filter((d) => st.region === 'todos' || d.region === st.region).map((d) => d.id));
-    }
-    if (!globe?.root.visible) lastRegion.current = null;
-    const route = domRefs.route;
-    if (route) {
-      const on = slot >= 7 && slot < 8 && t > 6.32 && t < 6.75;
-      route.style.opacity = on ? String(Math.min(1, ramp(t, 5.96, 6.08)) * (1 - ramp(t, 6.6, 6.75))) : '0';
-      if (on) {
-        const sx = size.width * 0.5, sy = size.height * 0.46;
-        let ex = size.width * 0.36, ey = size.height * 1.05;
-        if (t > 6.3 && globe) { globe.origin().getWorldPosition(tmp.proj); tmp.proj.project(cam); ex = (tmp.proj.x * 0.5 + 0.5) * size.width; ey = (-tmp.proj.y * 0.5 + 0.5) * size.height; }
-        const draw = ramp(t, 5.98, 6.5);
-        route.setAttribute('d', `M${sx.toFixed(1)},${sy.toFixed(1)} C${(sx + size.width * 0.2).toFixed(1)},${(sy + size.height * 0.3).toFixed(1)} ${(ex - size.width * 0.15).toFixed(1)},${(ey - size.height * 0.35).toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`);
-        route.style.strokeDashoffset = String(1 - draw);
-      }
-    }
-
     // ----- véu de transição (luminância contínua, nunca preto) -----
     const vPortal = pulse(t, 1.62, 1.74, 1.79, 1.95);
     const transition = (q: number) => q < 0 ? 0 : pulse(q, .04, .44, .56, .96);
@@ -962,7 +916,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         // cena: aeródromo da Frota + mundo do voo + o céu da janela da cabine (cúpula e mar de nuvens)
         lineup.visible = true; life.group.visible = true; env.hangar.group.visible = true;
         jg.visible = false;
-        if (globeRef.current) globeRef.current.root.visible = false;
         flightWorld.group.visible = true;
         flightWorld.update(cam.position, time);
         { const dc = cam.position.distanceTo(sim.pos); flightWorld.cloudU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.highU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.wispU.uClear.value = sim.inside ? 6 : dc + 40; /* fiapos rentes à câmera nunca cobrem o avião */ }
@@ -1016,7 +969,6 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
       <primitive object={env.skyGroup} />
       <primitive object={env.hangar.group} />
       <primitive object={env.grid.mesh} />
-      <primitive object={globeHolder} />
       <primitive object={flightHolder} />
       <primitive object={jet.group} />
       <primitive object={lineup} />
@@ -1083,6 +1035,7 @@ function RenderGate() {
       const cont = document.querySelector<HTMLElement>('.simfly-continuum');
       if (cont && cont.dataset.handoff !== 'true' && op(cont) >= 0.999) return true; // na passagem para a anatomia o 3D já acorda aquecido
       if (op(document.querySelector('.simfly-cloud-bridge')) >= 0.999) return true;
+      const fin = document.querySelector('.finale'); if (fin && fin.getBoundingClientRect().top <= 0) return true; // céu do final cobre a tela: o 3D descansa
       const hero = document.getElementById('top');
       if (hero) { const r = hero.getBoundingClientRect(); if (r.top <= 0 && r.bottom >= innerHeight) return true; }
       return false;

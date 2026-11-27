@@ -6,7 +6,6 @@ export const domRefs = {
   veil: null as HTMLElement | null,
   hotspotLayer: null as HTMLElement | null,
   hotspots: new Map<PartId, HTMLElement>(),
-  route: null as SVGPathElement | null,
   seatLayer: null as HTMLElement | null,
   seats: [] as HTMLElement[],
   /** V6: hotspots da aeronave ativa no hangar (projetados pelo loop do canvas) */

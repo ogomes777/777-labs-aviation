@@ -11,10 +11,10 @@ import { SimFlyAviationSection, SimFlyRoutesGlobe } from '@/components/SimFlyJou
 import FleetShowroom from '@/components/FleetShowroom';
 import Cursor from '@/components/Cursor';
 import FlightHud from '@/components/FlightHud';
-import FinaleGlobe from '@/components/FinaleGlobe';
 import { T, TW } from '@/i18n/T';
 import ServicesList from '@/components/ServicesList';
-import WantedList from '@/components/WantedList';
+import WantedFlight from '@/components/WantedFlight';
+import SkyFinale from '@/components/SkyFinale';
 import TextReact from '@/components/TextReact';
 
 function Still({ id, alt = '', scrim }: { id: string; alt?: string; scrim?: string }) {
@@ -91,10 +91,9 @@ export default function Page() {
         </section>
 
         <div className="finale" data-chapter="8">
-          <section id="procuramos" className="sf-wanted" aria-labelledby="procuramos-title">
-            <h2 id="procuramos-title" data-split data-focus-target><TW k="wanted.t1" /> <em><TW k="wanted.t2" /></em></h2>
-            <p className="sf-lede"><T k="wanted.lede" /></p>
-            <WantedList />
+          <SkyFinale />
+          <section id="procuramos" className="sf-wanted sf-wanted--sky" aria-labelledby="procuramos-title">
+            <WantedFlight />
           </section>
           <section id="planejar" className="sf-contact" aria-labelledby="planejar-title">
             <h2 id="planejar-title" data-split data-focus-target><TW k="contact.t1" /> <em><TW k="contact.t2" /></em></h2>
@@ -106,9 +105,7 @@ export default function Page() {
           </section>
         </div>
       </main>
-      <svg className="route-layer" aria-hidden="true"><path id="route-path" pathLength={1} /></svg>
       <FlightHud />
-      <FinaleGlobe />
       <ConsentBar />
     </>
   );

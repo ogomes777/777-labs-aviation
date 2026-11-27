@@ -41,11 +41,11 @@ export default function SiteHeader() {
       const zone = d.dataset.simflyZone;
       const ch = ui.get().activeChapter;
       const sky = ch === 6 && frame.t > 5.86; // a câmera sai pela janela: céu azul atrás
-      const light = zone === 'aircraft' || (!zone && (ch === 4 || ch === 5 || (ch === 6 && !sky)));
+      const light = d.dataset.skyTone === 'light' || zone === 'aircraft' || (!zone && (ch === 4 || ch === 5 || (ch === 6 && !sky)));
       setTone(light ? 'light' : 'dark');
     };
     const mo = new MutationObserver(decide);
-    mo.observe(d, { attributes: true, attributeFilter: ['data-simfly-zone'] });
+    mo.observe(d, { attributes: true, attributeFilter: ['data-simfly-zone', 'data-sky-tone'] });
     const un = ui.subscribe(decide);
     let raf = 0; const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; decide(); }); };
     addEventListener('scroll', onScroll, { passive: true });
