@@ -498,3 +498,66 @@ html[data-theme='dusk'] .simfly-cloud-bridge::after { content: ''; position: abs
 .fplan__crew { fill: none; stroke: rgba(207, 226, 255, .5); stroke-width: .022; }
 .fplan__exit line { stroke: #ffd59a; stroke-width: .07; stroke-linecap: round; }
 .fplan__label--xs { font-size: .19px; fill: rgba(232, 241, 255, .78); }
+
+
+/* Navigation V9.5 — preserve approved V9.3 chrome, typography and dice transitions. */
+.sfh__lang { font: 550 .73rem/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .045em; }
+/* Keep the original outlined language trigger and popover; change only its glyph. */
+.sfh__more i {
+  display: block; width: 6px !important; height: 6px; background: none;
+  border-right: 1.3px solid currentColor; border-bottom: 1.3px solid currentColor;
+  transform: translateY(-1.5px) rotate(45deg);
+  transition: transform 220ms var(--ease-ui);
+}
+.sfh__more[aria-expanded='true'] i { transform: translateY(1.5px) rotate(225deg); }
+@media (max-width: 860px) { .sfh__more { gap: 5px; } }
+
+/* SimFly menu: a single navy atmosphere with a feather-light official wing. */
+dialog.sfm {
+  background:
+    radial-gradient(ellipse at 76% 27%, rgba(87, 145, 205, .17), transparent 52%),
+    radial-gradient(ellipse at 92% 64%, rgba(42, 99, 158, .12), transparent 61%),
+    linear-gradient(125deg, #081525 8%, #0b1b30 58%, #102b46 100%) !important;
+}
+dialog.sfm::after { content: none; animation: none; }
+dialog.sfm .sfm__identity, dialog.sfm .sfm__identity * { pointer-events: none; }
+.sfm__identity { position: fixed; inset: 0; overflow: hidden; z-index: 0; }
+.sfm__identity-wing {
+  position: absolute; top: 50%; right: -5vw; width: min(78vw, 1350px);
+  transform: translateY(-50%); opacity: .16;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 24%, #000 88%, transparent 100%);
+}
+.sfm__identity-wing svg { display: block; width: 100%; height: auto; }
+@media (max-width: 700px) {
+  .sfm__identity-wing { width: 142vw; right: -36vw; opacity: .12; }
+}
+html[data-theme='dusk'] dialog.sfm {
+  background:
+    radial-gradient(ellipse at 76% 27%, rgba(126, 122, 195, .15), transparent 52%),
+    linear-gradient(125deg, #101326 8%, #171c36 58%, #26334e 100%) !important;
+}
+@media (prefers-reduced-motion: reduce) { .sfh__more i { transition: none; } }
+html[data-motion='reduced'] .sfm__dice { transition: none; }
+
+/* V9.7 — bare language chevron; retain an accessible invisible hit area. */
+.sfh__more, .sfh__more:hover, .sfh__more[aria-expanded='true'] {
+  border: 0 !important; background: transparent !important; box-shadow: none !important;
+}
+.sfh__more { justify-content: center; min-width: 28px; height: 36px !important; }
+.sfh__more i { display: block; }
+.sfh__more:focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
+@media (max-width: 860px) {
+  .sfh__more { min-width: 40px; height: 44px !important; }
+}
+/* Rotate the close icon itself, not the menu or its approved typography. */
+.sfh__burger--x[data-closing='true'] {
+  animation: sfmCloseSpin 240ms cubic-bezier(.35, .05, .5, 1) both;
+}
+@keyframes sfmCloseSpin {
+  from { transform: rotate(0deg); opacity: 1; }
+  to { transform: rotate(90deg); opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sfh__burger--x[data-closing='true'] { animation: none; }
+}
+html[data-motion='reduced'] .sfh__burger--x[data-closing='true'] { animation: none; }

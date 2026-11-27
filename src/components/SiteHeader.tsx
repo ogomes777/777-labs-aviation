@@ -24,6 +24,7 @@ export default function SiteHeader() {
   const webgl = ui.useStore((s) => s.webgl);
   const active = ui.useStore((s) => s.activeChapter);
   const [menu, setMenu] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [langs, setLangs] = useState(false);
   const menuRef = useRef<HTMLDialogElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
@@ -57,6 +58,17 @@ export default function SiteHeader() {
     if (!menu && d.open) { d.close(); }
     if (!menu) { lenis?.start?.(); document.documentElement.style.overflow = ''; }
   }, [menu]);
+  useEffect(() => {
+    if (!closing) return;
+    if (!menu) { setClosing(false); return; }
+    const timer = window.setTimeout(() => { setMenu(false); setClosing(false); }, 240);
+    return () => window.clearTimeout(timer);
+  }, [closing, menu]);
+  const closeWithSpin = () => {
+    if (closing) return;
+    if (motion === 'reduced' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setMenu(false); return; }
+    setClosing(true);
+  };
   useEffect(() => {
     if (!langs) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setLangs(false); langBtn.current?.focus(); } };
@@ -97,7 +109,7 @@ export default function SiteHeader() {
             ))}
           </div>
           <button ref={langBtn} type="button" className="sfh__more" aria-expanded={langs} aria-controls="sfh-langs" aria-label={m.header.language} onClick={() => setLangs((v) => !v)}>
-            <span className="sfh__more-code">{lang.toUpperCase()}</span><i aria-hidden="true" />
+            <i aria-hidden="true" />
           </button>
         </div>
 
@@ -123,13 +135,13 @@ export default function SiteHeader() {
         </div>
       )}
 
-      <dialog ref={menuRef} className="sfm" aria-label={m.header.menu} onClose={() => { setMenu(false); menuBtn.current?.focus(); }} onCancel={() => setMenu(false)}
+      <dialog ref={menuRef} className="sfm" aria-label={m.header.menu} onClose={() => { setMenu(false); setClosing(false); menuBtn.current?.focus(); }} onCancel={() => setMenu(false)}
         onClick={(e) => { if (e.target === menuRef.current) setMenu(false); }}>
         {menu && <MenuSky />}
         <div className="sfm__inner">
           <div className="sfm__top">
             <span />
-            <button type="button" className="sfh__burger sfh__burger--x" onClick={() => setMenu(false)} autoFocus aria-label={m.header.close}><i /><i /></button>
+            <button type="button" className="sfh__burger sfh__burger--x" data-closing={closing ? 'true' : undefined} onClick={closeWithSpin} autoFocus aria-label={m.header.close}><i /><i /></button>
           </div>
           <nav className="sfm__nav" aria-label={m.header.nav}>
             {SECTIONS.map((s, i) => (

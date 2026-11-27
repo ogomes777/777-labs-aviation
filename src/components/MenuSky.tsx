@@ -1,79 +1,20 @@
-'use client';
-import { useEffect, useRef } from 'react';
-import dots from '@/content/globe-dots.json';
-
-/**
- * Fundo do menu: carta de navegação aérea viva — mapa-múndi em pontos (projeção equiretangular),
- * rotas de grande círculo acendendo a partir do Brasil e dos EUA, jatos minúsculos voando nelas e
- * uma varredura de radar. Canvas 2D único, só existe com o menu aberto; com movimento reduzido fica estático.
- */
-const HUBS: [number, number][] = [[-23.55, -46.63], [25.79, -80.29]]; // São Paulo, Miami
-const DEST: [number, number][] = [[40.71, -74.01], [38.72, -9.14], [48.86, 2.35], [25.2, 55.27], [-33.45, -70.67], [19.43, -99.13], [51.47, -0.45], [-22.9, -43.2], [4.71, -74.07], [35.68, 139.69], [33.94, -118.4], [41.9, 12.5]];
-const rad = Math.PI / 180;
-function gc(a: [number, number], b: [number, number], t: number): [number, number] {
-  const [la1, lo1] = [a[0] * rad, a[1] * rad], [la2, lo2] = [b[0] * rad, b[1] * rad];
-  const v1 = [Math.cos(la1) * Math.cos(lo1), Math.cos(la1) * Math.sin(lo1), Math.sin(la1)], v2 = [Math.cos(la2) * Math.cos(lo2), Math.cos(la2) * Math.sin(lo2), Math.sin(la2)];
-  const d = Math.acos(Math.min(1, Math.max(-1, v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]))) || 1e-6;
-  const A = Math.sin((1 - t) * d) / Math.sin(d), B = Math.sin(t * d) / Math.sin(d);
-  const x = A * v1[0] + B * v2[0], y = A * v1[1] + B * v2[1], z = A * v1[2] + B * v2[2];
-  return [Math.atan2(z, Math.hypot(x, y)) / rad, Math.atan2(y, x) / rad];
-}
-
+/** Official SimFly wing geometry, without wordmark or slogan. Decorative only. */
 export default function MenuSky() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const c = ref.current; if (!c) return;
-    const ctx = c.getContext('2d'); if (!ctx) return;
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const accent = (getComputedStyle(document.documentElement).getPropertyValue('--sf-accent-rgb') || '76,168,255').trim();
-    const routes = DEST.map((d, i) => ({ a: HUBS[i % 2], b: d, off: (i * 0.137) % 1, speed: 0.035 + (i % 5) * 0.006 }));
-    let W = 0, H = 0, dpr = 1, raf = 0, land: HTMLCanvasElement | null = null;
-    const proj = (lat: number, lon: number): [number, number] => {
-      const s = Math.max(W / 360, H / 170) * 1.05;
-      return [W / 2 + (lon + 20) * s, H * 0.5 - (lat - 8) * s];
-    };
-    const resize = () => {
-      dpr = Math.min(devicePixelRatio || 1, 1.75); W = innerWidth; H = innerHeight;
-      c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); c.style.width = `${W}px`; c.style.height = `${H}px`;
-      // continentes pré-desenhados uma vez (o loop só desenha rotas e jatos)
-      land = document.createElement('canvas'); land.width = c.width; land.height = c.height;
-      const g = land.getContext('2d')!; g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      g.fillStyle = `rgba(${accent},0.42)`;
-      for (const [la, lo] of dots as [number, number][]) { const [x, y] = proj(la, lo); g.beginPath(); g.arc(x, y, 1.05, 0, Math.PI * 2); g.fill(); }
-      // meridianos e paralelos
-      g.strokeStyle = 'rgba(255,255,255,0.045)'; g.lineWidth = 1;
-      for (let lo = -180; lo <= 180; lo += 30) { const [x0, y0] = proj(80, lo), [x1, y1] = proj(-70, lo); g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
-      for (let la = -60; la <= 75; la += 15) { const [x0, y0] = proj(la, -180), [x1, y1] = proj(la, 180); g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
-    };
-    const draw = (now: number) => {
-      const T = now / 1000;
-      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, c.width, c.height);
-      if (land) ctx.drawImage(land, 0, 0);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      for (const r of routes) {
-        const p = reduced ? 0.6 : (T * r.speed + r.off) % 1;
-        const N = 64; ctx.beginPath();
-        for (let i = 0; i <= N; i++) { const [la, lo] = gc(r.a, r.b, i / N); const [x, y] = proj(la, lo); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-        ctx.strokeStyle = `rgba(${accent},0.16)`; ctx.lineWidth = 1; ctx.stroke();
-        // rastro luminoso atrás do jato
-        ctx.beginPath(); const tail = 0.22;
-        for (let i = 0; i <= 24; i++) { const t = Math.max(0, p - tail + (tail * i) / 24); const [la, lo] = gc(r.a, r.b, t); const [x, y] = proj(la, lo); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-        const [hx, hy] = proj(...gc(r.a, r.b, p)), [tx, ty] = proj(...gc(r.a, r.b, Math.max(0, p - tail)));
-        const gr = ctx.createLinearGradient(tx, ty, hx, hy); gr.addColorStop(0, `rgba(${accent},0)`); gr.addColorStop(1, 'rgba(235,245,255,0.9)');
-        ctx.strokeStyle = gr; ctx.lineWidth = 1.6; ctx.stroke();
-        // jato (seta de asa delta) orientado pela rota
-        const [nx, ny] = proj(...gc(r.a, r.b, Math.min(1, p + 0.004)));
-        const ang = Math.atan2(ny - hy, nx - hx);
-        ctx.save(); ctx.translate(hx, hy); ctx.rotate(ang); ctx.fillStyle = '#f3f8ff'; ctx.shadowColor = `rgba(${accent},0.9)`; ctx.shadowBlur = 8;
-        ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, -4.2); ctx.lineTo(-1.6, 0); ctx.lineTo(-4, 4.2); ctx.closePath(); ctx.fill(); ctx.restore();
-      }
-      // hubs pulsando
-      for (const h of HUBS) { const [x, y] = proj(h[0], h[1]); const k = reduced ? 0.5 : (T * 0.6) % 1; ctx.beginPath(); ctx.arc(x, y, 3 + k * 16, 0, Math.PI * 2); ctx.strokeStyle = `rgba(${accent},${0.6 * (1 - k)})`; ctx.lineWidth = 1.2; ctx.stroke(); ctx.beginPath(); ctx.arc(x, y, 2.6, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); }
-      if (!reduced) raf = requestAnimationFrame(draw);
-    };
-    resize(); addEventListener('resize', resize);
-    raf = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(raf); removeEventListener('resize', resize); };
-  }, []);
-  return <canvas ref={ref} className="sfm__sky" aria-hidden="true" />;
+  return (
+    <div className="sfm__identity" aria-hidden="true">
+      <div className="sfm__identity-wing">
+        <svg viewBox="86 68 1208 514" focusable="false">
+          <defs>
+            <linearGradient id="sf-menu-feather" x1="0%" y1="85%" x2="100%" y2="8%">
+              <stop offset="0%" stopColor="#6a9ccb" stopOpacity=".18" />
+              <stop offset="42%" stopColor="#9ac9ed" stopOpacity=".58" />
+              <stop offset="76%" stopColor="#e4f2ff" stopOpacity=".92" />
+              <stop offset="100%" stopColor="#a5c8e8" stopOpacity=".36" />
+            </linearGradient>
+          </defs>
+          <path fillRule="evenodd" fill="url(#sf-menu-feather)" d="M860,573C857,572 801,554 770,543C755,538 728,527 712,521C705,518 696,514 692,513C664,504 644,494 642,488C638,478 647,474 698,465C712,462 736,457 751,455C766,452 781,449 785,448C789,447 803,444 816,441C830,438 850,434 860,432C872,430 901,425 926,420C991,407 991,407 997,413C1007,421 1003,427 961,478C956,484 943,499 932,513C890,565 877,576 860,573ZM567,455C563,453 554,449 547,445C531,437 530,436 507,425C481,413 478,411 478,403C478,396 485,391 501,388C505,388 513,386 518,385C522,384 534,382 544,380C553,378 568,375 576,374C583,372 597,369 606,368C616,366 646,360 674,355C701,349 730,344 739,342C747,341 758,339 763,338C768,337 782,334 792,333C804,331 820,327 829,325C838,323 855,319 866,317C878,316 890,313 894,312C898,312 912,309 925,306C956,300 988,290 1006,281C1037,266 1043,280 1028,330C1019,361 1001,374 947,385C937,387 923,391 915,393C906,394 892,397 883,399C866,402 847,406 826,410C820,412 805,415 794,417C783,419 766,422 757,424C748,426 735,429 728,430C707,433 675,440 658,443C650,445 636,448 628,449C621,451 609,453 602,454C587,458 577,458 567,455ZM411,371C399,369 395,368 342,342C311,327 306,324 306,316C306,308 312,305 332,302C339,301 352,298 360,297C376,293 400,289 420,285C427,285 438,282 446,280C455,279 468,276 477,275C486,273 499,271 506,269C513,267 525,265 532,264C540,263 555,260 566,258C578,256 594,253 601,252C608,251 621,248 630,246C639,244 655,241 667,239C679,237 696,233 706,231C716,230 732,227 742,225C751,223 769,220 780,217C791,215 808,211 817,209C826,207 841,204 851,201C861,198 879,194 890,192C936,181 977,170 1028,153C1037,150 1050,147 1056,145C1062,143 1073,140 1080,137C1106,128 1117,132 1108,148C1101,159 1062,197 1015,236C977,268 975,269 934,277C920,279 904,282 900,283C895,284 879,287 864,289C839,294 793,302 766,308C760,309 748,311 739,313C730,314 719,316 714,317C710,318 695,321 682,323C668,325 652,328 644,330C637,332 625,334 616,335C608,337 592,340 582,342C570,344 553,347 544,349C523,353 491,359 462,365C430,372 423,373 411,371ZM1083,302C1080,299 1087,280 1099,258C1103,251 1111,237 1116,226C1122,215 1128,205 1129,202C1131,200 1137,189 1143,178C1148,167 1155,155 1157,152C1159,149 1163,142 1166,138C1181,112 1191,105 1227,93C1235,90 1247,86 1253,83C1276,75 1288,83 1280,102C1274,113 1243,148 1193,197C1170,220 1129,263 1112,280C1101,294 1095,299 1089,302C1084,304 1085,304 1083,302ZM238,285C230,283 206,271 180,258C169,252 147,241 131,233C101,218 95,214 93,206C91,196 97,194 128,193C142,192 162,192 174,191C203,190 256,187 284,186C297,185 320,184 336,184C376,181 452,180 560,180C612,179 664,179 676,178C742,175 779,176 780,182C781,188 731,202 677,210C663,212 645,214 638,216C630,218 615,220 605,222C595,224 577,227 566,229C554,231 538,234 530,235C499,240 455,248 449,249C442,251 414,256 359,265C315,272 297,276 277,281C258,286 247,287 238,285Z" />
+        </svg>
+      </div>
+    </div>
+  );
 }
