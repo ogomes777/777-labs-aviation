@@ -104,3 +104,53 @@ html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: r
   .jf__eyebrow { margin-bottom: 12px; letter-spacing: .32em; }
 }
 @media (max-width: 860px) and (max-height: 700px) { .jf-b .jf__lede { display: none; } }
+
+
+/* V16 — editorial finale / photoreal alpha media. Original V15 vectors remain emergency fallbacks. */
+.jf { --ink-soft: #7890a8; --ink-mute: rgba(15,42,79,.82); }
+.jf__stage { isolation: isolate; background: linear-gradient(160deg,rgba(226,239,250,.48),rgba(255,255,255,.70) 75%); }
+.jf__giant { z-index: 0; font-weight: 900; font-stretch: 62%; font-variation-settings: "wdth" 62, "wght" 900; line-height: .83; letter-spacing: -.045em; }
+.jf__giant--a { right: 2vw; top: 48%; font-size: clamp(7rem, 21vw, 29rem); color: color-mix(in srgb,var(--ink) 20%,transparent); }
+.jf__giant--b { bottom: 11svh; font-size: clamp(8rem,32vw,40rem); color: color-mix(in srgb,var(--ink) 11%,transparent); }
+.jf__turbine-wrap { z-index: 1; left: 74%; width: min(54vw,80svh); opacity: calc(var(--rise) * (1 - var(--down))); }
+.jf-media { position: relative; width: 100%; height: 100%; filter: drop-shadow(0 28px 38px rgba(15,42,79,.16)); }
+.jf-media__legacy,.jf-media__layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+.jf-media__layer { display: block; object-fit: contain; opacity: 0; transition: opacity .35s ease; }
+.jf-media__layer.is-ready { opacity: 1; }
+.jf-media--real .jf-media__legacy { opacity: 0; }
+.jf-media:has(video.is-ready) > img:first-of-type { opacity: 0; }
+.jf-media:has(img.is-ready:last-of-type:not(:first-of-type)) > img:first-of-type { opacity: 0; }
+.jf-media__tone { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 26% 29% at 42% 50%,rgba(54,143,255,.30),rgba(77,175,255,.18) 73%,transparent 100%); mix-blend-mode: screen; opacity: 0; }
+.jf-media__tone.is-live { animation: jf-ignition 7s 2s ease-in-out infinite; }
+@keyframes jf-ignition { 0%,100% { opacity:0; } 45%,65% { opacity:.85; } }
+.jf__mist { z-index: 2; }
+.jf__mist i { filter: brightness(1.2) saturate(.42); }
+.jf__mist i:nth-child(1) { left: 60%; top: 47%; opacity: calc(var(--mist) * .82 * (1 - var(--spin) * .8) * (1 - var(--down))); transform: translate3d(calc((1 - var(--mist)) * 24vw + var(--spin) * 39vw),calc(var(--spin) * 8svh + var(--down) * 60svh),0); }
+.jf__mist i:nth-child(2) { opacity: calc(var(--mist) * .65 * (1 - var(--spin) * .8) * (1 - var(--down))); transform: translate3d(calc((1 - var(--mist)) * 18vw + var(--spin) * 50vw),calc(var(--spin) * 15svh + var(--down) * 65svh),0); }
+.jf__mist i:nth-child(3) { opacity: calc(var(--mist) * .50 * (1 - var(--spin) * .9) * (1 - var(--down))); transform: translate3d(calc((1 - var(--mist)) * 18vw + var(--spin) * 35vw),calc(var(--down) * 50svh),0); }
+.jf__nose-wrap { z-index: 2; width: min(33vw,58svh); left: 55%; transform: translate3d(-50%,calc(-106% + var(--nose) * 49svh),0); }
+.jf-nose-media { position: relative; aspect-ratio: 1122 / 1402; }
+.jf-nose-media .jf-nose { position:absolute; inset:0; width:100%; height:100%; }
+.jf-nose-media__img { display:block; position:absolute; width:100%; height:100%; inset:0; object-fit:contain; opacity:0; }
+.jf-nose-media.is-ready .jf-nose-media__img { opacity:1; }
+.jf-a,.jf-b { z-index:3; }
+.jf-a { max-width:min(36rem,36vw); }
+.jf__eyebrow { font-size:clamp(.66rem, .9vw, .82rem); letter-spacing:.25em; }
+.jf__title { font-size:clamp(2.15rem,4.2vw,5.2rem); font-stretch:110%; font-variation-settings:"wdth" 110,"wght" 850; line-height:.93; letter-spacing:-.045em; overflow-wrap:anywhere; }
+.jf__lede { font-size:clamp(.9rem,1.2vw,1.05rem); line-height:1.55; }
+.jf-b { padding-top:22svh; }
+.jf__foot { z-index:4; }
+@media(max-width:860px) {
+  .jf__giant--a { right:1vw; top:28%; font-size:clamp(5rem,25vw,12rem); }
+  .jf__giant--b { bottom:31svh; font-size:clamp(6rem,33vw,14rem); }
+  .jf__turbine-wrap { width:min(93vw,48svh); left:56%; top:30%; }
+  .jf__nose-wrap { left:50%; width:min(64vw,38svh); transform:translate3d(-50%,calc(-106% + var(--nose) * 41svh),0); }
+  .jf-a { max-width:none; }
+  .jf__title { font-size:clamp(1.8rem,7.8vw,3rem); }
+  .jf__lede { font-size:.9rem; }
+  .jf-b { padding-top:0; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .jf-media__tone { animation:none!important; }
+  .jf-media__layer { transition:none; }
+}
