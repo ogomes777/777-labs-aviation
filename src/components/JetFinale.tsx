@@ -98,43 +98,6 @@ function Turbine() {
   );
 }
 
-function Nose() {
-  return (
-    <svg viewBox="0 0 600 1000" className="jf-nose" aria-hidden="true">
-      <defs>
-        <linearGradient id="jf-skin" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#b8c3d2" /><stop offset=".16" stopColor="#e9eef5" /><stop offset=".34" stopColor="#ffffff" />
-          <stop offset=".55" stopColor="#f3f6fa" /><stop offset=".72" stopColor="#ffffff" /><stop offset=".9" stopColor="#d5dde8" /><stop offset="1" stopColor="#aab6c6" />
-        </linearGradient>
-        <linearGradient id="jf-skin-v" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="rgba(150,168,192,.0)" /><stop offset=".8" stopColor="rgba(150,168,192,.0)" /><stop offset="1" stopColor="rgba(120,140,170,.35)" />
-        </linearGradient>
-        <linearGradient id="jf-glass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3b5f94" /><stop offset=".4" stopColor="#13213a" /><stop offset="1" stopColor="#24395e" />
-        </linearGradient>
-        <linearGradient id="jf-glint" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="rgba(255,255,255,.0)" /><stop offset=".45" stopColor="rgba(255,255,255,.32)" /><stop offset=".6" stopColor="rgba(255,255,255,0)" />
-        </linearGradient>
-      </defs>
-      {/* fuselagem vista de cima, nariz para baixo */}
-      <path d="M84 0 L84 430 C84 724 188 934 300 964 C412 934 516 724 516 430 L516 0 Z" fill="url(#jf-skin)" />
-      <path d="M84 0 L84 430 C84 724 188 934 300 964 C412 934 516 724 516 430 L516 0 Z" fill="url(#jf-skin-v)" />
-      {/* para-brisa envolvente: painéis finos com moldura clara e reflexo do céu */}
-      <path d="M134 612 C204 590 396 590 466 612 C460 650 446 682 428 708 C362 728 238 728 172 708 C154 682 140 650 134 612 Z" fill="url(#jf-glass)" />
-      <path d="M134 612 C204 590 396 590 466 612 C460 650 446 682 428 708 C362 728 238 728 172 708 C154 682 140 650 134 612 Z" fill="none" stroke="#f1f4f8" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M300 596 L300 724 M206 598 C210 640 214 680 220 716 M394 598 C390 640 386 680 380 716" fill="none" stroke="#e8edf3" strokeWidth="5" strokeLinecap="round" />
-      <path d="M146 620 C210 604 262 600 296 600 L296 636 C240 638 190 646 152 656 Z" fill="url(#jf-glint)" />
-      <path d="M304 600 C340 600 392 604 454 620 L448 640 C400 630 350 626 304 626 Z" fill="rgba(170,205,255,.16)" />
-      {/* linhas de painel, radome e antena */}
-      <path d="M140 820 C214 872 386 872 460 820" fill="none" stroke="rgba(120,138,165,.32)" strokeWidth="2" />
-      <path d="M100 360 L500 360" fill="none" stroke="rgba(120,138,165,.2)" strokeWidth="2" />
-      <path d="M300 0 L300 560" fill="none" stroke="rgba(255,255,255,.65)" strokeWidth="3" />
-      <rect x="292" y="300" width="16" height="34" rx="8" fill="#c3cddb" />
-    </svg>
-  );
-}
-
-
 const MEDIA = '/media/jet-finale';
 function TurbineAsset() {
   const host = useRef<HTMLDivElement>(null);
@@ -155,7 +118,7 @@ function TurbineAsset() {
   }, []);
   useEffect(() => {
     const v = video.current; if (!v || mode !== 'video') return;
-    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 1.8; v.play().catch(() => { if (!document.hidden) setMode('animated'); }); } else v.pause(); };
+    const sync = () => { if (awake && !document.hidden) { v.playbackRate = 2.2; v.play().catch(() => { if (!document.hidden) setMode('animated'); }); } else v.pause(); };
     sync(); document.addEventListener('visibilitychange', sync);
     return () => { document.removeEventListener('visibilitychange', sync); v.pause(); };
   }, [awake, mode]);
@@ -173,8 +136,7 @@ function TurbineAsset() {
 function NoseAsset() {
   const [ready, setReady] = useState(false);
   return <div className={'jf-nose-media' + (ready ? ' is-ready' : '')} aria-hidden="true">
-    {!ready && <Nose />}
-    <img className="jf-nose-media__img" src={MEDIA + '/nose.png'} alt="" decoding="async" loading="lazy" onLoad={() => setReady(true)} />
+    <img className="jf-nose-media__img" src={MEDIA + '/nose.png'} alt="" decoding="async" loading="eager" onLoad={() => setReady(true)} />
   </div>;
 }
 
@@ -197,7 +159,7 @@ export default function JetFinale() {
       // 0 = a seção começa a entrar; ~0.24 = cena fixa; 1 = fim do rodapé
       const p = clamp((vh - r.top) / r.height);
       vel += ((p - lastP) / Math.max(dt, 0.001) - vel) * Math.min(1, dt * 6); lastP = p;
-      const set = (k: string, v: number) => el.style.setProperty(k, v.toFixed(4));
+      const set = (k: string, v: number) => { const s = v.toFixed(4); if (el.style.getPropertyValue(k) !== s) el.style.setProperty(k, s); };
       set('--jp', p);
       set('--rise', smooth(0.02, 0.24, p));      // turbina e cópia sobem com a seção
       set('--mist', smooth(0.10, 0.27, p));      // a nuvem chega antes do giro
@@ -219,14 +181,15 @@ export default function JetFinale() {
       // grupo invisível não recebe foco nem clique
       groups[0].style.visibility = Number(el.style.getPropertyValue('--copy-a')) < 0.02 ? 'hidden' : '';
       groups[1].style.visibility = Number(el.style.getPropertyValue('--foot')) < 0.02 ? 'hidden' : '';
-      if (visible && !document.hidden) raf = requestAnimationFrame(tick);
+      if (visible && !document.hidden && (Math.abs(gust - target) > .002 || !el.querySelector('.jf-media--real'))) raf = requestAnimationFrame(tick);
     };
     const start = () => { if (visible && !document.hidden && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); else { cancelAnimationFrame(raf); raf = 0; } }, { rootMargin: '20% 0px' });
     io.observe(el);
     document.addEventListener('visibilitychange', start);
+    addEventListener('scroll', start, { passive: true }); addEventListener('resize', start);
     tick(performance.now());
-    return () => { io.disconnect(); cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', start); };
+    return () => { io.disconnect(); cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', start); removeEventListener('scroll', start); removeEventListener('resize', start); };
   }, []);
 
   const wa = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(m.contact.waText)}`;

@@ -174,3 +174,15 @@ html[data-theme='dusk'] .jf { --ink: #1d1a4f; --ink-soft: #a9a6cf; --ink-mute: r
  .jf-a { top:auto; bottom:max(28px,env(safe-area-inset-bottom)); max-width:none; left:20px; right:20px; }
  .jf-a .jf__title { font-size:clamp(1.5rem,6.5vw,2.5rem); }
 }
+
+/* V18 — final polish, explicit dark-blue typography and true outline */
+.jf .jf__giant--a { color: transparent !important; -webkit-text-fill-color: transparent !important; -webkit-text-stroke: 1.6px rgba(15,42,79,.48); top: 20%; right: 5vw; font-size: clamp(4rem,13vw,17rem); z-index: 0; }
+.jf .jf-a { left: clamp(20px,5vw,90px); max-width: 28vw; top: 66%; }
+.jf .jf-a .jf__title { font-size: clamp(1.5rem,2.5vw,2.8rem); color: #0f2a4f; }
+.jf .jf-a .jf__title span { color: #0f2a4f; }
+.jf .jf-a .jf-btn:not(.jf-btn--solid) { background:#fff; color:#0f2a4f; }
+.jf .jf-a .jf-btn--solid { background:#0f2a4f; color:#fff; }
+.jf .jf__title--foot, .jf .jf__title--foot span { text-shadow: 0 0 8px rgba(36,111,223,.72), 0 0 22px rgba(47,133,255,.55), 0 0 42px rgba(47,133,255,.28); }
+.jf .jf__giant--b { color: color-mix(in srgb,var(--ink) 28%,transparent); }
+.jf .jf__stage { background: none !important; border:0; box-shadow:none; }
+@media(max-width:860px) { .jf .jf__giant--a { top:13%; font-size:clamp(3rem,16vw,7rem); } .jf .jf-a { top:auto; bottom:max(28px,env(safe-area-inset-bottom)); max-width:none; right:20px; left:20px; } .jf .jf-a .jf__title { font-size:clamp(1.5rem,6.5vw,2.5rem); } }
