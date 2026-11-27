@@ -24,6 +24,7 @@ import { FLEET_SPECS } from './fleet/specs';
 import { FLEET } from '@/content/fleet';
 import { prefs } from '@/i18n';
 import { createFlightWorld } from './flight/world';
+import { flightResolution } from './flight/env';
 import { FlightSim } from './flight/sim';
 import { flightUi } from '@/experience/flight';
 import type { PartId, VariantId, ViewId } from '@/content/site';
@@ -295,6 +296,8 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
   }, []);
   useEffect(() => () => apronTex.dispose(), [apronTex]);
   const perfMon = useRef({ bad: 0, acc: 0, n: 0, cool: 4, good: 0, max: quality === 'high' ? 4 : 2, lock: typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === 'lock' });
+  /** densidade de pixels do voo: nível salvo ao decolar, janela de acomodação e sequência de FPS baixo */
+  const flightGov = useRef({ prev: 2, acc: 0, n: 0, low: 0, settleUntil: 0, skipUntil: 0 });
   // começa leve e sobe só quando o aparelho prova fluidez (tier alto inicia no nível 2, balanceado no 1)
   useEffect(() => { ui.set({ perf: perfMon.current.lock ? (quality === 'high' ? 3 : 1) : quality === 'high' ? 2 : 1 }); }, [quality]);
   const tmp = useMemo(() => ({ vel: new THREE.Vector3(), prevEye: new THREE.Vector3(), right: new THREE.Vector3(), roll: 0, camEye: null as THREE.Vector3 | null, eye: new THREE.Vector3(), target: new THREE.Vector3(), vEye: new THREE.Vector3(), vTarget: new THREE.Vector3(), bg: new THREE.Color(), proj: new THREE.Vector3(), wobble: new THREE.Euler(), pal: {} as Record<string, THREE.Color>, viewW: 0, explode: 0, camTgt: null as THREE.Vector3 | null, oc: new THREE.Vector3(), rv: new THREE.Vector3(), xray: 0, fleetIdx: 0, fogK: 1, fleetCamX: 0, lastIns: null as string | null, lastDest: null as string | null, globeYaw: 0, globePitch: 0, firstFrame: true, hotStill: 0 }), []);
@@ -315,7 +318,22 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     // ----- regulador de desempenho: mede o FPS real e ajusta o nível (com histerese) -----
     const pm = perfMon.current;
     if (rawDt > 0.25) { pm.acc = 0; pm.n = 0; pm.cool = Math.max(pm.cool, 2); } // volta de pausa/aba: não conta como FPS baixo
-    else if (ui.get().flight) { pm.acc = 0; pm.n = 0; pm.bad = 0; pm.good = 0; } // no voo a qualidade não muda no meio (sem trocas bruscas em altitude)
+    else if (ui.get().flight) {
+      // voo Mega Ultra: todo o conteúdo fica ligado; só a densidade de pixels se acomoda nos primeiros segundos (motores ligando)
+      // e depois trava — sem queda no meio do voo, a não ser em emergência (FPS muito baixo e sustentado)
+      const fg = flightGov.current;
+      if (!pm.lock && !document.hidden && performance.now() > fg.skipUntil) {
+        fg.acc += rawDt; fg.n += 1;
+        if (fg.acc > 1.0) {
+          const fps = fg.n / fg.acc; fg.acc = 0; fg.n = 0;
+          fg.low = fps < 26 ? fg.low + 1 : 0;
+          const lvl = ui.get().perf, settling = performance.now() < fg.settleUntil;
+          const next = flightResolution(lvl, fps, settling, fg.low);
+          if (next !== lvl) { ui.set({ perf: next }); fg.low = 0; fg.skipUntil = performance.now() + 900; }
+        }
+      }
+      pm.acc = 0; pm.n = 0; pm.bad = 0; pm.good = 0;
+    }
     else if (!pm.lock && !frame.freezeClock && !document.hidden) {
       pm.acc += rawDt; pm.n += 1;
       if (pm.acc > 1.2) {
@@ -606,7 +624,7 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
     const envTex = env.maps.get(envKey as EnvKey);
     if (scene.environment !== envTex) scene.environment = envTex;
     const inside = insidePortal || inCabin;
-    const wantDof = !(anatomyActive && st.part); // DOF/AO validados dentro da cabine após remover CA e ruído (causa real dos artefatos)
+    const wantDof = !st.flight && !(anatomyActive && st.part); // DOF/AO validados dentro da cabine; no voo não há foco seletivo (passes poupados)
     if (wantDof !== st.dof) ui.set({ dof: wantDof });
     scene.environmentIntensity = inside ? 0.37 : envKey === 'hangar' ? 0.2 : envKey === 'studio' ? 0.7 : 0.5;
     lights.sun.intensity = inside ? 0 : 2.6 * Math.max(skyA, epi) + 0.5 * studioW;
@@ -874,6 +892,13 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         crafts.current.forEach((c) => { c.focusPart(null); c.isolate(null); c.setXray(0); c.setFade(1); });
         applyInspect(craft.entries, 0, null, time); inspectP.current = 0;
         sim.start(fid, craft, env.gy, time);
+        // um mundo novo a cada voo (sol, vento, mar, nuvens e bichos) e a densidade de pixels começa no máximo
+        const qs = new URLSearchParams(location.search);
+        getFlightWorld().reseed(Number(qs.get('seed')) || ((Math.random() * 2147483647) | 0));
+        if (QA_MODE) Object.assign(window, { __777sim: sim, __777fw: getFlightWorld() });
+        const fg = flightGov.current; fg.prev = ui.get().perf; fg.acc = 0; fg.n = 0; fg.low = 0;
+        fg.skipUntil = performance.now() + 1500; fg.settleUntil = performance.now() + 8000;
+        if (!perfMon.current.lock) ui.set({ perf: 4 });
         const names = new Set(['grass', 'sky-dome', 'ridge-ring']);
         flightHidden.current = [];
         env.hangar.group.traverse((o) => { if ((names.has(o.name) || o.renderOrder === -9) && o.visible) { o.visible = false; flightHidden.current!.push(o); } });
@@ -884,7 +909,10 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         if (fx.speed) { fx.speed.uniforms.get('uStrength')!.value = 0; (fx.speed.uniforms.get('uCenter')!.value as THREE.Vector2).set(0.62, 0.5); }
         sim.stop();
         flightHidden.current?.forEach((o) => { o.visible = true; }); flightHidden.current = null;
-        if (fwRef.current) fwRef.current.group.visible = false;
+        if (fwRef.current) { fwRef.current.group.visible = false; fwRef.current.hideLife(); }
+        // devolve a luz do hangar e a qualidade de antes do voo
+        lights.sun.position.set(-72, 34, 60); lights.sun.color.set('#fff4e6'); lights.hemi.color.set('#cfe0f2'); lights.hemi.groundColor.set('#f3dcd4');
+        if (!perfMon.current.lock) ui.set({ perf: flightGov.current.prev });
         env.sea.mesh.visible = true; env.puffs.mesh.visible = true;
       }
       if (sim.id && craft) {
@@ -917,43 +945,33 @@ function World({ quality, onReady }: { quality: Q; onReady: () => void }) {
         lineup.visible = true; life.group.visible = true; env.hangar.group.visible = true;
         jg.visible = false;
         flightWorld.group.visible = true;
-        flightWorld.update(cam.position, time);
-        { const dc = cam.position.distanceTo(sim.pos); flightWorld.cloudU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.highU.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.wispU.uClear.value = sim.inside ? 6 : dc + 40; /* fiapos rentes à câmera nunca cobrem o avião */ }
-        const pal = lerpPalette(SKY_PALETTES.dawn, SKY_PALETTES.dusk, 0.55, tmp.pal);
-        env.skyGroup.visible = false; // o voo usa o céu atmosférico próprio (world.ts)
-        const su = env.sky.uniforms, cu = env.sea.uniforms;
-        su.uZenith.value.copy(pal.zenith); su.uHorizon.value.copy(pal.horizon); su.uGlow.value.copy(pal.glow); su.uBelow.value.copy(pal.haze); su.uOpacity.value = 1;
-        su.uSun.value.copy(lights.sun.position).normalize();
-        env.sky.mesh.position.copy(cam.position);
-        cu.uLit.value.copy(pal.lit); cu.uShade.value.copy(pal.shade); cu.uDeep.value.copy(pal.deep); cu.uHaze.value.copy(pal.haze);
-        cu.uOpacity.value = 1; cu.uCinemaOcean.value = 0; cu.uTime.value = time; cu.uCam.value.copy(cam.position);
-        // mar de nuvens acima de ~1.300 m: abaixo dele o céu fica aberto e o chão visível
-        env.sea.mesh.visible = false; // o mar de nuvens 'estalava' ao subir — o voo usa só nuvens volumétricas
-        env.puffs.mesh.visible = false;
-        const sk = flightWorld.skyU;
-        sk.uSun.value.copy(lights.sun.position).normalize();
-        sk.uZenith.value.set('#1d4a96'); sk.uHorizon.value.set('#c9dcf0'); sk.uHaze.value.copy(pal.haze).lerp(C('#dfe8f2'), 0.45); sk.uSunCol.value.set('#fff0d4');
-        const fu = flightWorld.earthU, ku = flightWorld.cloudU;
-        fu.uSun.value.copy(su.uSun.value); ku.uSun.value.copy(su.uSun.value);
-        fu.uHaze.value.copy(sk.uHaze.value); ku.uHaze.value.copy(sk.uHaze.value); fu.uSky.value.set('#5d86c4');
-        ku.uLit.value.set('#fffaf2'); ku.uShade.value.set('#8d9bb2');
-        { const hu = flightWorld.highU; hu.uSun.value.copy(su.uSun.value); hu.uHaze.value.copy(sk.uHaze.value); hu.uLit.value.set('#fffaf4'); hu.uShade.value.set('#a3afc4'); }
+        const fsp = FLEET_SPECS[sim.id], A = flightWorld.seed.atmo;
         // ar mais limpo em altitude: a perspectiva aérea afina conforme o avião sobe (nada de chão "lavado" de branco lá em cima)
         const altK = clamp((agl - 250) / 3200, 0, 1), fogK = 1 - 0.72 * altK * (2 - altK);
-        flightWorld.earthU.uFog.value = 0.00011 * fogK; flightWorld.cloudU.uFog.value = 0.00011 * fogK; flightWorld.highU.uFog.value = 0.00011 * fogK; flightWorld.wispU.uFog.value = 0.00011 * fogK;
+        cam.updateMatrixWorld();
+        qaTime('flightWorld', () => flightWorld.update({
+          cam: cam.position, camDir: cam.getWorldDirection(tmp.rv), camRight: tmp.right.setFromMatrixColumn(cam.matrixWorld, 0), time, dt: Math.min(rawDt, 0.1), fogK,
+          plane: { pos: sim.pos, quat: craft.group.quaternion, len: fsp.envelope.length, span: fsp.envelope.span, radius: fsp.R, V: sim.V, axisH: craft.axisH, flying: sim.phase === 'air' || sim.phase === 'approach', crashedWater: sim.phase === 'crashed' && flightUi.get().crash === 'water' },
+        }));
+        { const dc = cam.position.distanceTo(sim.pos); flightWorld.clouds.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.high.uClear.value = sim.inside ? 6 : dc + 30; flightWorld.wisps.uClear.value = sim.inside ? 6 : dc + 40; /* fiapos rentes à câmera nunca cobrem o avião */ }
+        env.skyGroup.visible = false; // o voo usa o céu próprio (world.ts)
+        env.sea.mesh.visible = false; env.puffs.mesh.visible = false;
+        // a aeronave é iluminada pelo MESMO sol do céu sorteado e reflete aquele céu e aquele mar
+        lights.sun.position.set(A.sun[0] * 100, A.sun[1] * 100, A.sun[2] * 100); lights.sun.color.setRGB(...A.sunCol); lights.sun.intensity = A.sunI;
+        lights.hemi.color.setRGB(...A.hemiSky); lights.hemi.groundColor.setRGB(...A.hemiGround); lights.hemi.intensity = 0.5;
+        lights.key.intensity = 0; lights.rim.intensity = 0.35; lights.rim.color.set('#dfe7f2');
+        scene.environment = flightWorld.envMap(gl); scene.environmentIntensity = 0.9;
         const fog = scene.fog as THREE.FogExp2;
-        fog.color.copy(sk.uHaze.value); fog.density = 0.00012 * fogK;
-        (scene.background as THREE.Color).set('#c9dcf0');
-        lights.sun.intensity = 1.75; lights.hemi.intensity = 0.5; lights.key.intensity = 0; lights.rim.intensity = 0.55; // sem estourar a pintura branca contra o horizonte
+        fog.color.setRGB(...A.haze); fog.density = 0.00012 * fogK * flightWorld.seed.hazeK;
+        (scene.background as THREE.Color).setRGB(...A.horizon);
         if (fx.dof) fx.dof.bokehScale = 0;
         if (fx.speed) {
           fx.speed.uniforms.get('uStrength')!.value = st.motion === 'reduced' || sim.inside ? 0 : 0.0012 * clamp((vk - 0.55) / 0.45, 0, 1);
           // o borrão de velocidade nasce no avião: ele fica sempre nítido no quadro
           tmp.proj.copy(sim.pos).project(cam); (fx.speed.uniforms.get('uCenter')!.value as THREE.Vector2).set(clamp(tmp.proj.x * 0.5 + 0.5, 0, 1), clamp(tmp.proj.y * 0.5 + 0.5, 0, 1));
         }
-        if (fx.bloom) { const b = fx.bloom as unknown as { intensity: number; __base?: number }; b.__base ??= b.intensity; b.intensity = b.__base * 0.25; } // pintura branca não vira halo contra o céu claro
-        flightWorld.wispU.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.55) / 0.4, 0, 1) * 0.4 * (agl > 60 ? 1 : 0) * (sim.inside ? 0 : 1) : 0;
-        flightWorld.wispU.uLit.value.set('#fffaf2'); flightWorld.wispU.uShade.value.set('#9aa7bc'); flightWorld.wispU.uHaze.value.copy(sk.uHaze.value); flightWorld.wispU.uSun.value.copy(sk.uSun.value);
+        if (fx.bloom) { const b = fx.bloom as unknown as { intensity: number; __base?: number }; b.__base ??= b.intensity; b.intensity = b.__base * 0.3; } // pintura branca não vira halo contra o céu claro (o disco do sol ainda brilha)
+        flightWorld.wisps.uOpacity.value = sim.phase === 'air' || sim.phase === 'approach' ? clamp((vk - 0.55) / 0.4, 0, 1) * 0.4 * (agl > 60 ? 1 : 0) * (sim.inside ? 0 : 1) : 0;
       }
     }
     if (tmp.firstFrame) { tmp.firstFrame = false; if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __777env: unknown; __777frame: unknown }).__777env = { ...env, gl }; (window as unknown as { __777frame: unknown }).__777frame = frame; }
@@ -1005,18 +1023,21 @@ function viewPose(jet: JetBuild, view: ViewId, eye: THREE.Vector3, target: THREE
 /** Orçamento de pixels por nível: a resolução segue o tamanho da tela (2K/4K não explodem a GPU). */
 function useBudgetDpr() {
   const perf = ui.useStore((s) => s.perf);
+  const flying = ui.useStore((s) => !!s.flight);
   const [dpr, setDpr] = useState(1);
   useEffect(() => {
     const calc = () => {
       // nível 4: resolução nativa até 4K (só em aparelhos que provaram folga de FPS)
-      const budget = [0.9e6, 1.5e6, 2.3e6, 3.4e6, 8.4e6][perf] ?? 1.5e6; // nível 2 já cobre 1080p nativo
+      const budget = (flying ? [0.9e6, 1.2e6, 2.0e6, 3.2e6, 8.4e6] : [0.9e6, 1.5e6, 2.3e6, 3.4e6, 8.4e6])[perf] ?? 1.5e6; // nível 2 já cobre 1080p nativo
+      // no voo cada nível também limita a densidade (2× → 1,7× → 1,35× → 1×): no celular o ajuste fino de fluidez acontece de fato
+      const cap = flying ? ([1, 1, 1.35, 1.7, 2][perf] ?? 1) : 2;
       const css = Math.max(1, window.innerWidth * window.innerHeight);
-      setDpr(Math.round(Math.max(0.6, Math.min(window.devicePixelRatio || 1, Math.sqrt(budget / css), 2)) * 100) / 100);
+      setDpr(Math.round(Math.max(0.6, Math.min(window.devicePixelRatio || 1, Math.sqrt(budget / css), cap)) * 100) / 100);
     };
     calc();
     window.addEventListener('resize', calc);
     return () => window.removeEventListener('resize', calc);
-  }, [perf]);
+  }, [perf, flying]);
   return dpr;
 }
 
@@ -1064,7 +1085,7 @@ const hotSkins = (g: THREE.Object3D) => {
 };
 const hotRay = new THREE.Raycaster(), hotP = new THREE.Vector3(), hotDir = new THREE.Vector3(), hotOcc = new Map<string, number>();
 /** QA: mede trabalhos pesados da thread principal (só com ?qa) */
-const qaTime = <T,>(label: string, f: () => T): T => { if (!QA_MODE) return f(); const t0 = performance.now(); const r = f(); const w = window as unknown as { __777cost?: Record<string, number[]> }; ((w.__777cost ??= {})[label] ??= []).push(Math.round(performance.now() - t0)); return r; };
+const qaTime = <T,>(label: string, f: () => T): T => { if (!QA_MODE) return f(); const t0 = performance.now(); const r = f(); const w = window as unknown as { __777cost?: Record<string, number[]> }; ((w.__777cost ??= {})[label] ??= []).push(Math.round((performance.now() - t0) * 10) / 10); return r; };
 const QA_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).has('qa');
 export default function Experience({ quality, onReady }: { quality: Q; onReady: () => void }) {
   const dpr = useBudgetDpr();

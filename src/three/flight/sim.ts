@@ -86,8 +86,8 @@ export class FlightSim {
     this.gearK = 1; this.gearLegs = [];
     craft.systems.trem.children.forEach((o) => { o.rotation.set(0, 0, 0); o.scale.setScalar(1); if (o.name.startsWith('gear-')) this.gearLegs.push({ o, kind: o.name === 'gear-nose' ? 'nose' : o.name.endsWith('R') ? 'R' : 'L' }); });
     this.buildLights(craft);
-    // a sombra de contato do hangar fica no chão: no voo ela não acompanha o avião
-    craft.group.traverse((o) => { if (o.name.startsWith('contact-shadow')) o.visible = false; });
+    // a sombra de contato e o halo de apresentação do hangar ficam no chão: no voo eles não acompanham o avião
+    craft.group.traverse((o) => { if (o.name.startsWith('contact-shadow') || o.name === 'presentation-halo') o.visible = false; });
   }
   private buildLights(craft: FleetCraftBuild) {
     this.disposeLights();
@@ -151,7 +151,7 @@ export class FlightSim {
     if (this.interior) { this.interior.group.parent?.remove(this.interior.group); this.interior.dispose(); this.interior = null; }
     this.rotors.forEach((r) => { r.rotation.x = 0; }); this.rotors = [];
     this.disposeLights();
-    c?.group.traverse((o) => { if (o.name.startsWith('contact-shadow')) o.visible = true; });
+    c?.group.traverse((o) => { if (o.name.startsWith('contact-shadow') || o.name === 'presentation-halo') o.visible = true; });
     this.gearLegs.forEach(({ o }) => { o.rotation.set(0, 0, 0); o.scale.setScalar(1); o.visible = true; }); this.gearLegs = [];
     if (c) { c.group.position.copy(this.saved.pos); c.group.rotation.copy(this.saved.rot); c.group.visible = this.saved.vis; c.systems.trem.visible = true; }
     this.craft = null; this.id = null;

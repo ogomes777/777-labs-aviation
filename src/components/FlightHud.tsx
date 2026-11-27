@@ -60,7 +60,11 @@ function Hud({ id }: { id: NonNullable<ReturnType<typeof ui.get>['flight']> }) {
       if (spd.current) spd.current.textContent = String(Math.round(kt));
       if (alt.current) alt.current.textContent = String(Math.round(ft / 10) * 10);
       if (hdg.current) hdg.current.textContent = String(Math.round(TEL.hdg) % 360).padStart(3, '0');
-      a.update(TEL.spool, TEL.speed, flightUi.get().view !== 'chase');
+      const vw = flightUi.get().view;
+      a.update({ spool: TEL.spool, speed: TEL.speed, inside: vw === 'seat' || vw === 'walk', throttleIn: IN.throttle, brake: IN.brake, wash: TEL.wash, sea: TEL.sea });
+      // sons do mundo (aves, golfinhos, respingos…) chegam numa fila com distância e lado
+      for (let i = 0; i < TEL.sfx.length; i++) a.sfx(TEL.sfx[i]);
+      TEL.sfx.length = 0;
       // inércia do olhar 360° depois de soltar
       if (!look.current && (Math.abs(IN.lookVx) > 0.01 || Math.abs(IN.lookVy) > 0.01)) { IN.lookYaw += IN.lookVx / 60; IN.lookPitch = Math.max(-0.45, Math.min(1.25, IN.lookPitch + IN.lookVy / 60)); IN.lookVx *= 0.93; IN.lookVy *= 0.93; IN.lookAt = performance.now(); }
       raf = requestAnimationFrame(loop);

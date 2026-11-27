@@ -62,6 +62,14 @@ export const flightTel = {
   piston: false,
   pitch: 0,
   roll: 0,
+  /** sopro das turbinas na água (0..1+): spray, ondulação e o som da água mexendo */
+  wash: 0,
+  /** câmera perto do mar (0..1): marulho e ondas */
+  sea: 0,
+  /** freio aerodinâmico acionado */
+  brake: false,
+  /** sons pontuais do mundo (aves, golfinhos, respingos…) com distância e lado; o áudio consome a fila */
+  sfx: [] as { kind: string; d: number; pan: number; power: number }[],
 };
 
 export function resetFlightInput() {
