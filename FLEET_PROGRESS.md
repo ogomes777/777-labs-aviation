@@ -167,3 +167,4 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Pontinhos azuis: regra de CSS da V7 (`.fleet .fhots { opacity }`) anulava o "escondido" — por isso ficavam soltos no 360°, com peça escolhida e na troca de avião. Agora somem na hora em qualquer movimento, só voltam com câmera e avião parados, ficam atrás do casco quando a peça está do outro lado e passam para o par simétrico visível (asa, motor, trem, cabine).
 - Matrix no hangar: poltronas e assentos dos pilotos ajustados à curvatura real do casco (altura e posição); peças internas que tocariam o casco não aparecem por fora.
 - QA: scripts/qa/hotspots.mjs, scripts/qa/matrix.mjs, scripts/qa/fastfly.mjs.
+- V9.1 em produção: dpl_A2DmxyMbLmizuHt58vheGxhgMJ8W (c1eb58a). Rollback: dpl_86JPwS46ec8GtDEoqi8dC4qLpwa5 (V9).
