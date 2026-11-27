@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CONTACT } from '@/content/fleet';
 import { useM } from '@/i18n';
 import { navigate } from './navigation';
@@ -134,13 +134,57 @@ function Nose() {
   );
 }
 
+
+const MEDIA = '/media/jet-finale';
+function TurbineAsset() {
+  const host = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const [mode, setMode] = useState<'video' | 'animated' | 'still'>('still');
+  const [poster, setPoster] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [animated, setAnimated] = useState(false);
+  const [awake, setAwake] = useState(false);
+  useEffect(() => {
+    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    const safari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+    const choose = () => { setPlaying(false); setMode(mq.matches ? 'still' : safari ? 'animated' : 'video'); };
+    choose(); mq.addEventListener('change', choose);
+    const io = new IntersectionObserver(([e]) => setAwake(e.isIntersecting), { rootMargin: '100px' });
+    if (host.current) io.observe(host.current);
+    return () => { io.disconnect(); mq.removeEventListener('change', choose); };
+  }, []);
+  useEffect(() => {
+    const v = video.current; if (!v || mode !== 'video') return;
+    const sync = () => { if (awake && !document.hidden) v.play().catch(() => { if (!document.hidden) setMode('animated'); }); else v.pause(); };
+    sync(); document.addEventListener('visibilitychange', sync);
+    return () => { document.removeEventListener('visibilitychange', sync); v.pause(); };
+  }, [awake, mode]);
+  const real = poster || (mode === 'video' && playing) || (mode === 'animated' && animated);
+  return (
+    <div ref={host} className={'jf-media' + (real ? ' jf-media--real' : '')} aria-hidden="true">
+      <div className="jf-media__legacy"><Turbine /></div>
+      <img className={'jf-media__layer' + (poster ? ' is-ready' : '')} src={MEDIA + '/turbofan.png'} alt="" decoding="async" loading="lazy" onLoad={() => setPoster(true)} />
+      {mode === 'video' && <video ref={video} className={'jf-media__layer' + (playing ? ' is-ready' : '')} src={MEDIA + '/turbofan.webm'} loop muted playsInline preload="none" onPlaying={() => setPlaying(true)} onError={() => { setPlaying(false); setMode('animated'); }} />}
+      {mode === 'animated' && awake && <img className={'jf-media__layer' + (animated ? ' is-ready' : '')} src={MEDIA + '/turbofan-fallback.webp'} alt="" decoding="async" onLoad={() => setAnimated(true)} onError={() => setMode('still')} />}
+      {real && <i className={'jf-media__tone' + ((playing || (mode === 'animated' && animated)) ? ' is-live' : '')} />}
+    </div>
+  );
+}
+function NoseAsset() {
+  const [ready, setReady] = useState(false);
+  return <div className={'jf-nose-media' + (ready ? ' is-ready' : '')} aria-hidden="true">
+    {!ready && <Nose />}
+    <img className="jf-nose-media__img" src={MEDIA + '/nose.png'} alt="" decoding="async" loading="lazy" onLoad={() => setReady(true)} />
+  </div>;
+}
+
 export default function JetFinale() {
   const m = useM();
   const root = useRef<HTMLDivElement>(null);
   const credits = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const el = root.current; if (!el) return;
-    const fan = el.querySelector<HTMLElement>('.jf-fan')!;
+    const fan = el.querySelector<HTMLElement>('.jf-fan');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const clamp = (x: number) => Math.min(1, Math.max(0, x));
     const smooth = (a: number, b: number, x: number) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -151,27 +195,27 @@ export default function JetFinale() {
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       const vh = innerHeight, r = el.getBoundingClientRect();
       // 0 = a seção começa a entrar; ~0.24 = cena fixa; 1 = fim do rodapé
-      const p = reduced.matches ? (r.top < vh * 0.4 ? 1 : 0.4) : clamp((vh - r.top) / r.height);
+      const p = clamp((vh - r.top) / r.height);
       vel += ((p - lastP) / Math.max(dt, 0.001) - vel) * Math.min(1, dt * 6); lastP = p;
       const set = (k: string, v: number) => el.style.setProperty(k, v.toFixed(4));
       set('--jp', p);
       set('--rise', smooth(0.02, 0.24, p));      // turbina e cópia sobem com a seção
-      set('--mist', smooth(0.18, 0.34, p));      // a nuvem chega antes do giro
+      set('--mist', smooth(0.10, 0.27, p));      // a nuvem chega antes do giro
       const spin = smooth(0.3, 0.5, p);
       set('--spin', spin);                        // pás trocam de cor ao acelerar
       set('--down', smooth(0.54, 0.72, p));      // turbina desce e sai
-      set('--nose', smooth(0.6, 0.84, p));       // nariz entra de cima
+      set('--nose', smooth(0.60, 0.84, p));       // nariz entra de cima
       set('--foot', smooth(0.74, 0.9, p));       // rodapé aparece
       set('--copy-a', smooth(0.12, 0.26, p) * (1 - smooth(0.5, 0.6, p)));
       // giro: um pouco de vida parado, acelera com a fase e com a velocidade do scroll
       if (!reduced.matches) {
         const rps = 0.05 + spin * 1.2 + Math.min(2.4, Math.abs(vel) * 9);
         angle = (angle + rps * 360 * dt) % 360;
-        fan.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+        if (fan) fan.style.transform = `rotate(${angle.toFixed(2)}deg)`;
         set('--blur', clamp((rps - 0.5) / 2));
       }
       // grupo invisível não recebe foco nem clique
-      groups[0].style.visibility = Number(el.style.getPropertyValue('--copy-a')) < 0.02 && p > 0.4 ? 'hidden' : '';
+      groups[0].style.visibility = Number(el.style.getPropertyValue('--copy-a')) < 0.02 ? 'hidden' : '';
       groups[1].style.visibility = Number(el.style.getPropertyValue('--foot')) < 0.02 ? 'hidden' : '';
       if (visible && !document.hidden) raf = requestAnimationFrame(tick);
     };
@@ -194,9 +238,9 @@ export default function JetFinale() {
         <p className="jf__giant jf__giant--a" aria-hidden="true">{m.nav.contato}</p>
         <p className="jf__giant jf__giant--b" aria-hidden="true">SimFly</p>
 
+        <div className="jf__turbine-wrap"><TurbineAsset /></div>
         <div className="jf__mist" aria-hidden="true"><i /><i /><i /></div>
-        <div className="jf__turbine-wrap"><Turbine /></div>
-        <div className="jf__nose-wrap"><Nose /></div>
+        <div className="jf__nose-wrap"><NoseAsset /></div>
 
         {/* 1 · contato */}
         <section className="jf-a" aria-labelledby="planejar-title">
