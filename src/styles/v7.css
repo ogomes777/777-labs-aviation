@@ -673,3 +673,48 @@ html[data-motion='reduced'] dialog.sfm .sfh__burger--x .sfm__close-glyph { trans
     line-height: 1.1;
   }
 }
+
+/* V10.4 — pre-hangar only. Editorial two-line composition, Athelas-inspired Lora. */
+@font-face {
+  font-family: 'SimFly Gate Editorial';
+  src: url('/fonts/lora-regular.woff2') format('woff2');
+  font-style: normal; font-weight: 400; font-display: swap;
+}
+@font-face {
+  font-family: 'SimFly Gate Editorial';
+  src: url('/fonts/lora-bolditalic.woff2') format('woff2');
+  font-style: italic; font-weight: 700; font-display: swap;
+}
+#experiencia .sf27-hangar-gate {
+  width: min(94vw, 1160px);
+  text-align: center;
+}
+#experiencia .sf27-hangar-gate h2 {
+  display: flex; flex-direction: column; align-items: center;
+  margin: 0; gap: .035em;
+  font-family: 'SimFly Gate Editorial', var(--font-text), Georgia, serif;
+  font-size: clamp(2.4rem, 5.1vw, 5.6rem);
+  font-weight: 400; line-height: 1.04; letter-spacing: -.045em;
+  color: #fff; text-shadow: 0 2px 10px #102d4c38, 0 5px 24px #102d4c35;
+}
+#experiencia .sf27-hangar-gate h2 .sf27-gate-top {
+  display: block; max-width: 100%; font: inherit; color: inherit;
+  text-wrap: balance;
+}
+#experiencia .sf27-hangar-gate h2 .sf27-gate-bottom {
+  display: block; max-width: 100%;
+  font-family: 'SimFly Gate Editorial', var(--font-text), Georgia, serif;
+  font-size: 1.12em; font-weight: 700; font-style: italic;
+  line-height: .98; letter-spacing: -.055em; color: inherit; text-shadow: inherit;
+}
+html[data-lang='pt'] #experiencia .sf27-gate-top { white-space: nowrap; }
+@media (max-width: 760px) {
+  #experiencia .sf27-hangar-gate h2 {
+    font-size: clamp(1.5rem, 6vw, 3.1rem);
+    line-height: 1.12; gap: .06em;
+  }
+  #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom { font-size: 1.25em; }
+}
+@media (max-width: 360px) {
+  #experiencia .sf27-hangar-gate h2 { font-size: clamp(1.25rem, 6vw, 1.5rem); }
+}
