@@ -603,42 +603,45 @@ dialog.sfm .sfh__burger--x:focus-visible { outline: 1px solid currentColor; outl
 }
 html[data-motion='reduced'] dialog.sfm .sfh__burger--x .sfm__close-glyph { transform: none !important; transition: none !important; }
 
-/* V10.0 — geometric display typography for the services headline only.
-   MuseoModerno Black (Omnibus-Type, SIL OFL 1.1), licensed Nura-style alternative. */
-@font-face {
-  font-family: 'SimFly Services Display';
-  src: url('/fonts/museomoderno-black.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-}
+/* V10.1 — larger, restrained geometric headline; Manrope is already hosted locally. */
 #interior #interior-title {
-  font-family: 'SimFly Services Display', var(--font-manrope), sans-serif;
-  font-weight: 900;
-  font-size: clamp(2rem, 3.6vw, 4.35rem);
+  font-family: var(--font-manrope), var(--font-sans), sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.65rem, 5.05vw, 5.6rem);
   font-style: normal;
   font-optical-sizing: none;
   font-synthesis: none;
-  line-height: .98;
-  letter-spacing: -.045em;
+  line-height: .96;
+  letter-spacing: -.055em;
   text-transform: uppercase;
-  max-width: min(100%, 9.8em);
+  color: #092341;
+  max-width: 100%;
   text-wrap: balance;
   text-align: left;
-  text-shadow: 0 0 18px rgba(var(--sf-accent-rgb), .16);
+  text-shadow: none;
 }
 #interior #interior-title em {
   display: block;
   font: inherit;
   letter-spacing: inherit;
   color: inherit;
-  text-shadow: inherit;
-  margin: .06em 0 0;
+  text-shadow: none;
+  margin: .055em 0 0;
+}
+#interior #interior-title .w {
+  transition: transform 520ms cubic-bezier(.2,.8,.2,1), color 320ms ease, text-shadow 320ms ease;
+}
+#interior #interior-title .w[data-near],
+#interior #interior-title .w:hover {
+  color: #3975a7 !important;
+  text-shadow: 0 0 9px rgba(153,202,239,.35) !important;
 }
 @media (max-width: 700px) {
   #interior #interior-title {
-    font-size: clamp(1.85rem, 7.2vw, 3.35rem);
-    max-width: 100%;
-    line-height: 1.02;
+    font-size: clamp(2.25rem, 9vw, 4.05rem);
+    line-height: .99;
   }
+}
+@media (max-width: 360px) {
+  #interior #interior-title { font-size: clamp(1.95rem, 9vw, 2.3rem); }
 }
