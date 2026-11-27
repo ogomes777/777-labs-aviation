@@ -203,3 +203,4 @@ Pendências honestas: FPS medido só em swiftshader (sem aparelho real); logo tr
 - Transição do hangar: sem véu chapado (a "faixa de luz"); banco de nuvens mais branco e acumulado (camada extra no centro).
 - "Aeronaves que buscamos": tinta sólida, sem granulado, sem copy vazada e sem empurrão de vento — mantém só a revelação.
 - QA: tsc ok, 26 unit ok, fleet E2E 4/4, sequência 1440×900 e 390×844.
+- Deploy produção V13: dpl_72ppgNLsNoiAss6kvQL63Cmwqxb4 (c0b8477) — READY. Rollback: V12 dpl_2EqjovVZNcryCNszLcFkapGDDNpJ.
