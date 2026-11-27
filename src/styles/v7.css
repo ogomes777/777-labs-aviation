@@ -844,34 +844,38 @@ html[data-motion='reduced'] #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom 
   #experiencia .sf27-hangar-gate button::before, #experiencia .sf27-hangar-gate button::after { display: none; }
 }
 
-/* V10.7 — Cotton Cloud: interleaved, seamless organic mist inside the letterforms.
-   Two independently moving scales of a static, tileable fractal texture.
-   No animated SVG filter, extra render loop or moving glow stripe. */
+/* V10.8 — Cotton Cloud: three independent, curved lateral/diagonal paths.
+   Blue and white have their own translucent organic textures. The letterforms stay still. */
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {
   #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom,
   #experiencia .sf27-hangar-gate h2 .sf27-gate-bottom:is(:hover,:active) {
-    background-color: #afd5fa;
+    background-color: #d7ebff;
     background-image:
+      url('/media/simfly-cotton-blue.svg'),
       url('/media/simfly-cotton-cloud.svg'),
-      url('/media/simfly-cotton-cloud.svg'),
-      linear-gradient(145deg,#c8e6ff 0%,#a3cdf6 48%,#c4e3ff 100%);
-    background-repeat: repeat, repeat, no-repeat;
-    background-size: 3.65em 1.38em, 2.45em 1.62em, 100% 100%;
-    background-position: 0 0, .8em -.4em, center;
+      url('/media/simfly-cotton-blue.svg'),
+      linear-gradient(115deg,#e4f2ff 0%,#c6e3ff 48%,#e0f0ff 100%);
+    background-repeat: repeat, repeat, repeat, no-repeat;
+    background-size: 3.8em 1.65em, 3.1em 1.8em, 5.2em 2.1em, 100% 100%;
+    background-position: 0 0, .7em -.25em, -1.2em .2em, center;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
     text-shadow: none;
-    filter: drop-shadow(0 1px 1px rgba(23,61,109,.38)) drop-shadow(0 3px 8px rgba(59,111,174,.23));
+    filter: drop-shadow(0 1px 1px rgba(23,61,109,.32)) drop-shadow(0 3px 8px rgba(59,111,174,.20));
   }
   #experiencia .sf27-hangar-gate[data-open='true'] h2 .sf27-gate-bottom {
-    animation: sfCottonDrift 6.8s linear infinite;
+    animation: sfCottonOrbit 12s cubic-bezier(.42,0,.58,1) infinite;
   }
 }
-@keyframes sfCottonDrift {
-  from { background-position: 0 0, .8em -.4em, center; }
-  to { background-position: 3.65em 1.38em, -1.65em 1.22em, center; }
+@keyframes sfCottonOrbit {
+  0%, 100% { background-position: 0 0, .7em -.25em, -1.2em .2em, center; }
+  16% { background-position: 1.25em -.21em, -.65em -.48em, -.3em .26em, center; }
+  33% { background-position: 2.1em -.43em, -1.7em -.12em, .65em -.09em, center; }
+  50% { background-position: 1.6em .08em, -2.15em .32em, 1.35em -.38em, center; }
+  67% { background-position: .05em .36em, -1.2em .49em, .45em -.52em, center; }
+  83% { background-position: -.72em .12em, .1em .12em, -.65em -.13em, center; }
 }
 @media (prefers-reduced-motion: reduce) {
   #experiencia .sf27-hangar-gate[data-open='true'] h2 .sf27-gate-bottom { animation: none; }

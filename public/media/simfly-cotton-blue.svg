@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="144" viewBox="0 0 384 144">
+  <defs>
+    <filter id="mist" x="0" y="0" width="384" height="144" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".009 .018" numOctaves="3" seed="137" stitchTiles="stitch" result="vapour"/>
+      <feColorMatrix in="vapour" type="matrix" values="0 0 0 0 .57  0 0 0 0 .76  0 0 0 0 .96  1 0 0 0 0" result="blueMist"/>
+      <feComponentTransfer in="blueMist">
+        <feFuncA type="table" tableValues="0 0 0 .015 .10 .46 .76 .85 .88"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="384" height="144" fill="#fff" filter="url(#mist)"/>
+</svg>
